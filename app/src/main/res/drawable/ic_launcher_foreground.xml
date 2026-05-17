@@ -5,29 +5,17 @@
     android:viewportHeight="108">
     <path
         android:fillColor="#00000000"
-        android:pathData="M54,20a34,34 0,1 0,0.1 0M54,20a34,34 0,1 1,-0.1 0"
-        android:strokeColor="#E8FFF8"
-        android:strokeLineCap="round"
-        android:strokeWidth="5" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M54,34a20,20 0,1 0,0.1 0M54,34a20,20 0,1 1,-0.1 0"
-        android:strokeColor="#83E6CD"
+        android:pathData="M54,19a35,35 0,1 0,0.1 0M54,19a35,35 0,1 1,-0.1 0"
+        android:strokeColor="#17211F"
         android:strokeLineCap="round"
         android:strokeWidth="4" />
     <path
         android:fillColor="#00000000"
-        android:pathData="M54,12L54,27M54,81L54,96M12,54L27,54M81,54L96,54"
-        android:strokeColor="#E8FFF8"
+        android:pathData="M54,17L54,27M54,81L54,91M17,54L27,54M81,54L91,54"
+        android:strokeColor="#17211F"
         android:strokeLineCap="round"
-        android:strokeWidth="4" />
+        android:strokeWidth="3.5" />
     <path
-        android:fillColor="#F9FFFC"
-        android:pathData="M60,32L67,32L67,62C67,70 61,76 52,77C44,78 38,74 37,68C36,61 42,56 50,55C54,54 58,55 60,57L60,32Z" />
-    <path
-        android:fillColor="#F9FFFC"
-        android:pathData="M67,32C76,34 82,40 83,49L83,56C79,50 73,47 67,46L67,32Z" />
-    <path
-        android:fillColor="#163D39"
-        android:pathData="M45,67C45,64 48,62 52,61C56,61 59,63 59,66C59,69 56,71 52,72C48,72 46,70 45,67Z" />
+        android:fillColor="#111816"
+        android:pathData="M41.486,77.982C37.118,74.644 39.536,69.346 46.712,66.234C49.13,65.306 50.924,64.9 54.044,64.958C55.994,65.016 58.178,65.828 58.178,65.828C58.178,55.33 58.1,35.494 58.1,25.75C58.88,25.75 59.426,25.692 60.518,25.692C60.518,26.272 60.518,26.736 60.518,27.2C60.518,27.722 60.518,28.012 60.596,28.36C61.376,32.014 62.468,33.464 67.928,37.93C74.87,43.672 76.898,47.094 76.898,51.676C76.82,55.968 71.75,65.132 70.658,64.784C72.218,61.536 74.402,58.056 74.948,55.156C75.65,51.618 73.7,46.63 70.58,44.02C68.084,41.816 62.156,39.902 60.518,39.902C60.518,39.902 60.44,61.014 60.44,69.018C60.44,70.352 58.802,72.73 57.866,73.542C53.576,77.37 45.23,79.11 41.486,77.982Z" />
 </vector>
