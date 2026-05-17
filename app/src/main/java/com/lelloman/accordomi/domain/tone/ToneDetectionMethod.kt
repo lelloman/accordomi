@@ -7,6 +7,10 @@ enum class ToneDetectionMethod(
     Yin(
         storageKey = "yin",
         displayName = "YIN",
+    ),
+    AutoCorrelation(
+        storageKey = "autocorrelation",
+        displayName = "Autocorrelation",
     );
 
     companion object {
@@ -16,4 +20,3 @@ enum class ToneDetectionMethod(
             entries.firstOrNull { it.storageKey == storageKey } ?: Default
     }
 }
-
