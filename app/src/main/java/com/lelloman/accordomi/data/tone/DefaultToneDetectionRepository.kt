@@ -10,8 +10,10 @@ import com.lelloman.accordomi.domain.tone.TuningMath
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.flow
 
 class DefaultToneDetectionRepository @Inject constructor(
     private val audioRecorder: AudioRecorder,
@@ -19,16 +21,23 @@ class DefaultToneDetectionRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) : ToneDetectionRepository {
-    override fun readings(): Flow<PitchReading?> =
+    override fun readings(): Flow<PitchReading?> = flow {
+        val stabilizer = PitchStabilizer()
         audioRecorder.frames()
             .combine(settingsRepository.settings) { frame, settings ->
                 val pitchDetector = pitchDetectorRegistry.detectorFor(settings.toneDetectionMethod)
-                pitchDetector.detect(frame.samples, frame.sampleRate)?.let { pitch ->
-                    TuningMath.readingFor(
-                        frequencyHz = pitch.frequencyHz,
-                        clarity = pitch.clarity,
-                        referencePitchHz = settings.referencePitchHz,
-                    )
-                }
-            }.flowOn(defaultDispatcher)
+                settings to pitchDetector.detect(frame.samples, frame.sampleRate)
+            }
+            .collect { (settings, pitch) ->
+                emit(
+                    stabilizer.update(pitch)?.let { stabilizedPitch ->
+                        TuningMath.readingFor(
+                            frequencyHz = stabilizedPitch.frequencyHz,
+                            clarity = stabilizedPitch.clarity,
+                            referencePitchHz = settings.referencePitchHz,
+                        )
+                    },
+                )
+            }
+    }.flowOn(defaultDispatcher)
 }

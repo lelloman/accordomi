@@ -73,9 +73,9 @@ class YinPitchDetector @Inject constructor() : PitchDetector {
 
     private companion object {
         const val MinimumSampleCount = 512
-        const val MinimumAmplitude = 0.01f
+        const val MinimumAmplitude = 0.003f
         const val MinimumFrequencyHz = 27
         const val MaximumFrequencyHz = 4_200
-        const val Threshold = 0.15
+        const val Threshold = 0.2
     }
 }

@@ -31,13 +31,26 @@ class YinPitchDetectorTest {
         assertNull(result)
     }
 
-    private fun sineWave(frequencyHz: Double): FloatArray =
+    @Test
+    fun detectsQuietA4FromSineWave() {
+        val result = detector.detect(
+            samples = sineWave(frequencyHz = 440.0, amplitude = 0.004f),
+            sampleRate = SampleRate,
+        )
+
+        assertNotNull(result)
+        assertEquals(440.0, result!!.frequencyHz, 1.0)
+    }
+
+    private fun sineWave(
+        frequencyHz: Double,
+        amplitude: Float = 1f,
+    ): FloatArray =
         FloatArray(4_096) { index ->
-            sin(2.0 * PI * frequencyHz * index / SampleRate).toFloat()
+            sin(2.0 * PI * frequencyHz * index / SampleRate).toFloat() * amplitude
         }
 
     private companion object {
         const val SampleRate = 44_100
     }
 }
-
