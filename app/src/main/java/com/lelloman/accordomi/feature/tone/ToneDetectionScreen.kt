@@ -1,0 +1,225 @@
+package com.lelloman.accordomi.feature.tone
+
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.math.abs
+
+@Composable
+fun ToneDetectionRoute(
+    onNavigateToSettings: () -> Unit,
+    viewModel: ToneDetectionViewModel = hiltViewModel(),
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        viewModel.onRecordPermissionChanged(granted)
+    }
+
+    fun refreshPermission() {
+        viewModel.onRecordPermissionChanged(context.hasRecordAudioPermission())
+    }
+
+    LaunchedEffect(Unit) {
+        if (context.hasRecordAudioPermission()) {
+            viewModel.onRecordPermissionChanged(true)
+        } else {
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                refreshPermission()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    ToneDetectionScreen(
+        uiState = uiState,
+        onRequestPermission = {
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        },
+        onOpenSettings = onNavigateToSettings,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ToneDetectionScreen(
+    uiState: ToneDetectionUiState,
+    onRequestPermission: () -> Unit,
+    onOpenSettings: () -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(title = { Text("Tuner") })
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+        ) {
+            if (!uiState.hasRecordPermission) {
+                PermissionRequired(
+                    onRequestPermission = onRequestPermission,
+                    onOpenSettings = onOpenSettings,
+                )
+            } else {
+                DetectionContent(uiState = uiState)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PermissionRequired(
+    onRequestPermission: () -> Unit,
+    onOpenSettings: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "Microphone access is required for tone detection.",
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+        )
+        Row(
+            modifier = Modifier.padding(top = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Button(onClick = onRequestPermission) {
+                Text("Allow")
+            }
+            OutlinedButton(onClick = onOpenSettings) {
+                Text("Settings")
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetectionContent(uiState: ToneDetectionUiState) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val reading = uiState.reading
+        if (uiState.errorMessage != null) {
+            Text(
+                text = uiState.errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+            )
+        } else if (reading == null) {
+            Text(
+                text = if (uiState.isListening) "Listening" else "Ready",
+                style = MaterialTheme.typography.headlineMedium,
+            )
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+            )
+        } else {
+            Text(
+                text = reading.noteName,
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = "${reading.frequencyHz.format(1)} Hz",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            Text(
+                text = "${reading.centsOff.format(1)} cents",
+                color = if (abs(reading.centsOff) <= 5.0) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(top = 24.dp),
+            )
+            LinearProgressIndicator(
+                progress = {
+                    ((reading.centsOff + 50.0) / 100.0)
+                        .coerceIn(0.0, 1.0)
+                        .toFloat()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+            )
+            Text(
+                text = "Target ${reading.targetFrequencyHz.format(1)} Hz",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+    }
+}
+
+private fun Context.hasRecordAudioPermission(): Boolean =
+    ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.RECORD_AUDIO,
+    ) == PackageManager.PERMISSION_GRANTED
+
+private fun Double.format(decimals: Int): String = "%.${decimals}f".format(this)
+
+fun Context.openAppPermissionSettings() {
+    val intent = Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", packageName, null),
+    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    startActivity(intent)
+}
+
