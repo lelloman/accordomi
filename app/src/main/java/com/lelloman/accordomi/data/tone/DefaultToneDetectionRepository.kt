@@ -9,13 +9,10 @@ import com.lelloman.accordomi.domain.tone.ToneDetectionRepository
 import com.lelloman.accordomi.domain.tone.TuningMath
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class DefaultToneDetectionRepository @Inject constructor(
     private val audioRecorder: AudioRecorder,
     private val pitchDetectorRegistry: PitchDetectorRegistry,
@@ -23,8 +20,8 @@ class DefaultToneDetectionRepository @Inject constructor(
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) : ToneDetectionRepository {
     override fun readings(): Flow<PitchReading?> =
-        settingsRepository.settings.flatMapLatest { settings ->
-            audioRecorder.frames().map { frame ->
+        audioRecorder.frames()
+            .combine(settingsRepository.settings) { frame, settings ->
                 val pitchDetector = pitchDetectorRegistry.detectorFor(settings.toneDetectionMethod)
                 pitchDetector.detect(frame.samples, frame.sampleRate)?.let { pitch ->
                     TuningMath.readingFor(
@@ -33,6 +30,5 @@ class DefaultToneDetectionRepository @Inject constructor(
                         referencePitchHz = settings.referencePitchHz,
                     )
                 }
-            }
-        }.flowOn(defaultDispatcher)
+            }.flowOn(defaultDispatcher)
 }
