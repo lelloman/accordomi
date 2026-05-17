@@ -11,6 +11,10 @@ enum class ToneDetectionMethod(
     AutoCorrelation(
         storageKey = "autocorrelation",
         displayName = "Autocorrelation",
+    ),
+    McLeod(
+        storageKey = "mcleod",
+        displayName = "McLeod",
     );
 
     companion object {

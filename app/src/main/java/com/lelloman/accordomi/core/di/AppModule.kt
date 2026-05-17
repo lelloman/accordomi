@@ -3,6 +3,7 @@ package com.lelloman.accordomi.core.di
 import com.lelloman.accordomi.data.audio.AndroidAudioRecorder
 import com.lelloman.accordomi.data.audio.AudioRecorder
 import com.lelloman.accordomi.data.pitch.AutoCorrelationPitchDetector
+import com.lelloman.accordomi.data.pitch.McLeodPitchDetector
 import com.lelloman.accordomi.data.pitch.PitchDetector
 import com.lelloman.accordomi.data.pitch.YinPitchDetector
 import com.lelloman.accordomi.data.settings.DataStoreSettingsRepository
@@ -43,6 +44,13 @@ abstract class AppModule {
     @Singleton
     abstract fun bindAutoCorrelationPitchDetector(
         detector: AutoCorrelationPitchDetector,
+    ): PitchDetector
+
+    @Binds
+    @IntoSet
+    @Singleton
+    abstract fun bindMcLeodPitchDetector(
+        detector: McLeodPitchDetector,
     ): PitchDetector
 
     @Binds
