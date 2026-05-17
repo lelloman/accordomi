@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
+import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import com.lelloman.accordomi.feature.tone.openAppPermissionSettings
 
 @Composable
@@ -36,6 +37,7 @@ fun SettingsRoute(
         uiState = uiState,
         onReferencePitchChanged = viewModel::onReferencePitchChanged,
         onToneDetectionMethodChanged = viewModel::onToneDetectionMethodChanged,
+        onToneVisualizationStyleChanged = viewModel::onToneVisualizationStyleChanged,
         onOpenAppPermissionSettings = { context.openAppPermissionSettings() },
     )
 }
@@ -46,6 +48,7 @@ fun SettingsScreen(
     uiState: SettingsUiState,
     onReferencePitchChanged: (String) -> Unit,
     onToneDetectionMethodChanged: (ToneDetectionMethod) -> Unit,
+    onToneVisualizationStyleChanged: (ToneVisualizationStyle) -> Unit,
     onOpenAppPermissionSettings: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -88,6 +91,21 @@ fun SettingsScreen(
                             selected = method == uiState.selectedToneDetectionMethod,
                             onClick = { onToneDetectionMethodChanged(method) },
                             label = { Text(method.displayName) },
+                        )
+                    }
+                }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "Tone visualization",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    uiState.availableToneVisualizationStyles.forEach { style ->
+                        FilterChip(
+                            selected = style == uiState.selectedToneVisualizationStyle,
+                            onClick = { onToneVisualizationStyleChanged(style) },
+                            label = { Text(style.displayName) },
                         )
                     }
                 }

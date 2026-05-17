@@ -8,6 +8,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.lelloman.accordomi.domain.settings.AppSettings
 import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
+import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,6 +31,9 @@ class DataStoreSettingsRepository @Inject constructor(
                 toneDetectionMethod = ToneDetectionMethod.fromStorageKey(
                     preferences[ToneDetectionMethodKey],
                 ),
+                toneVisualizationStyle = ToneVisualizationStyle.fromStorageKey(
+                    preferences[ToneVisualizationStyleKey],
+                ),
             )
         }
 
@@ -45,8 +49,15 @@ class DataStoreSettingsRepository @Inject constructor(
         }
     }
 
+    override suspend fun setToneVisualizationStyle(style: ToneVisualizationStyle) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[ToneVisualizationStyleKey] = style.storageKey
+        }
+    }
+
     private companion object {
         val ReferencePitchHzKey = doublePreferencesKey("reference_pitch_hz")
         val ToneDetectionMethodKey = stringPreferencesKey("tone_detection_method")
+        val ToneVisualizationStyleKey = stringPreferencesKey("tone_visualization_style")
     }
 }

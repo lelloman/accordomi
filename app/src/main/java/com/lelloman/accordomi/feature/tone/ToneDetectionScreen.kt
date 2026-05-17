@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -38,7 +37,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlin.math.abs
 
 @Composable
 fun ToneDetectionRoute(
@@ -167,41 +165,10 @@ private fun DetectionContent(uiState: ToneDetectionUiState) {
                     .padding(top = 24.dp),
             )
         } else {
-            Text(
-                text = reading.noteName,
-                style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = "${reading.frequencyHz.format(1)} Hz",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "${reading.centsOff.format(1)} cents",
-                color = if (abs(reading.centsOff) <= 5.0) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 24.dp),
-            )
-            LinearProgressIndicator(
-                progress = {
-                    ((reading.centsOff + 50.0) / 100.0)
-                        .coerceIn(0.0, 1.0)
-                        .toFloat()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-            )
-            Text(
-                text = "Target ${reading.targetFrequencyHz.format(1)} Hz",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp),
+            ToneVisualization(
+                reading = reading,
+                style = uiState.visualizationStyle,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
@@ -212,8 +179,6 @@ private fun Context.hasRecordAudioPermission(): Boolean =
         this,
         Manifest.permission.RECORD_AUDIO,
     ) == PackageManager.PERMISSION_GRANTED
-
-private fun Double.format(decimals: Int): String = "%.${decimals}f".format(this)
 
 fun Context.openAppPermissionSettings() {
     val intent = Intent(

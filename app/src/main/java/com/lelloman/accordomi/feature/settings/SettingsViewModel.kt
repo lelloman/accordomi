@@ -6,7 +6,9 @@ import com.lelloman.accordomi.domain.settings.AppSettings
 import com.lelloman.accordomi.domain.settings.ObserveSettingsUseCase
 import com.lelloman.accordomi.domain.settings.UpdateReferencePitchUseCase
 import com.lelloman.accordomi.domain.settings.UpdateToneDetectionMethodUseCase
+import com.lelloman.accordomi.domain.settings.UpdateToneVisualizationStyleUseCase
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
+import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +22,7 @@ class SettingsViewModel @Inject constructor(
     observeSettings: ObserveSettingsUseCase,
     private val updateReferencePitch: UpdateReferencePitchUseCase,
     private val updateToneDetectionMethod: UpdateToneDetectionMethodUseCase,
+    private val updateToneVisualizationStyle: UpdateToneVisualizationStyleUseCase,
 ) : ViewModel() {
     private val editedReferencePitchHzText = MutableStateFlow<String?>(null)
 
@@ -32,6 +35,7 @@ class SettingsViewModel @Inject constructor(
             referencePitchHzText = text,
             isReferencePitchValid = text.toDoubleOrNull()?.isValidReferencePitch() == true,
             selectedToneDetectionMethod = settings.toneDetectionMethod,
+            selectedToneVisualizationStyle = settings.toneVisualizationStyle,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -54,6 +58,12 @@ class SettingsViewModel @Inject constructor(
     fun onToneDetectionMethodChanged(method: ToneDetectionMethod) {
         viewModelScope.launch {
             updateToneDetectionMethod(method)
+        }
+    }
+
+    fun onToneVisualizationStyleChanged(style: ToneVisualizationStyle) {
+        viewModelScope.launch {
+            updateToneVisualizationStyle(style)
         }
     }
 

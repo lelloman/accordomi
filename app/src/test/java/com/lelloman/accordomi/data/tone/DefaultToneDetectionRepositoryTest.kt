@@ -8,6 +8,7 @@ import com.lelloman.accordomi.data.pitch.PitchDetectorRegistry
 import com.lelloman.accordomi.domain.settings.AppSettings
 import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
+import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -59,5 +60,7 @@ class DefaultToneDetectionRepositoryTest {
         override suspend fun setReferencePitchHz(referencePitchHz: Double) = Unit
 
         override suspend fun setToneDetectionMethod(method: ToneDetectionMethod) = Unit
+
+        override suspend fun setToneVisualizationStyle(style: ToneVisualizationStyle) = Unit
     }
 }
