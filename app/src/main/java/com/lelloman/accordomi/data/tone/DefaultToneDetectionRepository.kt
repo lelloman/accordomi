@@ -24,7 +24,7 @@ class DefaultToneDetectionRepository @Inject constructor(
     private val audioRecorder: AudioRecorder,
     private val pitchDetectorRegistry: PitchDetectorRegistry,
     private val settingsRepository: SettingsRepository,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
+    @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) : ToneDetectionRepository {
     override fun readings(): Flow<ToneDetectionStatus> = flow {
         val stabilizer = PitchStabilizer()

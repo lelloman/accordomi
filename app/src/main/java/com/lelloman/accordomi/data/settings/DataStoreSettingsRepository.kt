@@ -39,7 +39,7 @@ internal fun Flow<Preferences>.recoverFromSettingsReadFailure(): Flow<Preference
 
 @Singleton
 class DataStoreSettingsRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : SettingsRepository {
     override val settings: Flow<AppSettings> = context.settingsDataStore.data
         .recoverFromSettingsReadFailure()

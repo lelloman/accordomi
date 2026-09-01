@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
 
 class AndroidAudioRecorder @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val audioRecordFactory: AudioRecordFactory,
 ) : AudioRecorder {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)

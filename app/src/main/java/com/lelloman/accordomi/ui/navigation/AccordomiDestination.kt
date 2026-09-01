@@ -5,7 +5,7 @@ import com.lelloman.accordomi.R
 
 data class AccordomiDestination(
     val route: String,
-    @StringRes val labelRes: Int,
+    @param:StringRes val labelRes: Int,
 )
 
 object AccordomiDestinations {
