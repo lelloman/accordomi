@@ -166,4 +166,5 @@ private fun ToneVisualizationStyle.labelRes(): Int = when (this) {
     ToneVisualizationStyle.Text -> R.string.tone_visualization_text
     ToneVisualizationStyle.Needle -> R.string.tone_visualization_needle
     ToneVisualizationStyle.SideWheel -> R.string.tone_visualization_side_wheel
+    ToneVisualizationStyle.PianoKeyboard -> R.string.tone_visualization_piano_keyboard
 }

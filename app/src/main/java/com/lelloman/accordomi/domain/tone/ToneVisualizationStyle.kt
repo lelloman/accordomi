@@ -11,6 +11,9 @@ enum class ToneVisualizationStyle(
     ),
     SideWheel(
         storageKey = "side_wheel",
+    ),
+    PianoKeyboard(
+        storageKey = "piano_keyboard",
     );
 
     companion object {

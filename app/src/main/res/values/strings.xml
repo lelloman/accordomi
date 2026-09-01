@@ -16,9 +16,10 @@
     <string name="tone_detection_autocorrelation">Autocorrelation</string>
     <string name="tone_detection_mcleod" translatable="false">McLeod</string>
     <string name="tone_visualization_title">Tone visualization</string>
-    <string name="tone_visualization_text">Text</string>
+    <string name="tone_visualization_text">Detailed</string>
     <string name="tone_visualization_needle">Needle</string>
     <string name="tone_visualization_side_wheel">Side wheel</string>
+    <string name="tone_visualization_piano_keyboard">Piano keyboard</string>
     <string name="microphone_permission_title">Microphone permission</string>
     <string name="open_app_permissions">Open app permissions</string>
 
@@ -35,7 +36,11 @@
     <string name="frequency_hz">%1$.1f Hz</string>
     <string name="cents_off">%1$.1f cents</string>
     <string name="target_frequency_hz">Target %1$.1f Hz</string>
-    <string name="reading_summary">%1$.1f Hz · %2$.1f cents</string>
+    <string name="tuning_flat">Too low</string>
+    <string name="tuning_in_tune">In tune</string>
+    <string name="tuning_sharp">Too high</string>
+    <string name="tuning_flat_short">Flat</string>
+    <string name="tuning_sharp_short">Sharp</string>
 
     <string name="about_title">About</string>
     <string name="about_description">A minimal piano tuner focused on live tone detection.</string>

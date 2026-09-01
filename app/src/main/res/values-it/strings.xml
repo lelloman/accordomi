@@ -10,9 +10,10 @@
     <string name="tone_detection_method_title">Metodo di rilevamento</string>
     <string name="tone_detection_autocorrelation">Autocorrelazione</string>
     <string name="tone_visualization_title">Visualizzazione dell’intonazione</string>
-    <string name="tone_visualization_text">Testo</string>
+    <string name="tone_visualization_text">Dettagliata</string>
     <string name="tone_visualization_needle">Lancetta</string>
     <string name="tone_visualization_side_wheel">Ruota laterale</string>
+    <string name="tone_visualization_piano_keyboard">Tastiera del pianoforte</string>
     <string name="microphone_permission_title">Autorizzazione microfono</string>
     <string name="open_app_permissions">Apri autorizzazioni app</string>
 
@@ -28,7 +29,11 @@
     <string name="frequency_hz">%1$.1f Hz</string>
     <string name="cents_off">%1$.1f cent</string>
     <string name="target_frequency_hz">Obiettivo %1$.1f Hz</string>
-    <string name="reading_summary">%1$.1f Hz · %2$.1f cent</string>
+    <string name="tuning_flat">Troppo bassa</string>
+    <string name="tuning_in_tune">Intonata</string>
+    <string name="tuning_sharp">Troppo alta</string>
+    <string name="tuning_flat_short">Calante</string>
+    <string name="tuning_sharp_short">Crescente</string>
 
     <string name="about_title">Informazioni</string>
     <string name="about_description">Un accordatore minimale per pianoforte basato sul rilevamento dell’intonazione in tempo reale.</string>
