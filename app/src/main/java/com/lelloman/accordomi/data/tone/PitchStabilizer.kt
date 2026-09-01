@@ -7,15 +7,18 @@ import kotlin.math.pow
 
 class PitchStabilizer {
     private var previous: PitchDetectionResult? = null
+    private var pendingNewNote: PitchDetectionResult? = null
     private var consecutiveMissingFrames = 0
 
     fun reset() {
         previous = null
+        pendingNewNote = null
         consecutiveMissingFrames = 0
     }
 
     fun update(result: PitchDetectionResult?): PitchDetectionResult? {
         if (result == null) {
+            pendingNewNote = null
             val previousResult = previous ?: return null
             consecutiveMissingFrames++
             return if (consecutiveMissingFrames <= MaximumHeldMissingFrames) {
@@ -30,8 +33,9 @@ class PitchStabilizer {
         val stabilized = previous?.let { previousResult ->
             val distanceCents = 1200.0 * log2(result.frequencyHz / previousResult.frequencyHz)
             if (abs(distanceCents) >= NewNoteThresholdCents) {
-                result
+                confirmNewNote(result, previousResult)
             } else {
+                pendingNewNote = null
                 PitchDetectionResult(
                     frequencyHz = smoothFrequency(
                         previousHz = previousResult.frequencyHz,
@@ -47,6 +51,18 @@ class PitchStabilizer {
         return stabilized
     }
 
+    private fun confirmNewNote(
+        result: PitchDetectionResult,
+        previousResult: PitchDetectionResult,
+    ): PitchDetectionResult {
+        val pending = pendingNewNote
+        val agreesWithPending = pending != null && abs(
+            1200.0 * log2(result.frequencyHz / pending.frequencyHz),
+        ) <= NewNoteConfirmationToleranceCents
+        pendingNewNote = if (agreesWithPending) null else result
+        return if (agreesWithPending) result else previousResult
+    }
+
     private fun smoothFrequency(previousHz: Double, currentHz: Double): Double {
         val ratio = currentHz / previousHz
         return previousHz * ratio.pow(SmoothingAlpha)
@@ -57,6 +73,7 @@ class PitchStabilizer {
     private companion object {
         const val SmoothingAlpha = 0.35
         const val NewNoteThresholdCents = 50.0
-        const val MaximumHeldMissingFrames = 2
+        const val NewNoteConfirmationToleranceCents = 35.0
+        const val MaximumHeldMissingFrames = 8
     }
 }

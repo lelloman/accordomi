@@ -17,25 +17,44 @@ class PitchStabilizerTest {
     }
 
     @Test
-    fun acceptsAdjacentSemitoneAsNewNote() {
+    fun acceptsAdjacentSemitoneAfterConfirmation() {
         val stabilizer = PitchStabilizer()
 
-        stabilizer.update(PitchDetectionResult(frequencyHz = 440.0, clarity = 0.9f))
-        val result = stabilizer.update(PitchDetectionResult(frequencyHz = 466.16, clarity = 0.8f))
+        val initial = stabilizer.update(PitchDetectionResult(frequencyHz = 440.0, clarity = 0.9f))
+        val firstJump = stabilizer.update(
+            PitchDetectionResult(frequencyHz = 466.16, clarity = 0.8f),
+        )
+        val confirmedJump = stabilizer.update(
+            PitchDetectionResult(frequencyHz = 466.2, clarity = 0.8f),
+        )
 
-        assertEquals(466.16, result!!.frequencyHz, 0.01)
+        assertEquals(initial, firstJump)
+        assertEquals(466.2, confirmedJump!!.frequencyHz, 0.01)
     }
 
     @Test
-    fun holdsTwoMissingFramesAndClearsOnThird() {
+    fun ignoresAnIsolatedLargePitchOutlier() {
+        val stabilizer = PitchStabilizer()
+
+        val initial = stabilizer.update(PitchDetectionResult(frequencyHz = 440.0, clarity = 0.9f))
+        val outlier = stabilizer.update(PitchDetectionResult(frequencyHz = 880.0, clarity = 0.8f))
+        val recovered = stabilizer.update(PitchDetectionResult(frequencyHz = 440.0, clarity = 0.9f))
+
+        assertEquals(initial, outlier)
+        assertEquals(440.0, recovered!!.frequencyHz, 0.01)
+    }
+
+    @Test
+    fun holdsEightMissingFramesAndClearsOnNinth() {
         val stabilizer = PitchStabilizer()
 
         val initial = stabilizer.update(
             PitchDetectionResult(frequencyHz = 440.0, clarity = 0.9f),
         )
 
-        assertEquals(initial, stabilizer.update(null))
-        assertEquals(initial, stabilizer.update(null))
+        repeat(8) {
+            assertEquals(initial, stabilizer.update(null))
+        }
         assertNull(stabilizer.update(null))
 
         val result = stabilizer.update(PitchDetectionResult(frequencyHz = 445.0, clarity = 0.8f))
