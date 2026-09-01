@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,11 +41,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun ToneDetectionRoute(
-    onNavigateToSettings: () -> Unit,
     viewModel: ToneDetectionViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -56,18 +55,30 @@ fun ToneDetectionRoute(
         viewModel.onRecordPermissionChanged(context.hasRecordAudioPermission())
     }
 
-    LaunchedEffect(Unit) {
-        if (context.hasRecordAudioPermission()) {
-            viewModel.onRecordPermissionChanged(true)
-        } else {
-            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-        }
-    }
+    RefreshRecordPermissionOnResume(::refreshPermission)
 
-    DisposableEffect(lifecycleOwner, context) {
+    ToneDetectionScreen(
+        uiState = uiState,
+        onRequestPermission = {
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        },
+        onOpenSettings = { context.openAppPermissionSettings() },
+        onRetry = viewModel::onRetry,
+    )
+}
+
+@Composable
+internal fun RefreshRecordPermissionOnResume(onRefresh: () -> Unit) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val currentRefresh by rememberUpdatedState(onRefresh)
+
+    LaunchedEffect(lifecycleOwner) {
+        currentRefresh()
+    }
+    DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                refreshPermission()
+                currentRefresh()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -75,15 +86,6 @@ fun ToneDetectionRoute(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
-
-    ToneDetectionScreen(
-        uiState = uiState,
-        onRequestPermission = {
-            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-        },
-        onOpenSettings = onNavigateToSettings,
-        onRetry = viewModel::onRetry,
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -139,7 +141,7 @@ private fun PermissionRequired(
                 Text("Allow")
             }
             OutlinedButton(onClick = onOpenSettings) {
-                Text("Settings")
+                Text("Open app permissions")
             }
         }
     }

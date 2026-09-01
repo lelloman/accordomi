@@ -56,13 +56,7 @@ fun AccordomiApp() {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(AccordomiDestinations.ToneDetection.route) {
-                ToneDetectionRoute(
-                    onNavigateToSettings = {
-                        navController.navigate(AccordomiDestinations.Settings.route) {
-                            launchSingleTop = true
-                        }
-                    },
-                )
+                ToneDetectionRoute()
             }
             composable(AccordomiDestinations.Settings.route) {
                 SettingsRoute()
@@ -73,4 +67,3 @@ fun AccordomiApp() {
         }
     }
 }
-
