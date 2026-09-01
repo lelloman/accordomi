@@ -30,13 +30,16 @@ class McLeodPitchDetector @Inject constructor() : PitchDetector {
             nsdf[tau] = if (divisor == 0.0) 0.0 else 2.0 * acf / divisor
         }
 
-        val cutoff = nsdf.maxOrNull()?.times(PeakThreshold) ?: return null
-        val peakTau = firstStrongPeak(
+        val keyMaxima = findKeyMaxima(
             nsdf = nsdf,
             minTau = minTau,
             maxTau = maxTau,
-            cutoff = cutoff,
-        ) ?: return null
+        )
+        val highestKeyMaximum = keyMaxima.maxOfOrNull { nsdf[it] } ?: return null
+        val cutoff = highestKeyMaximum * PeakThreshold
+        val peakTau = keyMaxima.firstOrNull { tau ->
+            nsdf[tau] >= cutoff && nsdf[tau] >= MinimumPeakValue
+        } ?: return null
 
         val refinedTau = parabolicInterpolation(nsdf, peakTau)
         if (refinedTau <= 0.0) return null
@@ -47,21 +50,29 @@ class McLeodPitchDetector @Inject constructor() : PitchDetector {
         )
     }
 
-    private fun firstStrongPeak(
+    private fun findKeyMaxima(
         nsdf: DoubleArray,
         minTau: Int,
         maxTau: Int,
-        cutoff: Double,
-    ): Int? {
-        var tau = minTau
-        while (tau < maxTau) {
-            while (tau < maxTau && nsdf[tau] <= 0.0) {
+    ): List<Int> {
+        val keyMaxima = mutableListOf<Int>()
+        var tau = 1
+
+        // Ignore the positive region around tau = 0. It represents the signal
+        // correlated with itself, rather than a candidate pitch period.
+        while (tau <= maxTau && nsdf[tau] > 0.0) {
+            tau++
+        }
+
+        while (tau <= maxTau) {
+            while (tau <= maxTau && nsdf[tau] <= 0.0) {
                 tau++
             }
+            if (tau > maxTau) break
 
             var peakTau = tau
             var peakValue = nsdf[tau]
-            while (tau < maxTau && nsdf[tau] > 0.0) {
+            while (tau <= maxTau && nsdf[tau] > 0.0) {
                 if (nsdf[tau] > peakValue) {
                     peakValue = nsdf[tau]
                     peakTau = tau
@@ -69,12 +80,12 @@ class McLeodPitchDetector @Inject constructor() : PitchDetector {
                 tau++
             }
 
-            if (peakValue >= cutoff && peakValue >= MinimumPeakValue) {
-                return peakTau
+            if (peakTau >= minTau) {
+                keyMaxima += peakTau
             }
         }
 
-        return null
+        return keyMaxima
     }
 
     private fun parabolicInterpolation(values: DoubleArray, tau: Int): Double {
@@ -98,4 +109,3 @@ class McLeodPitchDetector @Inject constructor() : PitchDetector {
         const val MinimumPeakValue = 0.6
     }
 }
-
