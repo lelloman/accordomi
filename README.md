@@ -15,7 +15,7 @@ Microphone samples are processed locally. The app declares no internet permissio
 
 ## Requirements
 
-- Android Studio with Android SDK 36 installed
+- Android Studio with Android SDK 37 installed
 - JDK 17 for the Android Gradle Plugin
 - An Android device or emulator running API 29 or newer
 
