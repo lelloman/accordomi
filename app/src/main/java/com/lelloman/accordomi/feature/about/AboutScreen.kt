@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.lelloman.accordomi.R
 
 @Composable
 fun AboutRoute() {
@@ -21,7 +23,7 @@ fun AboutRoute() {
 @Composable
 fun AboutScreen() {
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text("About") })
+        TopAppBar(title = { Text(stringResource(R.string.about_title)) })
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -29,14 +31,13 @@ fun AboutScreen() {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                text = "Accordomi",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
             )
             Text(
-                text = "A minimal piano tuner focused on live tone detection.",
+                text = stringResource(R.string.about_description),
                 style = MaterialTheme.typography.bodyLarge,
             )
         }
     }
 }
-

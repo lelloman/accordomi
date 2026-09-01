@@ -9,5 +9,5 @@ data class ToneDetectionUiState(
     val reading: PitchReading? = null,
     val visualizationStyle: ToneVisualizationStyle = ToneVisualizationStyle.Default,
     val isLagging: Boolean = false,
-    val errorMessage: String? = null,
+    val hasError: Boolean = false,
 )

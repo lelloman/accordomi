@@ -51,11 +51,11 @@ class ToneDetectionViewModel @Inject constructor(
                                 ),
                             )
                         }
-                        .catch { error ->
+                        .catch {
                             emit(
                                 ToneDetectionUiState(
                                     hasRecordPermission = true,
-                                    errorMessage = error.message ?: "Audio recording failed.",
+                                    hasError = true,
                                 ),
                             )
                         }

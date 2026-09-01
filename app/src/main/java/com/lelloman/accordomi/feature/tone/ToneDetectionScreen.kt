@@ -30,6 +30,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -38,6 +40,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lelloman.accordomi.R
+import com.lelloman.accordomi.ui.UiTestTags
 
 @Composable
 fun ToneDetectionRoute(
@@ -97,7 +101,7 @@ fun ToneDetectionScreen(
     onRetry: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text("Tuner") })
+        TopAppBar(title = { Text(stringResource(R.string.tuner_title)) })
         Surface(
             modifier = Modifier
                 .fillMaxSize()
@@ -129,7 +133,7 @@ private fun PermissionRequired(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Microphone access is required for tone detection.",
+            text = stringResource(R.string.microphone_permission_explanation),
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
         )
@@ -137,11 +141,17 @@ private fun PermissionRequired(
             modifier = Modifier.padding(top = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Button(onClick = onRequestPermission) {
-                Text("Allow")
+            Button(
+                onClick = onRequestPermission,
+                modifier = Modifier.testTag(UiTestTags.AllowMicrophone),
+            ) {
+                Text(stringResource(R.string.allow_permission))
             }
-            OutlinedButton(onClick = onOpenSettings) {
-                Text("Open app permissions")
+            OutlinedButton(
+                onClick = onOpenSettings,
+                modifier = Modifier.testTag(UiTestTags.OpenAppPermissions),
+            ) {
+                Text(stringResource(R.string.open_app_permissions))
             }
         }
     }
@@ -153,28 +163,34 @@ private fun DetectionContent(
     onRetry: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag(UiTestTags.DetectionContent),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val reading = uiState.reading
-        if (uiState.errorMessage != null) {
+        if (uiState.hasError) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = uiState.errorMessage,
+                    text = stringResource(R.string.audio_recording_failed),
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                 )
                 Button(
                     onClick = onRetry,
-                    modifier = Modifier.padding(top = 16.dp),
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .testTag(UiTestTags.RetryDetection),
                 ) {
-                    Text("Try again")
+                    Text(stringResource(R.string.try_again))
                 }
             }
         } else if (reading == null) {
             Text(
-                text = if (uiState.isListening) "Listening" else "Ready",
+                text = stringResource(
+                    if (uiState.isListening) R.string.listening else R.string.ready,
+                ),
                 style = MaterialTheme.typography.headlineMedium,
             )
             LinearProgressIndicator(
@@ -189,7 +205,7 @@ private fun DetectionContent(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        if (uiState.errorMessage == null && uiState.isLagging) {
+        if (!uiState.hasError && uiState.isLagging) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -199,7 +215,7 @@ private fun DetectionContent(
                 shape = MaterialTheme.shapes.medium,
             ) {
                 Text(
-                    text = "Processing is falling behind. Readings may be delayed.",
+                    text = stringResource(R.string.processing_lag_warning),
                     modifier = Modifier.padding(16.dp),
                     textAlign = TextAlign.Center,
                 )

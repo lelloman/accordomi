@@ -25,7 +25,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -59,14 +59,14 @@ class ToneDetectionViewModelTest {
         viewModel.onRecordPermissionChanged(true)
         advanceUntilIdle()
 
-        assertEquals("transient failure", viewModel.uiState.value.errorMessage)
+        assertTrue(viewModel.uiState.value.hasError)
         assertEquals(1, toneRepository.subscriptionCount)
 
         viewModel.onRetry()
         advanceUntilIdle()
 
         assertEquals(2, toneRepository.subscriptionCount)
-        assertNull(viewModel.uiState.value.errorMessage)
+        assertFalse(viewModel.uiState.value.hasError)
         assertTrue(viewModel.uiState.value.isListening)
         assertEquals("A4", viewModel.uiState.value.reading?.noteName)
 
@@ -96,8 +96,8 @@ class ToneDetectionViewModelTest {
         mainScheduler.runCurrent()
 
         assertEquals(1, toneRepository.cancellationCount)
-        assertNull(viewModel.uiState.value.reading)
-        assertNull(viewModel.uiState.value.errorMessage)
+        assertEquals(null, viewModel.uiState.value.reading)
+        assertFalse(viewModel.uiState.value.hasError)
     }
 
     private class FailingThenSuccessfulToneRepository : ToneDetectionRepository {

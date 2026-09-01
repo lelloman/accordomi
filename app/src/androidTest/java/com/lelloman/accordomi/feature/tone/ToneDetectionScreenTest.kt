@@ -3,13 +3,14 @@ package com.lelloman.accordomi.feature.tone
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.platform.app.InstrumentationRegistry
+import com.lelloman.accordomi.ui.UiTestTags
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -38,9 +39,9 @@ class ToneDetectionScreenTest {
             assertEquals(0, openSettingsCount)
         }
 
-        composeRule.onNodeWithText("Allow").performClick()
-        composeRule.onNodeWithText("Allow").performClick()
-        composeRule.onNodeWithText("Open app permissions").performClick()
+        composeRule.onNodeWithTag(UiTestTags.AllowMicrophone).performClick()
+        composeRule.onNodeWithTag(UiTestTags.AllowMicrophone).performClick()
+        composeRule.onNodeWithTag(UiTestTags.OpenAppPermissions).performClick()
 
         composeRule.runOnIdle {
             assertEquals(2, requestCount)
@@ -61,8 +62,8 @@ class ToneDetectionScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Ready").assertExists()
-        composeRule.onNodeWithText("Allow").assertDoesNotExist()
+        composeRule.onNodeWithTag(UiTestTags.DetectionContent).assertExists()
+        composeRule.onNodeWithTag(UiTestTags.AllowMicrophone).assertDoesNotExist()
     }
 
     @Test

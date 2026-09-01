@@ -1,0 +1,35 @@
+<resources>
+    <string name="nav_tuner">Accordatore</string>
+    <string name="nav_settings">Impostazioni</string>
+    <string name="nav_about">Informazioni</string>
+
+    <string name="settings_title">Impostazioni</string>
+    <string name="reference_pitch_title">Frequenza di riferimento</string>
+    <string name="a4_frequency_label">Frequenza del La4</string>
+    <string name="reference_pitch_invalid">Inserisci un valore compreso tra 400,0 e 480,0 Hz.</string>
+    <string name="tone_detection_method_title">Metodo di rilevamento</string>
+    <string name="tone_detection_autocorrelation">Autocorrelazione</string>
+    <string name="tone_visualization_title">Visualizzazione dell’intonazione</string>
+    <string name="tone_visualization_text">Testo</string>
+    <string name="tone_visualization_needle">Lancetta</string>
+    <string name="tone_visualization_side_wheel">Ruota laterale</string>
+    <string name="microphone_permission_title">Autorizzazione microfono</string>
+    <string name="open_app_permissions">Apri autorizzazioni app</string>
+
+    <string name="tuner_title">Accordatore</string>
+    <string name="microphone_permission_explanation">L’accesso al microfono è necessario per rilevare le note.</string>
+    <string name="allow_permission">Consenti</string>
+    <string name="try_again">Riprova</string>
+    <string name="listening">In ascolto</string>
+    <string name="ready">Pronto</string>
+    <string name="audio_recording_failed">Registrazione audio non riuscita.</string>
+    <string name="processing_lag_warning">L’elaborazione non riesce a tenere il passo. Le letture potrebbero essere in ritardo.</string>
+
+    <string name="frequency_hz">%1$.1f Hz</string>
+    <string name="cents_off">%1$.1f cent</string>
+    <string name="target_frequency_hz">Obiettivo %1$.1f Hz</string>
+    <string name="reading_summary">%1$.1f Hz · %2$.1f cent</string>
+
+    <string name="about_title">Informazioni</string>
+    <string name="about_description">Un accordatore minimale per pianoforte basato sul rilevamento dell’intonazione in tempo reale.</string>
+</resources>

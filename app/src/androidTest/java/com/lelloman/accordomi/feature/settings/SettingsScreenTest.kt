@@ -9,10 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import com.lelloman.accordomi.ui.UiTestTags
 import org.junit.Rule
 import org.junit.Test
 
@@ -49,20 +50,18 @@ class SettingsScreenTest {
         }
 
         listOf(
-            "A4 frequency",
-            "YIN",
-            "Autocorrelation",
-            "McLeod",
-            "Text",
-            "Needle",
-            "Side wheel",
-            "Open app permissions",
+            UiTestTags.ReferencePitch,
+            *SettingsUiState().availableToneDetectionMethods.map {
+                UiTestTags.detectionMethod(it.storageKey)
+            }.toTypedArray(),
+            *SettingsUiState().availableToneVisualizationStyles.map {
+                UiTestTags.visualizationStyle(it.storageKey)
+            }.toTypedArray(),
+            UiTestTags.OpenAppPermissions,
         ).forEach { label ->
-            composeRule.onNodeWithText(label)
+            composeRule.onNodeWithTag(label)
                 .performScrollTo()
                 .assertIsDisplayed()
         }
-
-        composeRule.onNodeWithText("Settings").assertIsDisplayed()
     }
 }

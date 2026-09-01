@@ -2,19 +2,15 @@ package com.lelloman.accordomi.domain.tone
 
 enum class ToneVisualizationStyle(
     val storageKey: String,
-    val displayName: String,
 ) {
     Text(
         storageKey = "text",
-        displayName = "Text",
     ),
     Needle(
         storageKey = "needle",
-        displayName = "Needle",
     ),
     SideWheel(
         storageKey = "side_wheel",
-        displayName = "Side wheel",
     );
 
     companion object {
@@ -24,4 +20,3 @@ enum class ToneVisualizationStyle(
             entries.firstOrNull { it.storageKey == storageKey } ?: Default
     }
 }
-

@@ -15,8 +15,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.lelloman.accordomi.R
 import com.lelloman.accordomi.domain.tone.PitchReading
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import kotlin.math.PI
@@ -61,12 +63,12 @@ private fun TextToneVisualization(
             fontWeight = FontWeight.Bold,
         )
         Text(
-            text = "${reading.frequencyHz.format(1)} Hz",
+            text = stringResource(R.string.frequency_hz, reading.frequencyHz),
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(top = 8.dp),
         )
         Text(
-            text = "${reading.centsOff.format(1)} cents",
+            text = stringResource(R.string.cents_off, reading.centsOff),
             color = if (abs(reading.centsOff) <= InTuneCents) {
                 MaterialTheme.colorScheme.primary
             } else {
@@ -76,7 +78,7 @@ private fun TextToneVisualization(
             modifier = Modifier.padding(top = 24.dp),
         )
         Text(
-            text = "Target ${reading.targetFrequencyHz.format(1)} Hz",
+            text = stringResource(R.string.target_frequency_hz, reading.targetFrequencyHz),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 8.dp),
@@ -206,7 +208,7 @@ private fun SideWheelToneVisualization(
 @Composable
 private fun ReadingSummary(reading: PitchReading) {
     Text(
-        text = "${reading.frequencyHz.format(1)} Hz  |  ${reading.centsOff.format(1)} cents",
+        text = stringResource(R.string.reading_summary, reading.frequencyHz, reading.centsOff),
         style = MaterialTheme.typography.titleMedium,
         color = if (abs(reading.centsOff) <= InTuneCents) {
             MaterialTheme.colorScheme.primary
@@ -215,7 +217,7 @@ private fun ReadingSummary(reading: PitchReading) {
         },
     )
     Text(
-        text = "Target ${reading.targetFrequencyHz.format(1)} Hz",
+        text = stringResource(R.string.target_frequency_hz, reading.targetFrequencyHz),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -226,8 +228,5 @@ private fun Double.normalizedCents(): Float =
 
 private fun Float.toRadians(): Float = (this * PI / 180.0).toFloat()
 
-private fun Double.format(decimals: Int): String = "%.${decimals}f".format(this)
-
 private const val InTuneCents = 5.0
 private const val MaximumVisibleCents = 50.0
-
