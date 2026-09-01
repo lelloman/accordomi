@@ -8,6 +8,10 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +19,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -30,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -211,26 +218,42 @@ private fun DetectionContent(
                 )
             }
         }
-        if (!uiState.hasError && reading != null && uiState.isLagging) {
+        AnimatedVisibility(
+            visible = !uiState.hasError && reading != null && uiState.isLagging,
+            modifier = Modifier.align(Alignment.TopEnd),
+            enter = fadeIn(animationSpec = tween(durationMillis = LagFadeInMillis)),
+            exit = fadeOut(animationSpec = tween(durationMillis = LagFadeOutMillis)),
+        ) {
             Surface(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .testTag(UiTestTags.ProcessingLag),
+                modifier = Modifier.testTag(UiTestTags.ProcessingLag),
                 color = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                 shape = MaterialTheme.shapes.small,
                 tonalElevation = 2.dp,
             ) {
-                Text(
-                    text = stringResource(R.string.processing_lag_warning),
+                Row(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.labelLarge,
-                )
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_warning_small),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.processing_lag_warning),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
             }
         }
     }
 }
+
+private const val LagFadeInMillis = 250
+private const val LagFadeOutMillis = 500
 
 private fun Context.hasRecordAudioPermission(): Boolean =
     ContextCompat.checkSelfPermission(
