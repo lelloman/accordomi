@@ -2,8 +2,10 @@ package com.lelloman.accordomi.feature.tone
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lelloman.accordomi.domain.settings.AppSettings
 import com.lelloman.accordomi.domain.settings.ObserveSettingsUseCase
 import com.lelloman.accordomi.domain.tone.ObserveToneDetectionUseCase
+import com.lelloman.accordomi.domain.tone.ToneDetectionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,12 +34,13 @@ class ToneDetectionViewModel @Inject constructor(
             } else {
                 retryGeneration.flatMapLatest {
                     observeToneDetection()
-                        .combine(observeSettings()) { reading, settings ->
+                        .combine(observeSettings()) { status: ToneDetectionStatus, settings: AppSettings ->
                             ToneDetectionUiState(
                                 hasRecordPermission = true,
                                 isListening = true,
-                                reading = reading,
+                                reading = status.reading,
                                 visualizationStyle = settings.toneVisualizationStyle,
+                                isLagging = status.isLagging,
                             )
                         }
                         .onStart {

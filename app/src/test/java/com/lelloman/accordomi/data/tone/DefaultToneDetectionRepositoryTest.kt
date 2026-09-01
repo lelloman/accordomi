@@ -30,7 +30,7 @@ class DefaultToneDetectionRepositoryTest {
             defaultDispatcher = StandardTestDispatcher(testScheduler),
         )
 
-        val reading = repository.readings().first()
+        val reading = repository.readings().first().reading
 
         assertEquals("A4", reading!!.noteName)
         assertEquals(1, selectedDetector.detectCallCount)

@@ -60,6 +60,7 @@ class AndroidAudioRecorderTest {
         val frame = recorder.frames().first()
 
         assertEquals(44_100, frame.sampleRate)
+        assertEquals(0L, frame.sequenceNumber)
         assertEquals(-1.00003f, frame.samples[0], 0.00001f)
         assertEquals(0f, frame.samples[1], 0f)
         assertEquals(1f, frame.samples[2], 0f)

@@ -187,6 +187,22 @@ private fun DetectionContent(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+        if (uiState.errorMessage == null && uiState.isLagging) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+                color = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                shape = MaterialTheme.shapes.medium,
+            ) {
+                Text(
+                    text = "Processing is falling behind. Readings may be delayed.",
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
     }
 }
 

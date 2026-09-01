@@ -46,6 +46,7 @@ class AndroidAudioRecorder @Inject constructor(
             throw AudioRecordingException("Unable to create the audio recorder.", error)
         }
         val readBuffer = ShortArray(FrameSize)
+        var nextSequenceNumber = 0L
         var recordingStarted = false
         var recordingFailure: Throwable? = null
 
@@ -64,6 +65,7 @@ class AndroidAudioRecorder @Inject constructor(
                                 readBuffer[index] / Short.MAX_VALUE.toFloat()
                             },
                             sampleRate = sampleRate,
+                            sequenceNumber = nextSequenceNumber++,
                         ),
                     )
                     0 -> delay(EmptyReadRetryDelayMillis)

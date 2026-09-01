@@ -7,6 +7,7 @@ import com.lelloman.accordomi.domain.tone.ObserveToneDetectionUseCase
 import com.lelloman.accordomi.domain.tone.PitchReading
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneDetectionRepository
+import com.lelloman.accordomi.domain.tone.ToneDetectionStatus
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -102,18 +103,21 @@ class ToneDetectionViewModelTest {
     private class FailingThenSuccessfulToneRepository : ToneDetectionRepository {
         var subscriptionCount = 0
 
-        override fun readings(): Flow<PitchReading?> = flow {
+        override fun readings(): Flow<ToneDetectionStatus> = flow {
             subscriptionCount++
             if (subscriptionCount == 1) {
                 error("transient failure")
             }
             emit(
-                PitchReading(
+                ToneDetectionStatus(
+                    reading = PitchReading(
                     frequencyHz = 440.0,
                     clarity = 1f,
                     noteName = "A4",
                     centsOff = 0.0,
                     targetFrequencyHz = 440.0,
+                    ),
+                    isLagging = false,
                 ),
             )
         }
@@ -123,7 +127,7 @@ class ToneDetectionViewModelTest {
         var subscriptionCount = 0
         var cancellationCount = 0
 
-        override fun readings(): Flow<PitchReading?> = flow {
+        override fun readings(): Flow<ToneDetectionStatus> = flow {
             subscriptionCount++
             try {
                 awaitCancellation()

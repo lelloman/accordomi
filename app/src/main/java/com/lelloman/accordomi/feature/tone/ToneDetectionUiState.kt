@@ -8,5 +8,6 @@ data class ToneDetectionUiState(
     val isListening: Boolean = false,
     val reading: PitchReading? = null,
     val visualizationStyle: ToneVisualizationStyle = ToneVisualizationStyle.Default,
+    val isLagging: Boolean = false,
     val errorMessage: String? = null,
 )
