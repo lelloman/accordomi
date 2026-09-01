@@ -61,7 +61,10 @@ class ToneDetectionViewModel @Inject constructor(
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(
+                stopTimeoutMillis = StopTimeoutMillis,
+                replayExpirationMillis = 0,
+            ),
             initialValue = ToneDetectionUiState(),
         )
 
@@ -71,5 +74,9 @@ class ToneDetectionViewModel @Inject constructor(
 
     fun onRetry() {
         retryGeneration.value++
+    }
+
+    private companion object {
+        const val StopTimeoutMillis = 500L
     }
 }

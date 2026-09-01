@@ -10,12 +10,14 @@ import com.lelloman.accordomi.domain.tone.ToneDetectionRepository
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -29,7 +31,8 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ToneDetectionViewModelTest {
-    private val mainDispatcher = UnconfinedTestDispatcher()
+    private val mainScheduler = TestCoroutineScheduler()
+    private val mainDispatcher = UnconfinedTestDispatcher(mainScheduler)
 
     @Before
     fun setUp() {
@@ -69,6 +72,33 @@ class ToneDetectionViewModelTest {
         collection.cancel()
     }
 
+    @Test
+    fun stopsDetectionAfterFiveHundredMillisecondsWithoutSubscribers() = runTest {
+        val toneRepository = CancellableToneRepository()
+        val viewModel = ToneDetectionViewModel(
+            observeToneDetection = ObserveToneDetectionUseCase(toneRepository),
+            observeSettings = ObserveSettingsUseCase(FakeSettingsRepository()),
+        )
+        val collection = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect()
+        }
+        viewModel.onRecordPermissionChanged(true)
+
+        assertEquals(1, toneRepository.subscriptionCount)
+
+        collection.cancel()
+        mainScheduler.advanceTimeBy(499)
+        mainScheduler.runCurrent()
+        assertEquals(0, toneRepository.cancellationCount)
+
+        mainScheduler.advanceTimeBy(1)
+        mainScheduler.runCurrent()
+
+        assertEquals(1, toneRepository.cancellationCount)
+        assertNull(viewModel.uiState.value.reading)
+        assertNull(viewModel.uiState.value.errorMessage)
+    }
+
     private class FailingThenSuccessfulToneRepository : ToneDetectionRepository {
         var subscriptionCount = 0
 
@@ -86,6 +116,20 @@ class ToneDetectionViewModelTest {
                     targetFrequencyHz = 440.0,
                 ),
             )
+        }
+    }
+
+    private class CancellableToneRepository : ToneDetectionRepository {
+        var subscriptionCount = 0
+        var cancellationCount = 0
+
+        override fun readings(): Flow<PitchReading?> = flow {
+            subscriptionCount++
+            try {
+                awaitCancellation()
+            } finally {
+                cancellationCount++
+            }
         }
     }
 
