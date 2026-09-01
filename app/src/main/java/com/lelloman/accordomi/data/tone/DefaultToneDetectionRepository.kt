@@ -5,6 +5,7 @@ import com.lelloman.accordomi.data.audio.AudioRecorder
 import com.lelloman.accordomi.data.pitch.PitchDetectionResult
 import com.lelloman.accordomi.data.pitch.PitchDetectorRegistry
 import com.lelloman.accordomi.domain.settings.SettingsRepository
+import com.lelloman.accordomi.domain.tone.DetectionRate
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneDetectionRepository
 import com.lelloman.accordomi.domain.tone.ToneDetectionStatus
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 
 class DefaultToneDetectionRepository @Inject constructor(
     private val audioRecorder: AudioRecorder,
@@ -29,9 +31,15 @@ class DefaultToneDetectionRepository @Inject constructor(
     override fun readings(): Flow<ToneDetectionStatus> = flow {
         val stabilizer = PitchStabilizer()
         val lagTracker = FrameLagTracker()
-        var activeMethod: ToneDetectionMethod? = null
+        var activeDetectionSettings: DetectionSettings? = null
+        var lastAnalyzedSequenceNumber: Long? = null
         val detectionSettings = settingsRepository.settings
-            .map { it.toneDetectionMethod }
+            .map { settings ->
+                DetectionSettings(
+                    method = settings.toneDetectionMethod,
+                    rate = settings.detectionRate,
+                )
+            }
             .distinctUntilChanged()
         val referencePitch = settingsRepository.settings
             .map { it.referencePitchHz }
@@ -39,17 +47,34 @@ class DefaultToneDetectionRepository @Inject constructor(
 
         val stabilizedPitches = audioRecorder.frames()
             .conflate()
-            .combine(detectionSettings) { frame, method ->
-                if (activeMethod != null && activeMethod != method) {
+            .combine(detectionSettings) { frame, settings -> frame to settings }
+            .mapNotNull { (frame, settings) ->
+                val settingsChanged = activeDetectionSettings != settings
+                if (settingsChanged) {
                     stabilizer.reset()
+                    lagTracker.reset()
+                    lastAnalyzedSequenceNumber = null
                 }
-                activeMethod = method
+                activeDetectionSettings = settings
+
+                val previousSequenceNumber = lastAnalyzedSequenceNumber
+                if (
+                    previousSequenceNumber != null &&
+                    frame.sequenceNumber - previousSequenceNumber < settings.rate.audioFrameStep
+                ) {
+                    return@mapNotNull null
+                }
+                lastAnalyzedSequenceNumber = frame.sequenceNumber
+
                 StabilizedPitch(
                     pitch = stabilizer.update(
-                        pitchDetectorRegistry.detectorFor(method)
+                        pitchDetectorRegistry.detectorFor(settings.method)
                             .detect(frame.samples, frame.sampleRate),
                     ),
-                    isLagging = lagTracker.update(frame.sequenceNumber),
+                    isLagging = lagTracker.update(
+                        sequenceNumber = frame.sequenceNumber,
+                        expectedSequenceStep = settings.rate.audioFrameStep,
+                    ),
                 )
             }
 
@@ -72,5 +97,10 @@ class DefaultToneDetectionRepository @Inject constructor(
     private data class StabilizedPitch(
         val pitch: PitchDetectionResult?,
         val isLagging: Boolean,
+    )
+
+    private data class DetectionSettings(
+        val method: ToneDetectionMethod,
+        val rate: DetectionRate,
     )
 }

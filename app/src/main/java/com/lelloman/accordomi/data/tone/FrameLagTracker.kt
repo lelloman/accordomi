@@ -9,7 +9,14 @@ internal class FrameLagTracker(
     var isLagging: Boolean = false
         private set
 
-    fun update(sequenceNumber: Long): Boolean {
+    fun reset() {
+        previousSequenceNumber = null
+        consecutiveCleanFrames = 0
+        isLagging = false
+    }
+
+    fun update(sequenceNumber: Long, expectedSequenceStep: Long = 1): Boolean {
+        require(expectedSequenceStep > 0)
         val previous = previousSequenceNumber
         previousSequenceNumber = sequenceNumber
 
@@ -19,7 +26,7 @@ internal class FrameLagTracker(
             return isLagging
         }
 
-        if (sequenceNumber > previous + 1) {
+        if (sequenceNumber > previous + expectedSequenceStep) {
             isLagging = true
             consecutiveCleanFrames = 0
         } else if (isLagging) {

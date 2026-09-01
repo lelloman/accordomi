@@ -12,6 +12,7 @@ import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneDetectionStatus
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
+import com.lelloman.accordomi.domain.tone.DetectionRate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -87,6 +88,49 @@ class DefaultToneDetectionRepositoryTest {
         assertEquals(1, audioRecorder.framesCallCount)
     }
 
+    @Test
+    fun balancedRateAnalyzesEverySecondAudioHop() = runTest {
+        val detector = FakePitchDetector(ToneDetectionMethod.Yin, frequencyHz = 440.0)
+        val audioRecorder = FakeAudioRecorder()
+        val settingsRepository = FakeSettingsRepository()
+        val repository = createRepository(audioRecorder, settingsRepository, detector)
+        backgroundScope.launch(StandardTestDispatcher(testScheduler)) {
+            repository.readings().toList()
+        }
+        runCurrent()
+
+        audioRecorder.emit(sequenceNumber = 0)
+        runCurrent()
+        audioRecorder.emit(sequenceNumber = 1)
+        runCurrent()
+        audioRecorder.emit(sequenceNumber = 2)
+        runCurrent()
+
+        assertEquals(2, detector.detectCallCount)
+    }
+
+    @Test
+    fun rateChangeAppliesImmediatelyWithoutRestartingRecorder() = runTest {
+        val detector = FakePitchDetector(ToneDetectionMethod.Yin, frequencyHz = 440.0)
+        val audioRecorder = FakeAudioRecorder()
+        val settingsRepository = FakeSettingsRepository()
+        val repository = createRepository(audioRecorder, settingsRepository, detector)
+        backgroundScope.launch(StandardTestDispatcher(testScheduler)) {
+            repository.readings().toList()
+        }
+        runCurrent()
+
+        audioRecorder.emit(sequenceNumber = 0)
+        runCurrent()
+        settingsRepository.setDetectionRate(DetectionRate.High)
+        runCurrent()
+        audioRecorder.emit(sequenceNumber = 1)
+        runCurrent()
+
+        assertEquals(3, detector.detectCallCount)
+        assertEquals(1, audioRecorder.framesCallCount)
+    }
+
     private fun TestScope.createRepository(
         audioRecorder: FakeAudioRecorder,
         settingsRepository: FakeSettingsRepository,
@@ -146,6 +190,10 @@ class DefaultToneDetectionRepositoryTest {
 
         override suspend fun setToneDetectionMethod(method: ToneDetectionMethod) {
             mutableSettings.update { it.copy(toneDetectionMethod = method) }
+        }
+
+        override suspend fun setDetectionRate(rate: DetectionRate) {
+            mutableSettings.update { it.copy(detectionRate = rate) }
         }
 
         override suspend fun setToneVisualizationStyle(style: ToneVisualizationStyle) {

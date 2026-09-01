@@ -47,6 +47,7 @@ import com.lelloman.accordomi.domain.settings.ThemePalette
 import com.lelloman.accordomi.domain.settings.resolvePalette
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
+import com.lelloman.accordomi.domain.tone.DetectionRate
 import com.lelloman.accordomi.feature.tone.openAppPermissionSettings
 import com.lelloman.accordomi.ui.UiTestTags
 
@@ -66,6 +67,7 @@ fun SettingsRoute(
         uiState = uiState,
         onReferencePitchChanged = viewModel::onReferencePitchChanged,
         onToneDetectionMethodChanged = viewModel::onToneDetectionMethodChanged,
+        onDetectionRateChanged = viewModel::onDetectionRateChanged,
         onToneVisualizationStyleChanged = viewModel::onToneVisualizationStyleChanged,
         onThemeChanged = viewModel::onThemeChanged,
         onSaveCustomTheme = viewModel::onSaveCustomTheme,
@@ -80,6 +82,7 @@ fun SettingsScreen(
     uiState: SettingsUiState,
     onReferencePitchChanged: (String) -> Unit,
     onToneDetectionMethodChanged: (ToneDetectionMethod) -> Unit,
+    onDetectionRateChanged: (DetectionRate) -> Unit,
     onToneVisualizationStyleChanged: (ToneVisualizationStyle) -> Unit,
     onThemeChanged: (ThemeId) -> Unit,
     onSaveCustomTheme: (ThemeId?, String, ThemePalette) -> Unit,
@@ -213,6 +216,32 @@ fun SettingsScreen(
             }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
+                    text = stringResource(R.string.detection_rate_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = stringResource(R.string.detection_rate_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    uiState.availableDetectionRates.forEach { rate ->
+                        FilterChip(
+                            selected = rate == uiState.selectedDetectionRate,
+                            onClick = { onDetectionRateChanged(rate) },
+                            label = { Text(stringResource(rate.labelRes())) },
+                            modifier = Modifier.testTag(
+                                UiTestTags.detectionRate(rate.storageKey),
+                            ),
+                        )
+                    }
+                }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
                     text = stringResource(R.string.tone_visualization_title),
                     style = MaterialTheme.typography.titleMedium,
                 )
@@ -296,6 +325,12 @@ private fun ToneVisualizationStyle.labelRes(): Int = when (this) {
     ToneVisualizationStyle.Needle -> R.string.tone_visualization_needle
     ToneVisualizationStyle.SideWheel -> R.string.tone_visualization_side_wheel
     ToneVisualizationStyle.PianoKeyboard -> R.string.tone_visualization_piano_keyboard
+}
+
+private fun DetectionRate.labelRes(): Int = when (this) {
+    DetectionRate.Efficient -> R.string.detection_rate_efficient
+    DetectionRate.Balanced -> R.string.detection_rate_balanced
+    DetectionRate.High -> R.string.detection_rate_high
 }
 
 private fun BuiltInTheme.labelRes(): Int = when (this) {

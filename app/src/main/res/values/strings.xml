@@ -46,6 +46,11 @@
     <string name="tone_detection_yin" translatable="false">YIN</string>
     <string name="tone_detection_autocorrelation">Autocorrelation</string>
     <string name="tone_detection_mcleod" translatable="false">McLeod</string>
+    <string name="detection_rate_title">Detection rate</string>
+    <string name="detection_rate_description">Higher rates react faster but require more processing power.</string>
+    <string name="detection_rate_efficient">Efficient · 11/s</string>
+    <string name="detection_rate_balanced">Balanced · 22/s</string>
+    <string name="detection_rate_high">High · 43/s</string>
     <string name="tone_visualization_title">Tone visualization</string>
     <string name="tone_visualization_text">Detailed</string>
     <string name="tone_visualization_needle">Needle</string>
@@ -61,7 +66,7 @@
     <string name="listening">Listening</string>
     <string name="ready">Ready</string>
     <string name="audio_recording_failed">Audio recording failed.</string>
-    <string name="processing_lag_warning">Processing is falling behind. Readings may be delayed.</string>
+    <string name="processing_lag_warning">This device cannot sustain the selected detection rate. Try a lower rate in Settings.</string>
 
     <!-- "Cents" is the logarithmic musical pitch interval, not currency. -->
     <string name="frequency_hz">%1$.1f Hz</string>

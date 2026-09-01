@@ -15,6 +15,7 @@ import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
+import com.lelloman.accordomi.domain.tone.DetectionRate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
@@ -53,6 +54,7 @@ class DataStoreSettingsRepository @Inject constructor(
                 toneDetectionMethod = ToneDetectionMethod.fromStorageKey(
                     preferences[ToneDetectionMethodKey],
                 ),
+                detectionRate = DetectionRate.fromStorageKey(preferences[DetectionRateKey]),
                 toneVisualizationStyle = ToneVisualizationStyle.fromStorageKey(
                     preferences[ToneVisualizationStyleKey],
                 ),
@@ -72,6 +74,12 @@ class DataStoreSettingsRepository @Inject constructor(
     override suspend fun setToneDetectionMethod(method: ToneDetectionMethod) {
         context.settingsDataStore.edit { preferences ->
             preferences[ToneDetectionMethodKey] = method.storageKey
+        }
+    }
+
+    override suspend fun setDetectionRate(rate: DetectionRate) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[DetectionRateKey] = rate.storageKey
         }
     }
 
@@ -114,6 +122,7 @@ class DataStoreSettingsRepository @Inject constructor(
     private companion object {
         val ReferencePitchHzKey = doublePreferencesKey("reference_pitch_hz")
         val ToneDetectionMethodKey = stringPreferencesKey("tone_detection_method")
+        val DetectionRateKey = stringPreferencesKey("detection_rate")
         val ToneVisualizationStyleKey = stringPreferencesKey("tone_visualization_style")
         val SelectedThemeIdKey = stringPreferencesKey("selected_theme_id")
         val CustomThemesKey = stringPreferencesKey("custom_themes")

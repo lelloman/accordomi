@@ -8,6 +8,7 @@ import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.tone.ObserveToneDetectionUseCase
 import com.lelloman.accordomi.domain.tone.PitchReading
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
+import com.lelloman.accordomi.domain.tone.DetectionRate
 import com.lelloman.accordomi.domain.tone.ToneDetectionRepository
 import com.lelloman.accordomi.domain.tone.ToneDetectionStatus
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
@@ -145,6 +146,8 @@ class ToneDetectionViewModelTest {
         override suspend fun setReferencePitchHz(referencePitchHz: Double) = Unit
 
         override suspend fun setToneDetectionMethod(method: ToneDetectionMethod) = Unit
+
+        override suspend fun setDetectionRate(rate: DetectionRate) = Unit
 
         override suspend fun setToneVisualizationStyle(style: ToneVisualizationStyle) = Unit
 

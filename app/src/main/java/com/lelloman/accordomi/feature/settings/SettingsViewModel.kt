@@ -9,6 +9,7 @@ import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.settings.ThemePalette
 import com.lelloman.accordomi.domain.settings.ObserveSettingsUseCase
 import com.lelloman.accordomi.domain.settings.UpdateReferencePitchUseCase
+import com.lelloman.accordomi.domain.settings.UpdateDetectionRateUseCase
 import com.lelloman.accordomi.domain.settings.UpdateSelectedThemeUseCase
 import com.lelloman.accordomi.domain.settings.UpdateToneDetectionMethodUseCase
 import com.lelloman.accordomi.domain.settings.UpdateToneVisualizationStyleUseCase
@@ -16,6 +17,7 @@ import com.lelloman.accordomi.domain.settings.UpsertCustomThemeUseCase
 import com.lelloman.accordomi.domain.settings.customThemeId
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
+import com.lelloman.accordomi.domain.tone.DetectionRate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
 import java.util.UUID
@@ -31,6 +33,7 @@ class SettingsViewModel @Inject constructor(
     observeSettings: ObserveSettingsUseCase,
     private val updateReferencePitch: UpdateReferencePitchUseCase,
     private val updateToneDetectionMethod: UpdateToneDetectionMethodUseCase,
+    private val updateDetectionRate: UpdateDetectionRateUseCase,
     private val updateToneVisualizationStyle: UpdateToneVisualizationStyleUseCase,
     private val updateSelectedTheme: UpdateSelectedThemeUseCase,
     private val upsertCustomTheme: UpsertCustomThemeUseCase,
@@ -52,6 +55,7 @@ class SettingsViewModel @Inject constructor(
             referencePitchHzText = text,
             isReferencePitchValid = formatter.parse(text)?.isValidReferencePitch() == true,
             selectedToneDetectionMethod = settings.toneDetectionMethod,
+            selectedDetectionRate = settings.detectionRate,
             selectedToneVisualizationStyle = settings.toneVisualizationStyle,
         )
     }.stateIn(
@@ -81,6 +85,12 @@ class SettingsViewModel @Inject constructor(
     fun onToneDetectionMethodChanged(method: ToneDetectionMethod) {
         viewModelScope.launch {
             updateToneDetectionMethod(method)
+        }
+    }
+
+    fun onDetectionRateChanged(rate: DetectionRate) {
+        viewModelScope.launch {
+            updateDetectionRate(rate)
         }
     }
 

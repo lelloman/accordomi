@@ -40,6 +40,11 @@
     <string name="reference_pitch_invalid">Inserisci un valore compreso tra 400,0 e 480,0 Hz.</string>
     <string name="tone_detection_method_title">Metodo di rilevamento</string>
     <string name="tone_detection_autocorrelation">Autocorrelazione</string>
+    <string name="detection_rate_title">Frequenza di rilevamento</string>
+    <string name="detection_rate_description">Frequenze più alte reagiscono più rapidamente, ma richiedono maggiore potenza di calcolo.</string>
+    <string name="detection_rate_efficient">Efficiente · 11/s</string>
+    <string name="detection_rate_balanced">Bilanciata · 22/s</string>
+    <string name="detection_rate_high">Alta · 43/s</string>
     <string name="tone_visualization_title">Visualizzazione dell’intonazione</string>
     <string name="tone_visualization_text">Dettagliata</string>
     <string name="tone_visualization_needle">Lancetta</string>
@@ -55,7 +60,7 @@
     <string name="listening">In ascolto</string>
     <string name="ready">Pronto</string>
     <string name="audio_recording_failed">Registrazione audio non riuscita.</string>
-    <string name="processing_lag_warning">L’elaborazione non riesce a tenere il passo. Le letture potrebbero essere in ritardo.</string>
+    <string name="processing_lag_warning">Il dispositivo non supporta la frequenza di rilevamento selezionata. Scegli una frequenza più bassa nelle Impostazioni.</string>
 
     <string name="frequency_hz">%1$.1f Hz</string>
     <string name="cents_off">%1$.1f cent</string>

@@ -12,5 +12,7 @@ object UiTestTags {
 
     fun detectionMethod(storageKey: String) = "detection_method_$storageKey"
 
+    fun detectionRate(storageKey: String) = "detection_rate_$storageKey"
+
     fun visualizationStyle(storageKey: String) = "visualization_style_$storageKey"
 }

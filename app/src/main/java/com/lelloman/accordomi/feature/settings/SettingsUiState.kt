@@ -5,6 +5,7 @@ import com.lelloman.accordomi.domain.settings.CustomTheme
 import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
+import com.lelloman.accordomi.domain.tone.DetectionRate
 
 data class SettingsUiState(
     val selectedThemeId: ThemeId = BuiltInTheme.System.id,
@@ -14,6 +15,8 @@ data class SettingsUiState(
     val isReferencePitchValid: Boolean = true,
     val selectedToneDetectionMethod: ToneDetectionMethod = ToneDetectionMethod.Default,
     val availableToneDetectionMethods: List<ToneDetectionMethod> = ToneDetectionMethod.entries,
+    val selectedDetectionRate: DetectionRate = DetectionRate.Default,
+    val availableDetectionRates: List<DetectionRate> = DetectionRate.entries,
     val selectedToneVisualizationStyle: ToneVisualizationStyle = ToneVisualizationStyle.Default,
     val availableToneVisualizationStyles: List<ToneVisualizationStyle> = ToneVisualizationStyle.entries,
 )
