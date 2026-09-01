@@ -8,6 +8,10 @@ import kotlin.math.pow
 class PitchStabilizer {
     private var previous: PitchDetectionResult? = null
 
+    fun reset() {
+        previous = null
+    }
+
     fun update(result: PitchDetectionResult?): PitchDetectionResult? {
         if (result == null) {
             previous = null
@@ -45,4 +49,3 @@ class PitchStabilizer {
         const val NewNoteThresholdCents = 150.0
     }
 }
-
