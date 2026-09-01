@@ -15,13 +15,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -92,7 +90,6 @@ internal fun RefreshRecordPermissionOnResume(onRefresh: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToneDetectionScreen(
     uiState: ToneDetectionUiState,
@@ -100,24 +97,21 @@ fun ToneDetectionScreen(
     onOpenSettings: () -> Unit,
     onRetry: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text(stringResource(R.string.tuner_title)) })
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
-        ) {
-            if (!uiState.hasRecordPermission) {
-                PermissionRequired(
-                    onRequestPermission = onRequestPermission,
-                    onOpenSettings = onOpenSettings,
-                )
-            } else {
-                DetectionContent(
-                    uiState = uiState,
-                    onRetry = onRetry,
-                )
-            }
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+    ) {
+        if (!uiState.hasRecordPermission) {
+            PermissionRequired(
+                onRequestPermission = onRequestPermission,
+                onOpenSettings = onOpenSettings,
+            )
+        } else {
+            DetectionContent(
+                uiState = uiState,
+                onRetry = onRetry,
+            )
         }
     }
 }
