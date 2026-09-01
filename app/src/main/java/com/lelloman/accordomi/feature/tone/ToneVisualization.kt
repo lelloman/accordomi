@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.lelloman.accordomi.R
 import com.lelloman.accordomi.domain.tone.PitchReading
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
+import com.lelloman.accordomi.ui.theme.accordomiColors
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -229,6 +230,8 @@ private fun PianoKeyboardToneVisualization(
 ) {
     val marker = tuningMarker(reading.centsOff)
     val outline = MaterialTheme.colorScheme.outline
+    val pianoWhite = MaterialTheme.accordomiColors.pianoWhite
+    val pianoBlack = MaterialTheme.accordomiColors.pianoBlack
     val selectedNote = reading.noteName.takeWhile { !it.isDigit() }
 
     TunerPanel(modifier = modifier) {
@@ -242,8 +245,8 @@ private fun PianoKeyboardToneVisualization(
             val blackNotes = listOf("C#" to 0, "D#" to 1, "F#" to 3, "G#" to 4, "A#" to 5)
             val gap = 2.dp.toPx()
             val whiteWidth = size.width / whiteNotes.size
-            val whiteKeyColor = Color(0xFFF7F4EB)
-            val blackKeyColor = Color(0xFF191A1F)
+            val whiteKeyColor = pianoWhite
+            val blackKeyColor = pianoBlack
 
             whiteNotes.forEachIndexed { index, note ->
                 val topLeft = Offset(index * whiteWidth + gap / 2f, 0f)
@@ -402,9 +405,9 @@ private fun ReadingSummary(reading: PitchReading) {
 @Composable
 private fun tuningMarker(centsOff: Double): Color =
     if (abs(centsOff) <= InTuneCents) {
-        MaterialTheme.colorScheme.primary
+        MaterialTheme.accordomiColors.inTune
     } else {
-        MaterialTheme.colorScheme.tertiary
+        MaterialTheme.accordomiColors.offPitch
     }
 
 private fun Double.statusLabel(): Int = when {

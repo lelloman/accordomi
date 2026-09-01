@@ -1,9 +1,13 @@
 package com.lelloman.accordomi.feature.settings
 
+import com.lelloman.accordomi.domain.settings.BuiltInTheme
+import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 
 data class SettingsUiState(
+    val selectedThemeId: ThemeId = BuiltInTheme.System.id,
+    val availableBuiltInThemes: List<BuiltInTheme> = BuiltInTheme.entries,
     val referencePitchHzText: String = "440.0",
     val isReferencePitchValid: Boolean = true,
     val selectedToneDetectionMethod: ToneDetectionMethod = ToneDetectionMethod.Default,

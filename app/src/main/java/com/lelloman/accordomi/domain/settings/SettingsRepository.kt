@@ -12,4 +12,6 @@ interface SettingsRepository {
     suspend fun setToneDetectionMethod(method: ToneDetectionMethod)
 
     suspend fun setToneVisualizationStyle(style: ToneVisualizationStyle)
+
+    suspend fun setSelectedThemeId(themeId: ThemeId)
 }

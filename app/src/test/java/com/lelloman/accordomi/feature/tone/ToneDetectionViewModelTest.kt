@@ -1,6 +1,7 @@
 package com.lelloman.accordomi.feature.tone
 
 import com.lelloman.accordomi.domain.settings.AppSettings
+import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.settings.ObserveSettingsUseCase
 import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.tone.ObserveToneDetectionUseCase
@@ -145,5 +146,7 @@ class ToneDetectionViewModelTest {
         override suspend fun setToneDetectionMethod(method: ToneDetectionMethod) = Unit
 
         override suspend fun setToneVisualizationStyle(style: ToneVisualizationStyle) = Unit
+
+        override suspend fun setSelectedThemeId(themeId: ThemeId) = Unit
     }
 }

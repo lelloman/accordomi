@@ -6,6 +6,7 @@ import com.lelloman.accordomi.data.pitch.PitchDetectionResult
 import com.lelloman.accordomi.data.pitch.PitchDetector
 import com.lelloman.accordomi.data.pitch.PitchDetectorRegistry
 import com.lelloman.accordomi.domain.settings.AppSettings
+import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneDetectionStatus
@@ -148,6 +149,10 @@ class DefaultToneDetectionRepositoryTest {
 
         override suspend fun setToneVisualizationStyle(style: ToneVisualizationStyle) {
             mutableSettings.update { it.copy(toneVisualizationStyle = style) }
+        }
+
+        override suspend fun setSelectedThemeId(themeId: ThemeId) {
+            mutableSettings.update { it.copy(selectedThemeId = themeId) }
         }
     }
 }

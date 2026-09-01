@@ -42,6 +42,7 @@ class SettingsScreenTest {
                             onReferencePitchChanged = {},
                             onToneDetectionMethodChanged = {},
                             onToneVisualizationStyleChanged = {},
+                            onThemeChanged = {},
                             onOpenAppPermissionSettings = {},
                         )
                     }

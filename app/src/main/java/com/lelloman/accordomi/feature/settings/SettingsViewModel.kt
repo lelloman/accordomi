@@ -3,8 +3,10 @@ package com.lelloman.accordomi.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lelloman.accordomi.domain.settings.AppSettings
+import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.settings.ObserveSettingsUseCase
 import com.lelloman.accordomi.domain.settings.UpdateReferencePitchUseCase
+import com.lelloman.accordomi.domain.settings.UpdateSelectedThemeUseCase
 import com.lelloman.accordomi.domain.settings.UpdateToneDetectionMethodUseCase
 import com.lelloman.accordomi.domain.settings.UpdateToneVisualizationStyleUseCase
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
@@ -24,6 +26,7 @@ class SettingsViewModel @Inject constructor(
     private val updateReferencePitch: UpdateReferencePitchUseCase,
     private val updateToneDetectionMethod: UpdateToneDetectionMethodUseCase,
     private val updateToneVisualizationStyle: UpdateToneVisualizationStyleUseCase,
+    private val updateSelectedTheme: UpdateSelectedThemeUseCase,
 ) : ViewModel() {
     private val editedReferencePitchHzText = MutableStateFlow<String?>(null)
     private val locale = MutableStateFlow(Locale.getDefault())
@@ -36,6 +39,7 @@ class SettingsViewModel @Inject constructor(
         val formatter = ReferencePitchNumberFormatter(currentLocale)
         val text = editedText ?: formatter.format(settings.referencePitchHz)
         SettingsUiState(
+            selectedThemeId = settings.selectedThemeId,
             referencePitchHzText = text,
             isReferencePitchValid = formatter.parse(text)?.isValidReferencePitch() == true,
             selectedToneDetectionMethod = settings.toneDetectionMethod,
@@ -74,6 +78,12 @@ class SettingsViewModel @Inject constructor(
     fun onToneVisualizationStyleChanged(style: ToneVisualizationStyle) {
         viewModelScope.launch {
             updateToneVisualizationStyle(style)
+        }
+    }
+
+    fun onThemeChanged(themeId: ThemeId) {
+        viewModelScope.launch {
+            updateSelectedTheme(themeId)
         }
     }
 

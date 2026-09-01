@@ -9,7 +9,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lelloman.accordomi.domain.settings.AppSettings
+import com.lelloman.accordomi.domain.settings.BuiltInTheme
 import com.lelloman.accordomi.domain.settings.SettingsRepository
+import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -53,6 +55,9 @@ class DataStoreSettingsRepository @Inject constructor(
                 toneVisualizationStyle = ToneVisualizationStyle.fromStorageKey(
                     preferences[ToneVisualizationStyleKey],
                 ),
+                selectedThemeId = ThemeId(
+                    preferences[SelectedThemeIdKey] ?: BuiltInTheme.System.id.value,
+                ),
             )
         }
 
@@ -74,9 +79,16 @@ class DataStoreSettingsRepository @Inject constructor(
         }
     }
 
+    override suspend fun setSelectedThemeId(themeId: ThemeId) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[SelectedThemeIdKey] = themeId.value
+        }
+    }
+
     private companion object {
         val ReferencePitchHzKey = doublePreferencesKey("reference_pitch_hz")
         val ToneDetectionMethodKey = stringPreferencesKey("tone_detection_method")
         val ToneVisualizationStyleKey = stringPreferencesKey("tone_visualization_style")
+        val SelectedThemeIdKey = stringPreferencesKey("selected_theme_id")
     }
 }

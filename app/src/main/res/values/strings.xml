@@ -6,6 +6,13 @@
     <string name="nav_about">About</string>
 
     <string name="settings_title">Settings</string>
+    <string name="theme_title">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_concert">Concert</string>
+    <string name="theme_ocean">Ocean</string>
+    <string name="theme_forest">Forest</string>
     <string name="reference_pitch_title">Reference pitch</string>
     <string name="a4_frequency_label">A4 frequency</string>
     <string name="frequency_unit" translatable="false">Hz</string>

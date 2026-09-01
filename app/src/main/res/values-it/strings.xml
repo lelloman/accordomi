@@ -4,6 +4,13 @@
     <string name="nav_about">Informazioni</string>
 
     <string name="settings_title">Impostazioni</string>
+    <string name="theme_title">Tema</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Chiaro</string>
+    <string name="theme_dark">Scuro</string>
+    <string name="theme_concert">Concerto</string>
+    <string name="theme_ocean">Oceano</string>
+    <string name="theme_forest">Foresta</string>
     <string name="reference_pitch_title">Frequenza di riferimento</string>
     <string name="a4_frequency_label">Frequenza del La4</string>
     <string name="reference_pitch_invalid">Inserisci un valore compreso tra 400,0 e 480,0 Hz.</string>

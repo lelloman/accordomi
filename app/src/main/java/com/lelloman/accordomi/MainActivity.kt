@@ -4,8 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.lelloman.accordomi.ui.AccordomiApp
-import com.lelloman.accordomi.ui.theme.AccordomiTheme
+import com.lelloman.accordomi.ui.AccordomiRoot
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -14,9 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AccordomiTheme {
-                AccordomiApp()
-            }
+            AccordomiRoot()
         }
     }
 }
