@@ -1,0 +1,7 @@
+# Copy this file to signing.properties and fill in your keystore details.
+# signing.properties and keystore files are excluded from Git.
+
+storeFile=/absolute/path/to/release.keystore
+storePassword=your_keystore_password
+keyAlias=release
+keyPassword=your_key_password
