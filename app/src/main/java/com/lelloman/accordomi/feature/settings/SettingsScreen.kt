@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -94,7 +95,10 @@ fun SettingsScreen(
         ?: (BuiltInTheme.fromId(uiState.selectedThemeId) ?: BuiltInTheme.System)
             .resolvePalette(systemDark)
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text(stringResource(R.string.settings_title)) })
+        TopAppBar(
+            title = { Text(stringResource(R.string.settings_title)) },
+            windowInsets = WindowInsets(0),
+        )
         Column(
             modifier = Modifier
                 .weight(1f)

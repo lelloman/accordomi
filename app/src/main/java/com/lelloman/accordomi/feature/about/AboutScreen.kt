@@ -2,6 +2,7 @@ package com.lelloman.accordomi.feature.about
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,7 +24,10 @@ fun AboutRoute() {
 @Composable
 fun AboutScreen() {
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text(stringResource(R.string.about_title)) })
+        TopAppBar(
+            title = { Text(stringResource(R.string.about_title)) },
+            windowInsets = WindowInsets(0),
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
