@@ -5,32 +5,17 @@
     android:viewportHeight="108">
     <path
         android:fillColor="#00000000"
-        android:pathData="M27,67A29,29 0,0 1,81 67"
-        android:strokeColor="#FFF4DD"
+        android:pathData="M54,24a30,30 0,1 0,0.1 0M54,24a30,30 0,1 1,-0.1 0"
+        android:strokeColor="#F4F1E8"
         android:strokeLineCap="round"
-        android:strokeWidth="5" />
+        android:strokeWidth="4.5" />
     <path
         android:fillColor="#00000000"
-        android:pathData="M31,60L38,59M38,45L43,51M54,37L54,45M70,45L65,51M77,60L70,59"
-        android:strokeColor="#FFF4DD"
-        android:strokeLineCap="round"
-        android:strokeWidth="3.2" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M54,66L69,44"
-        android:strokeColor="#F2A66F"
-        android:strokeLineCap="round"
-        android:strokeWidth="5" />
-    <path
-        android:fillColor="#FFF4DD"
-        android:pathData="M54,60a7,7 0,1 0,0 14a7,7 0,1 0,0 -14" />
-    <path
-        android:fillColor="#F2A66F"
-        android:pathData="M54,63a4,4 0,1 0,0 8a4,4 0,1 0,0 -8" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M38,76L70,76"
-        android:strokeColor="#FFF4DD"
+        android:pathData="M54,18L54,29M54,79L54,90M18,54L29,54M79,54L90,54"
+        android:strokeColor="#66D9B7"
         android:strokeLineCap="round"
         android:strokeWidth="4" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M43.676,74.388C39.932,71.526 42.004,66.984 48.156,64.316C50.229,63.52 51.766,63.172 54.44,63.222C56.111,63.272 57.984,63.968 57.984,63.968C57.984,54.97 57.917,37.969 57.917,29.617C58.586,29.617 59.054,29.567 59.99,29.567C59.99,30.064 59.99,30.462 59.99,30.86C59.99,31.307 59.99,31.555 60.057,31.854C60.726,34.986 61.662,36.229 66.342,40.057C72.293,44.979 74.031,47.912 74.031,51.839C73.964,55.518 69.618,63.371 68.682,63.073C70.019,60.29 71.892,57.306 72.36,54.821C72.962,51.789 71.29,47.514 68.616,45.277C66.476,43.388 61.394,41.747 59.99,41.747C59.99,41.747 59.923,59.843 59.923,66.703C59.923,67.846 58.519,69.885 57.716,70.581C54.039,73.862 46.885,75.353 43.676,74.388Z" />
 </vector>
