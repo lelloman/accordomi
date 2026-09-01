@@ -1,0 +1,50 @@
+# Accordomi
+
+Accordomi is a small Android piano tuner that analyzes live microphone audio on-device. It supports three pitch-detection algorithms, adjustable A4 reference pitch, and text, needle, and side-wheel tuning views.
+
+## Features
+
+- YIN, autocorrelation, and McLeod pitch detection
+- Full piano-range note mapping with configurable reference pitch from 400 to 480 Hz
+- Locale-aware reference-pitch input and localized English and Italian interfaces
+- Stabilized readings with short-dropout tolerance
+- A visible warning when audio processing cannot keep up
+- Explicit microphone permission controls; permission is never requested automatically
+
+Microphone samples are processed locally. The app declares no internet permission and does not upload audio.
+
+## Requirements
+
+- Android Studio with Android SDK 36 installed
+- JDK 17 for the Android Gradle Plugin
+- An Android device or emulator running API 29 or newer
+
+## Build and verify
+
+From the repository root:
+
+```bash
+./gradlew assembleDebug
+./gradlew testDebugUnitTest lintDebug assembleDebugAndroidTest
+```
+
+The debug APK is produced under `app/build/outputs/apk/debug/`. `assembleDebugAndroidTest` compiles the Compose instrumentation suite; running it requires a connected device or emulator.
+
+For real microphone and lifecycle checks, follow [MANUAL_TESTING.md](MANUAL_TESTING.md).
+
+## Project structure
+
+The app uses a small layered architecture:
+
+- `data/audio`: Android microphone capture and frame sequencing
+- `data/pitch`: pitch-detection algorithms
+- `data/tone`: detection orchestration, lag tracking, and stabilization
+- `domain`: settings and tuning calculations
+- `feature`: Compose screens and ViewModels
+- `ui`: navigation, theme, and stable UI test tags
+
+Settings are stored with Preferences DataStore. Hilt provides application dependencies, and Kotlin Flows connect capture, settings, and UI state.
+
+## Attribution
+
+Third-party artwork attribution is recorded in [NOTICE](NOTICE). The launcher-icon working source is retained in `icon-lab.html`.
