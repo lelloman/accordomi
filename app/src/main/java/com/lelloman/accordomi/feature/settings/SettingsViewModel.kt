@@ -10,6 +10,7 @@ import com.lelloman.accordomi.domain.settings.UpdateToneVisualizationStyleUseCas
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,15 +26,18 @@ class SettingsViewModel @Inject constructor(
     private val updateToneVisualizationStyle: UpdateToneVisualizationStyleUseCase,
 ) : ViewModel() {
     private val editedReferencePitchHzText = MutableStateFlow<String?>(null)
+    private val locale = MutableStateFlow(Locale.getDefault())
 
     val uiState = combine(
         observeSettings(),
         editedReferencePitchHzText,
-    ) { settings, editedText ->
-        val text = editedText ?: settings.referencePitchHz.toReferencePitchText()
+        locale,
+    ) { settings, editedText, currentLocale ->
+        val formatter = ReferencePitchNumberFormatter(currentLocale)
+        val text = editedText ?: formatter.format(settings.referencePitchHz)
         SettingsUiState(
             referencePitchHzText = text,
-            isReferencePitchValid = text.toDoubleOrNull()?.isValidReferencePitch() == true,
+            isReferencePitchValid = formatter.parse(text)?.isValidReferencePitch() == true,
             selectedToneDetectionMethod = settings.toneDetectionMethod,
             selectedToneVisualizationStyle = settings.toneVisualizationStyle,
         )
@@ -41,18 +45,24 @@ class SettingsViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = SettingsUiState(
-            referencePitchHzText = AppSettings.DefaultReferencePitchHz.toReferencePitchText(),
+            referencePitchHzText = ReferencePitchNumberFormatter(locale.value).format(
+                AppSettings.DefaultReferencePitchHz,
+            ),
         ),
     )
 
     fun onReferencePitchChanged(value: String) {
         editedReferencePitchHzText.value = value
-        val parsed = value.toDoubleOrNull()
+        val parsed = ReferencePitchNumberFormatter(locale.value).parse(value)
         if (parsed != null && parsed.isValidReferencePitch()) {
             viewModelScope.launch {
                 updateReferencePitch(parsed)
             }
         }
+    }
+
+    fun onLocaleChanged(value: Locale) {
+        locale.value = value
     }
 
     fun onToneDetectionMethodChanged(method: ToneDetectionMethod) {
@@ -66,8 +76,6 @@ class SettingsViewModel @Inject constructor(
             updateToneVisualizationStyle(style)
         }
     }
-
-    private fun Double.toReferencePitchText(): String = "%.1f".format(this)
 
     private fun Double.isValidReferencePitch(): Boolean = this in 400.0..480.0
 }
