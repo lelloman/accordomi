@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -22,29 +23,40 @@ class ToneDetectionViewModel @Inject constructor(
     observeSettings: ObserveSettingsUseCase,
 ) : ViewModel() {
     private val hasRecordPermission = MutableStateFlow(false)
+    private val retryGeneration = MutableStateFlow(0L)
 
     val uiState = hasRecordPermission
         .flatMapLatest { granted ->
             if (!granted) {
                 flowOf(ToneDetectionUiState())
             } else {
-                observeToneDetection()
-                    .combine(observeSettings()) { reading, settings ->
-                        ToneDetectionUiState(
-                            hasRecordPermission = true,
-                            isListening = true,
-                            reading = reading,
-                            visualizationStyle = settings.toneVisualizationStyle,
-                        )
-                    }
-                    .catch { error ->
-                        emit(
+                retryGeneration.flatMapLatest {
+                    observeToneDetection()
+                        .combine(observeSettings()) { reading, settings ->
                             ToneDetectionUiState(
                                 hasRecordPermission = true,
-                                errorMessage = error.message ?: "Audio recording failed.",
-                            ),
-                        )
-                    }
+                                isListening = true,
+                                reading = reading,
+                                visualizationStyle = settings.toneVisualizationStyle,
+                            )
+                        }
+                        .onStart {
+                            emit(
+                                ToneDetectionUiState(
+                                    hasRecordPermission = true,
+                                    isListening = true,
+                                ),
+                            )
+                        }
+                        .catch { error ->
+                            emit(
+                                ToneDetectionUiState(
+                                    hasRecordPermission = true,
+                                    errorMessage = error.message ?: "Audio recording failed.",
+                                ),
+                            )
+                        }
+                }
             }
         }
         .stateIn(
@@ -55,5 +67,9 @@ class ToneDetectionViewModel @Inject constructor(
 
     fun onRecordPermissionChanged(granted: Boolean) {
         hasRecordPermission.value = granted
+    }
+
+    fun onRetry() {
+        retryGeneration.value++
     }
 }

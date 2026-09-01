@@ -82,6 +82,7 @@ fun ToneDetectionRoute(
             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         },
         onOpenSettings = onNavigateToSettings,
+        onRetry = viewModel::onRetry,
     )
 }
 
@@ -91,6 +92,7 @@ fun ToneDetectionScreen(
     uiState: ToneDetectionUiState,
     onRequestPermission: () -> Unit,
     onOpenSettings: () -> Unit,
+    onRetry: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(title = { Text("Tuner") })
@@ -105,7 +107,10 @@ fun ToneDetectionScreen(
                     onOpenSettings = onOpenSettings,
                 )
             } else {
-                DetectionContent(uiState = uiState)
+                DetectionContent(
+                    uiState = uiState,
+                    onRetry = onRetry,
+                )
             }
         }
     }
@@ -141,7 +146,10 @@ private fun PermissionRequired(
 }
 
 @Composable
-private fun DetectionContent(uiState: ToneDetectionUiState) {
+private fun DetectionContent(
+    uiState: ToneDetectionUiState,
+    onRetry: () -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -149,11 +157,19 @@ private fun DetectionContent(uiState: ToneDetectionUiState) {
     ) {
         val reading = uiState.reading
         if (uiState.errorMessage != null) {
-            Text(
-                text = uiState.errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = uiState.errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                )
+                Button(
+                    onClick = onRetry,
+                    modifier = Modifier.padding(top = 16.dp),
+                ) {
+                    Text("Try again")
+                }
+            }
         } else if (reading == null) {
             Text(
                 text = if (uiState.isListening) "Listening" else "Ready",
