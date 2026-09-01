@@ -1,8 +1,11 @@
 package com.lelloman.accordomi.data.settings
 
 import android.content.Context
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lelloman.accordomi.domain.settings.AppSettings
@@ -10,20 +13,36 @@ import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
-private val Context.settingsDataStore by preferencesDataStore(name = "settings")
+internal val SettingsCorruptionHandler = ReplaceFileCorruptionHandler<Preferences> {
+    emptyPreferences()
+}
+
+private val Context.settingsDataStore by preferencesDataStore(
+    name = "settings",
+    corruptionHandler = SettingsCorruptionHandler,
+)
+
+internal fun Flow<Preferences>.recoverFromSettingsReadFailure(): Flow<Preferences> = catch { error ->
+    if (error is IOException) {
+        emit(emptyPreferences())
+    } else {
+        throw error
+    }
+}
 
 @Singleton
 class DataStoreSettingsRepository @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : SettingsRepository {
     override val settings: Flow<AppSettings> = context.settingsDataStore.data
-        .catch { emit(androidx.datastore.preferences.core.emptyPreferences()) }
+        .recoverFromSettingsReadFailure()
         .map { preferences ->
             AppSettings(
                 referencePitchHz = preferences[ReferencePitchHzKey]
