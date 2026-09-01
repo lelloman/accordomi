@@ -9,6 +9,7 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -98,20 +99,25 @@ fun ToneDetectionScreen(
     onRetry: () -> Unit,
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
     ) {
-        if (!uiState.hasRecordPermission) {
-            PermissionRequired(
-                onRequestPermission = onRequestPermission,
-                onOpenSettings = onOpenSettings,
-            )
-        } else {
-            DetectionContent(
-                uiState = uiState,
-                onRetry = onRetry,
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+        ) {
+            if (!uiState.hasRecordPermission) {
+                PermissionRequired(
+                    onRequestPermission = onRequestPermission,
+                    onOpenSettings = onOpenSettings,
+                )
+            } else {
+                DetectionContent(
+                    uiState = uiState,
+                    onRetry = onRetry,
+                )
+            }
         }
     }
 }
