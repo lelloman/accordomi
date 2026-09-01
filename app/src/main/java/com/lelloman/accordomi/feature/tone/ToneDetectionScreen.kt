@@ -162,62 +162,70 @@ private fun DetectionContent(
     uiState: ToneDetectionUiState,
     onRetry: () -> Unit,
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .testTag(UiTestTags.DetectionContent),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val reading = uiState.reading
-        if (uiState.hasError) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = stringResource(R.string.audio_recording_failed),
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center,
-                )
-                Button(
-                    onClick = onRetry,
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .testTag(UiTestTags.RetryDetection),
-                ) {
-                    Text(stringResource(R.string.try_again))
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (uiState.hasError) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stringResource(R.string.audio_recording_failed),
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                    )
+                    Button(
+                        onClick = onRetry,
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .testTag(UiTestTags.RetryDetection),
+                    ) {
+                        Text(stringResource(R.string.try_again))
+                    }
                 }
+            } else if (reading == null) {
+                Text(
+                    text = stringResource(
+                        if (uiState.isListening) R.string.listening else R.string.ready,
+                    ),
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
+                )
+            } else {
+                ToneVisualization(
+                    reading = reading,
+                    style = uiState.visualizationStyle,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(UiTestTags.ToneVisualization),
+                )
             }
-        } else if (reading == null) {
-            Text(
-                text = stringResource(
-                    if (uiState.isListening) R.string.listening else R.string.ready,
-                ),
-                style = MaterialTheme.typography.headlineMedium,
-            )
-            LinearProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp),
-            )
-        } else {
-            ToneVisualization(
-                reading = reading,
-                style = uiState.visualizationStyle,
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
-        if (!uiState.hasError && uiState.isLagging) {
+        if (!uiState.hasError && reading != null && uiState.isLagging) {
             Surface(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp),
+                    .align(Alignment.TopEnd)
+                    .testTag(UiTestTags.ProcessingLag),
                 color = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                shape = MaterialTheme.shapes.medium,
+                shape = MaterialTheme.shapes.small,
+                tonalElevation = 2.dp,
             ) {
                 Text(
                     text = stringResource(R.string.processing_lag_warning),
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
         }

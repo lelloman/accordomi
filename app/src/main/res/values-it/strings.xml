@@ -60,7 +60,7 @@
     <string name="listening">In ascolto</string>
     <string name="ready">Pronto</string>
     <string name="audio_recording_failed">Registrazione audio non riuscita.</string>
-    <string name="processing_lag_warning">Il dispositivo non supporta la frequenza di rilevamento selezionata. Scegli una frequenza più bassa nelle Impostazioni.</string>
+    <string name="processing_lag_warning">Impossibile mantenere la frequenza di rilevamento selezionata</string>
 
     <string name="frequency_hz">%1$.1f Hz</string>
     <string name="cents_off">%1$.1f cent</string>
