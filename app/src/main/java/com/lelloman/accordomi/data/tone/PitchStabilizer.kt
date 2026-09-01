@@ -7,20 +7,29 @@ import kotlin.math.pow
 
 class PitchStabilizer {
     private var previous: PitchDetectionResult? = null
+    private var consecutiveMissingFrames = 0
 
     fun reset() {
         previous = null
+        consecutiveMissingFrames = 0
     }
 
     fun update(result: PitchDetectionResult?): PitchDetectionResult? {
         if (result == null) {
-            previous = null
-            return null
+            val previousResult = previous ?: return null
+            consecutiveMissingFrames++
+            return if (consecutiveMissingFrames <= MaximumHeldMissingFrames) {
+                previousResult
+            } else {
+                reset()
+                null
+            }
         }
+        consecutiveMissingFrames = 0
 
         val stabilized = previous?.let { previousResult ->
             val distanceCents = 1200.0 * log2(result.frequencyHz / previousResult.frequencyHz)
-            if (abs(distanceCents) > NewNoteThresholdCents) {
+            if (abs(distanceCents) >= NewNoteThresholdCents) {
                 result
             } else {
                 PitchDetectionResult(
@@ -28,7 +37,8 @@ class PitchStabilizer {
                         previousHz = previousResult.frequencyHz,
                         currentHz = result.frequencyHz,
                     ),
-                    clarity = maxOf(previousResult.clarity, result.clarity),
+                    clarity = previousResult.clarity +
+                        (result.clarity - previousResult.clarity) * SmoothingAlpha.toFloat(),
                 )
             }
         } ?: result
@@ -46,6 +56,7 @@ class PitchStabilizer {
 
     private companion object {
         const val SmoothingAlpha = 0.35
-        const val NewNoteThresholdCents = 150.0
+        const val NewNoteThresholdCents = 50.0
+        const val MaximumHeldMissingFrames = 2
     }
 }
