@@ -41,19 +41,20 @@ class AutoCorrelationPitchDetector @Inject constructor() : PitchDetector {
             correlations[lag] = normalized
         }
 
-        var bestLag = -1
+        val localMaxima = mutableListOf<Int>()
         for (lag in (minLag + 1) until maxLag) {
             if (
                 correlations[lag] >= MinimumCorrelation &&
                 correlations[lag] > correlations[lag - 1] &&
                 correlations[lag] >= correlations[lag + 1]
             ) {
-                bestLag = lag
-                break
+                localMaxima += lag
             }
         }
-
-        if (bestLag == -1) return null
+        val highestCorrelation = localMaxima.maxOfOrNull { correlations[it] } ?: return null
+        val bestLag = localMaxima.firstOrNull {
+            correlations[it] >= highestCorrelation * PeakThreshold
+        } ?: return null
 
         val refinedLag = parabolicInterpolation(correlations, bestLag)
         if (refinedLag <= 0.0) return null
@@ -82,5 +83,6 @@ class AutoCorrelationPitchDetector @Inject constructor() : PitchDetector {
         const val MinimumFrequencyHz = 27
         const val MaximumFrequencyHz = 4_200
         const val MinimumCorrelation = 0.6
+        const val PeakThreshold = 0.9
     }
 }
