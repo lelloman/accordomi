@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
@@ -45,7 +46,11 @@ class AndroidAudioRecorder @Inject constructor(
         } catch (error: Exception) {
             throw AudioRecordingException("Unable to create the audio recorder.", error)
         }
-        val readBuffer = ShortArray(FrameSize)
+        val readBuffer = ShortArray(HopSize)
+        val frameBuffer = OverlappingAudioFrameBuffer(
+            frameSize = FrameSize,
+            hopSize = HopSize,
+        )
         var nextSequenceNumber = 0L
         var recordingStarted = false
         var recordingFailure: Throwable? = null
@@ -59,15 +64,17 @@ class AndroidAudioRecorder @Inject constructor(
             recordingStarted = true
             while (currentCoroutineContext().isActive) {
                 when (val read = audioRecord.read(readBuffer)) {
-                    in 1..readBuffer.size -> emit(
-                        AudioFrame(
-                            samples = FloatArray(read) { index ->
-                                readBuffer[index] / Short.MAX_VALUE.toFloat()
-                            },
-                            sampleRate = sampleRate,
-                            sequenceNumber = nextSequenceNumber++,
-                        ),
-                    )
+                    in 1..readBuffer.size -> frameBuffer
+                        .append(readBuffer, read)
+                        .forEach { samples ->
+                            emit(
+                                AudioFrame(
+                                    samples = samples,
+                                    sampleRate = sampleRate,
+                                    sequenceNumber = nextSequenceNumber++,
+                                ),
+                            )
+                        }
                     0 -> delay(EmptyReadRetryDelayMillis)
                     AudioRecord.ERROR_DEAD_OBJECT -> throw AudioRecordingException(
                         "Audio recorder became unavailable and must be recreated.",
@@ -101,7 +108,7 @@ class AndroidAudioRecorder @Inject constructor(
                 }
             }
         }
-    }.flowOn(ioDispatcher)
+    }.flowOn(ioDispatcher).buffer(capacity = 0)
 
     private fun AudioRecordSession.cleanup(recordingStarted: Boolean): Throwable? {
         var failure: Throwable? = null
@@ -128,6 +135,7 @@ class AndroidAudioRecorder @Inject constructor(
     private companion object {
         const val SampleRate = 44_100
         const val FrameSize = 4_096
+        const val HopSize = 1_024
         const val BytesPerSample = 2
         const val EmptyReadRetryDelayMillis = 10L
     }

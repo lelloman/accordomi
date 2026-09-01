@@ -52,8 +52,14 @@ class AndroidAudioRecorderTest {
     @Test
     fun convertsSamplesAndCleansUpAfterCollectionStops() = runTest {
         val session = FakeAudioRecordSession(
-            samples = shortArrayOf(Short.MIN_VALUE, 0, Short.MAX_VALUE),
-            readResult = 3,
+            samples = ShortArray(1_024) { index ->
+                when (index) {
+                    0 -> Short.MIN_VALUE
+                    1 -> 0
+                    else -> Short.MAX_VALUE
+                }
+            },
+            readResult = 1_024,
         )
         val recorder = recorder(FakeAudioRecordFactory(session = session))
 
@@ -64,6 +70,8 @@ class AndroidAudioRecorderTest {
         assertEquals(-1.00003f, frame.samples[0], 0.00001f)
         assertEquals(0f, frame.samples[1], 0f)
         assertEquals(1f, frame.samples[2], 0f)
+        assertEquals(4_096, frame.samples.size)
+        assertTrue(session.readCallCount in 4..5)
         assertEquals(1, session.startCallCount)
         assertEquals(1, session.stopCallCount)
         assertEquals(1, session.releaseCallCount)
@@ -146,6 +154,7 @@ class AndroidAudioRecorderTest {
         var startCallCount = 0
         var stopCallCount = 0
         var releaseCallCount = 0
+        var readCallCount = 0
 
         override fun start() {
             startCallCount++
@@ -153,6 +162,7 @@ class AndroidAudioRecorderTest {
         }
 
         override fun read(buffer: ShortArray): Int {
+            readCallCount++
             samples.copyInto(buffer)
             return readResult
         }
