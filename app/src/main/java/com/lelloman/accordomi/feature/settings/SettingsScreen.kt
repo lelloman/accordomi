@@ -18,12 +18,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +40,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lelloman.accordomi.R
 import com.lelloman.accordomi.domain.settings.BuiltInTheme
+import com.lelloman.accordomi.domain.settings.CustomTheme
 import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.settings.ThemePalette
 import com.lelloman.accordomi.domain.settings.resolvePalette
@@ -62,6 +67,8 @@ fun SettingsRoute(
         onToneDetectionMethodChanged = viewModel::onToneDetectionMethodChanged,
         onToneVisualizationStyleChanged = viewModel::onToneVisualizationStyleChanged,
         onThemeChanged = viewModel::onThemeChanged,
+        onSaveCustomTheme = viewModel::onSaveCustomTheme,
+        onDeleteCustomTheme = viewModel::onDeleteCustomTheme,
         onOpenAppPermissionSettings = { context.openAppPermissionSettings() },
     )
 }
@@ -74,9 +81,18 @@ fun SettingsScreen(
     onToneDetectionMethodChanged: (ToneDetectionMethod) -> Unit,
     onToneVisualizationStyleChanged: (ToneVisualizationStyle) -> Unit,
     onThemeChanged: (ThemeId) -> Unit,
+    onSaveCustomTheme: (ThemeId?, String, ThemePalette) -> Unit,
+    onDeleteCustomTheme: (ThemeId) -> Unit,
     onOpenAppPermissionSettings: () -> Unit,
 ) {
     val systemDark = isSystemInDarkTheme()
+    var editorRequest by remember { mutableStateOf<ThemeEditorRequest?>(null) }
+    val selectedCustomTheme = uiState.customThemes.firstOrNull {
+        it.id == uiState.selectedThemeId
+    }
+    val selectedPalette = selectedCustomTheme?.palette
+        ?: (BuiltInTheme.fromId(uiState.selectedThemeId) ?: BuiltInTheme.System)
+            .resolvePalette(systemDark)
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(title = { Text(stringResource(R.string.settings_title)) })
         Column(
@@ -107,6 +123,43 @@ fun SettingsScreen(
                             },
                             label = { Text(stringResource(theme.labelRes())) },
                         )
+                    }
+                    uiState.customThemes.forEach { theme ->
+                        FilterChip(
+                            selected = theme.id == uiState.selectedThemeId,
+                            onClick = { onThemeChanged(theme.id) },
+                            leadingIcon = { ThemeSwatch(theme.palette) },
+                            label = { Text(theme.name) },
+                        )
+                    }
+                }
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            editorRequest = ThemeEditorRequest(
+                                theme = null,
+                                startingPalette = selectedPalette,
+                            )
+                        },
+                        modifier = Modifier.testTag(UiTestTags.CreateCustomTheme),
+                    ) {
+                        Text(stringResource(R.string.theme_create_custom))
+                    }
+                    if (selectedCustomTheme != null) {
+                        OutlinedButton(
+                            onClick = {
+                                editorRequest = ThemeEditorRequest(
+                                    theme = selectedCustomTheme,
+                                    startingPalette = selectedCustomTheme.palette,
+                                )
+                            },
+                            modifier = Modifier.testTag(UiTestTags.EditCustomTheme),
+                        ) {
+                            Text(stringResource(R.string.theme_edit_custom))
+                        }
                     }
                 }
             }
@@ -186,7 +239,29 @@ fun SettingsScreen(
             }
         }
     }
+    editorRequest?.let { request ->
+        CustomThemeEditorDialog(
+            existingTheme = request.theme,
+            startingPalette = request.startingPalette,
+            onDismiss = { editorRequest = null },
+            onSave = { id, name, palette ->
+                onSaveCustomTheme(id, name, palette)
+                editorRequest = null
+            },
+            onDelete = request.theme?.let { theme ->
+                {
+                    onDeleteCustomTheme(theme.id)
+                    editorRequest = null
+                }
+            },
+        )
+    }
 }
+
+private data class ThemeEditorRequest(
+    val theme: CustomTheme?,
+    val startingPalette: ThemePalette,
+)
 
 @Composable
 private fun ThemeSwatch(palette: ThemePalette) {

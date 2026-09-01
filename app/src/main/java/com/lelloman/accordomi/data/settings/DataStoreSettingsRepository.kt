@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lelloman.accordomi.domain.settings.AppSettings
 import com.lelloman.accordomi.domain.settings.BuiltInTheme
+import com.lelloman.accordomi.domain.settings.CustomTheme
 import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
@@ -58,6 +59,7 @@ class DataStoreSettingsRepository @Inject constructor(
                 selectedThemeId = ThemeId(
                     preferences[SelectedThemeIdKey] ?: BuiltInTheme.System.id.value,
                 ),
+                customThemes = decodeCustomThemes(preferences[CustomThemesKey]),
             )
         }
 
@@ -85,10 +87,35 @@ class DataStoreSettingsRepository @Inject constructor(
         }
     }
 
+    override suspend fun upsertCustomTheme(theme: CustomTheme) {
+        context.settingsDataStore.edit { preferences ->
+            val themes = decodeCustomThemes(preferences[CustomThemesKey]).toMutableList()
+            val existingIndex = themes.indexOfFirst { it.id == theme.id }
+            if (existingIndex >= 0) {
+                themes[existingIndex] = theme
+            } else {
+                themes += theme
+            }
+            preferences[CustomThemesKey] = encodeCustomThemes(themes)
+        }
+    }
+
+    override suspend fun deleteCustomTheme(themeId: ThemeId) {
+        context.settingsDataStore.edit { preferences ->
+            val themes = decodeCustomThemes(preferences[CustomThemesKey])
+                .filterNot { it.id == themeId }
+            preferences[CustomThemesKey] = encodeCustomThemes(themes)
+            if (preferences[SelectedThemeIdKey] == themeId.value) {
+                preferences[SelectedThemeIdKey] = BuiltInTheme.System.id.value
+            }
+        }
+    }
+
     private companion object {
         val ReferencePitchHzKey = doublePreferencesKey("reference_pitch_hz")
         val ToneDetectionMethodKey = stringPreferencesKey("tone_detection_method")
         val ToneVisualizationStyleKey = stringPreferencesKey("tone_visualization_style")
         val SelectedThemeIdKey = stringPreferencesKey("selected_theme_id")
+        val CustomThemesKey = stringPreferencesKey("custom_themes")
     }
 }

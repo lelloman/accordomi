@@ -7,6 +7,7 @@ import com.lelloman.accordomi.data.pitch.PitchDetector
 import com.lelloman.accordomi.data.pitch.PitchDetectorRegistry
 import com.lelloman.accordomi.domain.settings.AppSettings
 import com.lelloman.accordomi.domain.settings.ThemeId
+import com.lelloman.accordomi.domain.settings.CustomTheme
 import com.lelloman.accordomi.domain.settings.SettingsRepository
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneDetectionStatus
@@ -153,6 +154,21 @@ class DefaultToneDetectionRepositoryTest {
 
         override suspend fun setSelectedThemeId(themeId: ThemeId) {
             mutableSettings.update { it.copy(selectedThemeId = themeId) }
+        }
+
+        override suspend fun upsertCustomTheme(theme: CustomTheme) {
+            mutableSettings.update { settings ->
+                settings.copy(
+                    customThemes = settings.customThemes
+                        .filterNot { it.id == theme.id } + theme,
+                )
+            }
+        }
+
+        override suspend fun deleteCustomTheme(themeId: ThemeId) {
+            mutableSettings.update { settings ->
+                settings.copy(customThemes = settings.customThemes.filterNot { it.id == themeId })
+            }
         }
     }
 }

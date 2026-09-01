@@ -1,5 +1,6 @@
 package com.lelloman.accordomi.ui.theme
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -9,8 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import com.lelloman.accordomi.domain.settings.BuiltInTheme
 import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.settings.ThemePalette
@@ -41,11 +45,22 @@ val MaterialTheme.accordomiColors: AccordomiColors
 @Composable
 fun AccordomiTheme(
     selectedThemeId: ThemeId = BuiltInTheme.System.id,
+    customPalette: ThemePalette? = null,
     systemDark: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     val selectedTheme = BuiltInTheme.fromId(selectedThemeId) ?: BuiltInTheme.System
-    val palette = selectedTheme.resolvePalette(systemDark)
+    val palette = customPalette ?: selectedTheme.resolvePalette(systemDark)
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window ?: return@SideEffect
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !palette.isDark
+                isAppearanceLightNavigationBars = !palette.isDark
+            }
+        }
+    }
     CompositionLocalProvider(LocalAccordomiColors provides palette.toAccordomiColors()) {
         MaterialTheme(
             colorScheme = palette.toColorScheme(),
@@ -84,6 +99,10 @@ private fun ThemePalette.toColorScheme(): ColorScheme {
         onTertiary = Color(onAccent),
         tertiaryContainer = variantColor,
         onTertiaryContainer = textColor,
+        error = Color(error),
+        onError = Color(onError),
+        errorContainer = variantColor,
+        onErrorContainer = textColor,
         background = backgroundColor,
         onBackground = textColor,
         surface = surfaceColor,

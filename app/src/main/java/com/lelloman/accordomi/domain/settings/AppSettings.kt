@@ -8,6 +8,7 @@ data class AppSettings(
     val toneDetectionMethod: ToneDetectionMethod = ToneDetectionMethod.Default,
     val toneVisualizationStyle: ToneVisualizationStyle = ToneVisualizationStyle.Default,
     val selectedThemeId: ThemeId = BuiltInTheme.System.id,
+    val customThemes: List<CustomTheme> = emptyList(),
 ) {
     companion object {
         const val DefaultReferencePitchHz = 440.0

@@ -3,6 +3,12 @@ package com.lelloman.accordomi.domain.settings
 @JvmInline
 value class ThemeId(val value: String)
 
+data class CustomTheme(
+    val id: ThemeId,
+    val name: String,
+    val palette: ThemePalette,
+)
+
 enum class BuiltInTheme(
     val id: ThemeId,
 ) {
@@ -18,6 +24,13 @@ enum class BuiltInTheme(
     }
 }
 
+val ThemeId.isCustom: Boolean
+    get() = value.startsWith(CustomThemeIdPrefix)
+
+fun customThemeId(uniquePart: String): ThemeId = ThemeId("$CustomThemeIdPrefix$uniquePart")
+
+private const val CustomThemeIdPrefix = "custom:"
+
 data class ThemePalette(
     val isDark: Boolean,
     val background: Int,
@@ -32,6 +45,8 @@ data class ThemePalette(
     val offPitch: Int,
     val pianoWhite: Int,
     val pianoBlack: Int,
+    val error: Int,
+    val onError: Int,
 )
 
 fun BuiltInTheme.resolvePalette(systemDark: Boolean): ThemePalette = when (this) {
@@ -57,6 +72,8 @@ private val LightPalette = ThemePalette(
     offPitch = 0xFFB05B22.toInt(),
     pianoWhite = 0xFFF7F4EB.toInt(),
     pianoBlack = 0xFF191A1F.toInt(),
+    error = 0xFFB3261E.toInt(),
+    onError = 0xFFFFFFFF.toInt(),
 )
 
 private val DarkPalette = ThemePalette(
@@ -73,6 +90,8 @@ private val DarkPalette = ThemePalette(
     offPitch = 0xFFF2A66F.toInt(),
     pianoWhite = 0xFFF4F1E8.toInt(),
     pianoBlack = 0xFF17181C.toInt(),
+    error = 0xFFFFB4AB.toInt(),
+    onError = 0xFF690005.toInt(),
 )
 
 private val ConcertPalette = ThemePalette(
@@ -89,6 +108,8 @@ private val ConcertPalette = ThemePalette(
     offPitch = 0xFFDB8468.toInt(),
     pianoWhite = 0xFFFFF4DD.toInt(),
     pianoBlack = 0xFF211813.toInt(),
+    error = 0xFFFFB4AB.toInt(),
+    onError = 0xFF690005.toInt(),
 )
 
 private val OceanPalette = ThemePalette(
@@ -105,6 +126,8 @@ private val OceanPalette = ThemePalette(
     offPitch = 0xFFFFB36B.toInt(),
     pianoWhite = 0xFFF1FAFA.toInt(),
     pianoBlack = 0xFF071A20.toInt(),
+    error = 0xFFFFB4AB.toInt(),
+    onError = 0xFF690005.toInt(),
 )
 
 private val ForestPalette = ThemePalette(
@@ -121,4 +144,6 @@ private val ForestPalette = ThemePalette(
     offPitch = 0xFFB7643D.toInt(),
     pianoWhite = 0xFFFFFCF1.toInt(),
     pianoBlack = 0xFF182019.toInt(),
+    error = 0xFFBA1A1A.toInt(),
+    onError = 0xFFFFFFFF.toInt(),
 )

@@ -14,4 +14,8 @@ interface SettingsRepository {
     suspend fun setToneVisualizationStyle(style: ToneVisualizationStyle)
 
     suspend fun setSelectedThemeId(themeId: ThemeId)
+
+    suspend fun upsertCustomTheme(theme: CustomTheme)
+
+    suspend fun deleteCustomTheme(themeId: ThemeId)
 }

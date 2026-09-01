@@ -11,8 +11,11 @@ import com.lelloman.accordomi.ui.theme.ThemeViewModel
 fun AccordomiRoot(
     viewModel: ThemeViewModel = hiltViewModel(),
 ) {
-    val selectedThemeId by viewModel.selectedThemeId.collectAsStateWithLifecycle()
-    AccordomiTheme(selectedThemeId = selectedThemeId) {
+    val theme by viewModel.uiState.collectAsStateWithLifecycle()
+    AccordomiTheme(
+        selectedThemeId = theme.selectedThemeId,
+        customPalette = theme.customPalette,
+    ) {
         AccordomiApp()
     }
 }

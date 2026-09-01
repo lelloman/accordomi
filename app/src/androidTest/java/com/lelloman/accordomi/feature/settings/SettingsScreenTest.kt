@@ -43,6 +43,8 @@ class SettingsScreenTest {
                             onToneDetectionMethodChanged = {},
                             onToneVisualizationStyleChanged = {},
                             onThemeChanged = {},
+                            onSaveCustomTheme = { _, _, _ -> },
+                            onDeleteCustomTheme = {},
                             onOpenAppPermissionSettings = {},
                         )
                     }
@@ -52,6 +54,7 @@ class SettingsScreenTest {
 
         listOf(
             UiTestTags.ReferencePitch,
+            UiTestTags.CreateCustomTheme,
             *SettingsUiState().availableToneDetectionMethods.map {
                 UiTestTags.detectionMethod(it.storageKey)
             }.toTypedArray(),

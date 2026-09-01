@@ -7,6 +7,8 @@ object UiTestTags {
     const val AllowMicrophone = "allow_microphone"
     const val RetryDetection = "retry_detection"
     const val DetectionContent = "detection_content"
+    const val CreateCustomTheme = "create_custom_theme"
+    const val EditCustomTheme = "edit_custom_theme"
 
     fun detectionMethod(storageKey: String) = "detection_method_$storageKey"
 
