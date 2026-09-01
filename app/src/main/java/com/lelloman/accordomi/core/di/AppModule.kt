@@ -1,6 +1,8 @@
 package com.lelloman.accordomi.core.di
 
 import com.lelloman.accordomi.data.audio.AndroidAudioRecorder
+import com.lelloman.accordomi.data.audio.AndroidAudioRecordFactory
+import com.lelloman.accordomi.data.audio.AudioRecordFactory
 import com.lelloman.accordomi.data.audio.AudioRecorder
 import com.lelloman.accordomi.data.pitch.AutoCorrelationPitchDetector
 import com.lelloman.accordomi.data.pitch.McLeodPitchDetector
@@ -31,6 +33,12 @@ abstract class AppModule {
     abstract fun bindAudioRecorder(
         recorder: AndroidAudioRecorder,
     ): AudioRecorder
+
+    @Binds
+    @Singleton
+    abstract fun bindAudioRecordFactory(
+        factory: AndroidAudioRecordFactory,
+    ): AudioRecordFactory
 
     @Binds
     @IntoSet
