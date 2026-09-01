@@ -1,5 +1,8 @@
 package com.lelloman.accordomi.feature.tone
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -79,7 +84,7 @@ private fun NeedleToneVisualization(
     val marker = tuningMarker(reading.centsOff)
     val outline = MaterialTheme.colorScheme.outlineVariant
     val surface = MaterialTheme.colorScheme.surface
-    val normalized = reading.centsOff.normalizedCents()
+    val normalized = animatedNormalizedCents(reading.centsOff)
 
     TunerPanel(modifier = modifier) {
         NoteHeading(reading)
@@ -156,7 +161,7 @@ private fun SideWheelToneVisualization(
     val marker = tuningMarker(reading.centsOff)
     val track = MaterialTheme.colorScheme.surfaceVariant
     val outline = MaterialTheme.colorScheme.outlineVariant
-    val normalized = reading.centsOff.normalizedCents()
+    val normalized = animatedNormalizedCents(reading.centsOff)
 
     TunerPanel(modifier = modifier) {
         NoteHeading(reading)
@@ -339,7 +344,7 @@ private fun TuningRail(
     val marker = tuningMarker(centsOff)
     val track = MaterialTheme.colorScheme.outlineVariant
     val panel = MaterialTheme.colorScheme.surfaceContainer
-    val normalized = centsOff.normalizedCents()
+    val normalized = animatedNormalizedCents(centsOff)
     Column(modifier = modifier.fillMaxWidth()) {
         Canvas(
             modifier = Modifier
@@ -419,8 +424,30 @@ private fun Double.statusLabel(): Int = when {
 private fun Double.normalizedCents(): Float =
     (coerceIn(-MaximumVisibleCents, MaximumVisibleCents) / MaximumVisibleCents).toFloat()
 
+@Composable
+private fun animatedNormalizedCents(centsOff: Double): Float {
+    val target = centsOff.normalizedCents()
+    val animated = remember { Animatable(target) }
+    LaunchedEffect(target) {
+        if (abs(target - animated.value) >= NoteBoundaryJump) {
+            animated.snapTo(target)
+        } else {
+            animated.animateTo(
+                targetValue = target,
+                animationSpec = tween(
+                    durationMillis = IndicatorAnimationMillis,
+                    easing = LinearEasing,
+                ),
+            )
+        }
+    }
+    return animated.value
+}
+
 private fun Float.toRadians(): Float = (this * PI / 180.0).toFloat()
 
 private const val InTuneCents = 5.0
 private const val MaximumVisibleCents = 50.0
 private const val NeedleTickCount = 9
+private const val IndicatorAnimationMillis = 70
+private const val NoteBoundaryJump = 1.0f
