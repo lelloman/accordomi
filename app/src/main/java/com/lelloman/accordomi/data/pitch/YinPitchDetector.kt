@@ -8,7 +8,7 @@ class YinPitchDetector @Inject constructor() : PitchDetector {
     override val method = ToneDetectionMethod.Yin
 
     override fun detect(samples: FloatArray, sampleRate: Int): PitchDetectionResult? {
-        if (samples.size < MinimumSampleCount || samples.maxOf { abs(it) } < MinimumAmplitude) {
+        if (sampleRate <= 0 || samples.size < MinimumSampleCount || samples.any { !it.isFinite() } || samples.maxOf { abs(it) } < MinimumAmplitude) {
             return null
         }
 
@@ -16,16 +16,9 @@ class YinPitchDetector @Inject constructor() : PitchDetector {
         val maxTau = minOf(sampleRate / MinimumFrequencyHz, samples.size / 2)
         if (minTau >= maxTau) return null
 
-        val yin = DoubleArray(maxTau + 1)
-        for (tau in 1..maxTau) {
-            var sum = 0.0
-            val end = samples.size - tau
-            for (index in 0 until end) {
-                val delta = samples[index] - samples[index + tau]
-                sum += delta * delta
-            }
-            yin[tau] = sum
-        }
+        val frame = CorrelationFrame(samples)
+        val difference = DoubleArray(maxTau + 1) { frame.difference(it) }
+        val yin = difference.copyOf()
 
         var runningSum = 0.0
         yin[0] = 1.0
@@ -50,7 +43,7 @@ class YinPitchDetector @Inject constructor() : PitchDetector {
         }
         if (tauEstimate == -1) return null
 
-        val betterTau = parabolicInterpolation(yin, tauEstimate)
+        val betterTau = parabolicInterpolation(difference, tauEstimate)
         if (betterTau <= 0.0) return null
 
         return PitchDetectionResult(
@@ -74,8 +67,8 @@ class YinPitchDetector @Inject constructor() : PitchDetector {
     private companion object {
         const val MinimumSampleCount = 512
         const val MinimumAmplitude = 0.003f
-        const val MinimumFrequencyHz = 27
-        const val MaximumFrequencyHz = 4_200
+        const val MinimumFrequencyHz = 24
+        const val MaximumFrequencyHz = 4_800
         const val Threshold = 0.2
     }
 }

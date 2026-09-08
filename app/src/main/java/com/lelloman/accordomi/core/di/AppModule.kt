@@ -4,6 +4,8 @@ import com.lelloman.accordomi.data.audio.AndroidAudioRecorder
 import com.lelloman.accordomi.data.audio.AndroidAudioRecordFactory
 import com.lelloman.accordomi.data.audio.AudioRecordFactory
 import com.lelloman.accordomi.data.audio.AudioRecorder
+import com.lelloman.accordomi.data.audio.ReferenceTonePlayer
+import com.lelloman.accordomi.domain.tone.ReferenceToneOutput
 import com.lelloman.accordomi.data.pitch.AutoCorrelationPitchDetector
 import com.lelloman.accordomi.data.pitch.McLeodPitchDetector
 import com.lelloman.accordomi.data.pitch.PitchDetector
@@ -22,6 +24,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppModule {
+    @Binds
+    abstract fun bindReferenceToneOutput(player: ReferenceTonePlayer): ReferenceToneOutput
+
     @Binds
     @Singleton
     abstract fun bindSettingsRepository(

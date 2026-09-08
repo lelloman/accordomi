@@ -9,7 +9,7 @@ class AutoCorrelationPitchDetector @Inject constructor() : PitchDetector {
     override val method = ToneDetectionMethod.AutoCorrelation
 
     override fun detect(samples: FloatArray, sampleRate: Int): PitchDetectionResult? {
-        if (samples.size < MinimumSampleCount || samples.maxOf { abs(it) } < MinimumAmplitude) {
+        if (sampleRate <= 0 || samples.size < MinimumSampleCount || samples.any { !it.isFinite() } || samples.maxOf { abs(it) } < MinimumAmplitude) {
             return null
         }
 
@@ -17,28 +17,11 @@ class AutoCorrelationPitchDetector @Inject constructor() : PitchDetector {
         val maxLag = minOf(sampleRate / MinimumFrequencyHz, samples.size / 2)
         if (minLag >= maxLag) return null
 
+        val frame = CorrelationFrame(samples)
         val correlations = DoubleArray(maxLag + 1)
-
         for (lag in minLag..maxLag) {
-            var correlation = 0.0
-            var energyA = 0.0
-            var energyB = 0.0
-            val end = samples.size - lag
-
-            for (index in 0 until end) {
-                val a = samples[index].toDouble()
-                val b = samples[index + lag].toDouble()
-                correlation += a * b
-                energyA += a * a
-                energyB += b * b
-            }
-
-            val normalized = if (energyA == 0.0 || energyB == 0.0) {
-                0.0
-            } else {
-                correlation / sqrt(energyA * energyB)
-            }
-            correlations[lag] = normalized
+            val divisor = sqrt(frame.energyA(lag) * frame.energyB(lag))
+            correlations[lag] = if (divisor <= 0.0) 0.0 else frame.correlation(lag) / divisor
         }
 
         val localMaxima = mutableListOf<Int>()
@@ -80,8 +63,8 @@ class AutoCorrelationPitchDetector @Inject constructor() : PitchDetector {
     private companion object {
         const val MinimumSampleCount = 512
         const val MinimumAmplitude = 0.01f
-        const val MinimumFrequencyHz = 27
-        const val MaximumFrequencyHz = 4_200
+        const val MinimumFrequencyHz = 24
+        const val MaximumFrequencyHz = 4_800
         const val MinimumCorrelation = 0.6
         const val PeakThreshold = 0.9
     }

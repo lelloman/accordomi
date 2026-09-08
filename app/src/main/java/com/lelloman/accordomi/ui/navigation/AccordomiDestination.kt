@@ -11,7 +11,8 @@ data class AccordomiDestination(
 object AccordomiDestinations {
     val ToneDetection = AccordomiDestination("tone_detection", R.string.nav_tuner)
     val Settings = AccordomiDestination("settings", R.string.nav_settings)
+    val ReferenceTone = AccordomiDestination("reference_tone", R.string.nav_reference_tone)
     val About = AccordomiDestination("about", R.string.nav_about)
 
-    val topLevel = listOf(ToneDetection, Settings, About)
+    val topLevel = listOf(ToneDetection, ReferenceTone, Settings, About)
 }

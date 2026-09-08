@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.lelloman.accordomi.feature.about.AboutRoute
 import com.lelloman.accordomi.feature.settings.SettingsRoute
 import com.lelloman.accordomi.feature.tone.ToneDetectionRoute
+import com.lelloman.accordomi.feature.tone.ReferenceToneRoute
 import com.lelloman.accordomi.ui.navigation.AccordomiDestinations
 
 @Composable
@@ -61,6 +62,9 @@ fun AccordomiApp() {
             }
             composable(AccordomiDestinations.Settings.route) {
                 SettingsRoute()
+            }
+            composable(AccordomiDestinations.ReferenceTone.route) {
+                ReferenceToneRoute()
             }
             composable(AccordomiDestinations.About.route) {
                 AboutRoute()

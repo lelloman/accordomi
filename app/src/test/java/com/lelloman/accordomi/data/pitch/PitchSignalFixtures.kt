@@ -2,6 +2,8 @@ package com.lelloman.accordomi.data.pitch
 
 import kotlin.math.PI
 import kotlin.math.sin
+import kotlin.math.exp
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 object PitchSignalFixtures {
@@ -40,6 +42,19 @@ object PitchSignalFixtures {
         frequencyHz = frequencyHz,
         amplitudes = listOf(0.12, 0.55, 0.25, 0.08),
     )
+
+    /** Synthetic stiff-string partials; frequencyHz is the first partial, not the ideal string f0. */
+    fun decayingPartials(frequencyHz: Double, inharmonicity: Double = 0.0): FloatArray =
+        FloatArray(FrameSize) { index ->
+            (1..6).sumOf { partial ->
+                val frequency = frequencyHz * partial *
+                    sqrt((1 + inharmonicity * partial * partial) / (1 + inharmonicity))
+                if (frequency >= SampleRate / 2.0) 0.0 else {
+                    0.5 / partial * exp(-index.toDouble() / SampleRate * partial * 3) *
+                        sin(phase(frequency, index) + partial * 0.37)
+                }
+            }.toFloat()
+        }
 
     fun withSeededNoise(
         samples: FloatArray,
