@@ -1,6 +1,8 @@
 package com.lelloman.accordomi.ui.theme
 
 import androidx.lifecycle.ViewModel
+import com.lelloman.accordomi.domain.settings.UpdateSelectedThemeUseCase
+import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
 import com.lelloman.accordomi.domain.settings.BuiltInTheme
 import com.lelloman.accordomi.domain.settings.ObserveSettingsUseCase
@@ -20,7 +22,10 @@ data class ActiveThemeUiState(
 @HiltViewModel
 class ThemeViewModel @Inject constructor(
     observeSettings: ObserveSettingsUseCase,
+    private val updateSelectedTheme: UpdateSelectedThemeUseCase,
 ) : ViewModel() {
+    fun selectTheme(id: ThemeId) { viewModelScope.launch { updateSelectedTheme(id) } }
+
     val uiState = observeSettings()
         .map { settings ->
             ActiveThemeUiState(

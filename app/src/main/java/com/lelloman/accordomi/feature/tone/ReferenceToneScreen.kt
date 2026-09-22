@@ -1,5 +1,6 @@
 package com.lelloman.accordomi.feature.tone
 
+import com.lelloman.lellodesign.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -59,22 +60,22 @@ fun ReferenceToneScreen(
         Text(stringResource(R.string.reference_tone_frequency, state.frequencyHz), style = MaterialTheme.typography.titleLarge)
         Text(stringResource(R.string.reference_tone_reference, state.referencePitchHz))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = { onSelectNote(state.midiNote - 1) }, enabled = state.midiNote > 21) {
+            LelloOutlinedButton(onClick = { onSelectNote(state.midiNote - 1) }, enabled = state.midiNote > 21) {
                 Text(stringResource(R.string.reference_tone_lower))
             }
-            OutlinedButton(onClick = { onSelectNote(state.midiNote + 1) }, enabled = state.midiNote < 108) {
+            LelloOutlinedButton(onClick = { onSelectNote(state.midiNote + 1) }, enabled = state.midiNote < 108) {
                 Text(stringResource(R.string.reference_tone_higher))
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = { onSelectNote(state.midiNote - 12) }, enabled = state.midiNote >= 33) {
+            LelloOutlinedButton(onClick = { onSelectNote(state.midiNote - 12) }, enabled = state.midiNote >= 33) {
                 Text(stringResource(R.string.reference_tone_octave_down))
             }
-            OutlinedButton(onClick = { onSelectNote(state.midiNote + 12) }, enabled = state.midiNote <= 96) {
+            LelloOutlinedButton(onClick = { onSelectNote(state.midiNote + 12) }, enabled = state.midiNote <= 96) {
                 Text(stringResource(R.string.reference_tone_octave_up))
             }
         }
-        Button(onClick = onTogglePlayback) {
+        LelloButton(onClick = onTogglePlayback) {
             Text(stringResource(if (state.isPlaying) R.string.reference_tone_stop else R.string.reference_tone_play))
         }
         Text(stringResource(R.string.reference_tone_help), textAlign = TextAlign.Center)

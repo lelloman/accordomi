@@ -23,7 +23,7 @@ class PianoScreenTest {
         val profile = PianoProfile("id","Upright",440.0,0)
         compose.setContent { MaterialTheme { PianoScreen(PianoUiState(profile = profile, page = PianoPage.Calibration),PianoActions()) } }
         compose.onNodeWithTag("piano_calibration_note").assertTextEquals("A0")
-        compose.onNodeWithTag("piano_record").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag("piano_record").assertIsDisplayed().assertIsNotEnabled()
     }
     @Test fun tuningDisplaysTheProfileTarget() {
         val midi = intArrayOf(21,33,45,57,60,69,81,88,93)
@@ -33,6 +33,6 @@ class PianoScreenTest {
             List(88) { PianoTarget(it+21,curve[it+88],curve[it]) })
         compose.setContent { MaterialTheme { PianoScreen(PianoUiState(profile = profile,page = PianoPage.Tuning,midi = 108,hasPermission = true),PianoActions()) } }
         compose.onNodeWithTag("piano_target").assertTextContains(String.format(java.util.Locale.getDefault(),"%.3f",profile.targets.last().frequencyHz),substring = true)
-        compose.onNodeWithTag("piano_listen").performScrollTo().assertIsEnabled()
+        compose.onNodeWithTag("piano_listen").assertIsDisplayed().assertIsEnabled()
     }
 }

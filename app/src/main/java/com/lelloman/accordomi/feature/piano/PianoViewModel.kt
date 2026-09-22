@@ -21,12 +21,12 @@ data class PianoUiState(
     val profiles: List<PianoProfile> = emptyList(), val profile: PianoProfile? = null,
     val page: PianoPage = PianoPage.Profiles, val hasPermission: Boolean = false,
     val loaded: Boolean = false, val busy: Boolean = false, val listening: Boolean = false,
-    val midi: Int = 69, val overrideCalibrationMidi: Int? = null,
+    val midi: Int = 69, val overrideCalibrationMidi: Int? = null, val completedCalibrationMidi: Int? = null,
     val firstTake: CalibrationTake? = null, val measurement: PianoMeasurement? = null,
     val collectedWindows: Int = 0, val cents: Double? = null, val stability: Int = 0,
     val error: Int? = null, val exported: Boolean = false,
 ) {
-    val calibrationMidi: Int? get() = overrideCalibrationMidi ?: CalibrationNotes.firstOrNull { note -> profile?.samples?.none { it.midi == note } != false }
+    val calibrationMidi: Int? get() = completedCalibrationMidi ?: overrideCalibrationMidi ?: CalibrationNotes.firstOrNull { note -> profile?.samples?.none { it.midi == note } != false }
 }
 
 @HiltViewModel
@@ -67,7 +67,7 @@ class PianoViewModel @Inject constructor(
     fun select(profile: PianoProfile) {
         discardPendingTake(); stop()
         state.update { it.copy(profile = profile, page = if (profile.ready) PianoPage.Tuning else PianoPage.Calibration,
-            firstTake = null, overrideCalibrationMidi = null, error = null, midi = 69) }
+            firstTake = null, overrideCalibrationMidi = null, completedCalibrationMidi = null, error = null, midi = 69) }
     }
     fun create(name: String) {
         if (state.value.busy || !state.value.loaded || name.isBlank()) return
@@ -90,13 +90,17 @@ class PianoViewModel @Inject constructor(
     fun refineSelectedNote() = recalibrate(state.value.midi)
     fun recalibrate(midi: Int) {
         if (state.value.listening || state.value.busy || midi !in 21..108) return
-        discardPendingTake(); stop(); state.update { it.copy(page = PianoPage.Calibration, overrideCalibrationMidi = midi, firstTake = null, error = null) }
+        discardPendingTake(); stop(); state.update { it.copy(page = PianoPage.Calibration, overrideCalibrationMidi = midi, completedCalibrationMidi = null, firstTake = null, error = null) }
+    }
+    fun nextCalibrationNote() {
+        if (state.value.listening || state.value.busy) return
+        state.update { it.copy(completedCalibrationMidi = null, measurement = null, error = null) }
     }
     fun captureTake() {
         val before = state.value
         val profile = before.profile ?: return
         val midi = before.calibrationMidi ?: return
-        if (!before.hasPermission || before.listening || before.busy) return
+        if (!before.hasPermission || before.listening || before.busy || before.completedCalibrationMidi != null) return
         val previous = captureJob; val token = ++generation
         state.update { it.copy(listening = true, error = null, measurement = null, collectedWindows = 0) }
         captureJob = viewModelScope.launch {
@@ -146,7 +150,7 @@ class PianoViewModel @Inject constructor(
                             repository.save(updated); retained = true
                             state.update { current ->
                                 if (current.profile?.id == updated.id) current.copy(profile = updated,
-                                    firstTake = null, overrideCalibrationMidi = null, measurement = null)
+                                    firstTake = null, overrideCalibrationMidi = null, completedCalibrationMidi = midi, measurement = null)
                                 else current
                             }
                         }

@@ -64,6 +64,10 @@ class PianoViewModelTest {
                 assertNull(vm.uiState.value.firstTake)
                 assertTrue(vm.uiState.value.profile!!.samples.any { it.midi == midi })
                 assertEquals(0,capture.active)
+                assertEquals(midi,vm.uiState.value.completedCalibrationMidi)
+                vm.captureTake(); runCurrent() // An accepted note cannot accidentally start another capture.
+                assertEquals(0,capture.active)
+                vm.nextCalibrationNote()
             }
             vm.buildTuning(); advanceUntilIdle()
             val profile = vm.uiState.value.profile!!

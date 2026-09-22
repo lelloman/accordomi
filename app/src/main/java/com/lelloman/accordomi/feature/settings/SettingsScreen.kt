@@ -1,5 +1,6 @@
 package com.lelloman.accordomi.feature.settings
 
+import com.lelloman.lellodesign.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -20,13 +21,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.testTag
@@ -53,6 +53,7 @@ import com.lelloman.accordomi.ui.UiTestTags
 
 @Composable
 fun SettingsRoute(
+    onAbout: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -73,6 +74,7 @@ fun SettingsRoute(
         onSaveCustomTheme = viewModel::onSaveCustomTheme,
         onDeleteCustomTheme = viewModel::onDeleteCustomTheme,
         onOpenAppPermissionSettings = { context.openAppPermissionSettings() },
+        onAbout = onAbout,
     )
 }
 
@@ -88,20 +90,22 @@ fun SettingsScreen(
     onSaveCustomTheme: (ThemeId?, String, ThemePalette) -> Unit,
     onDeleteCustomTheme: (ThemeId) -> Unit,
     onOpenAppPermissionSettings: () -> Unit,
+    onAbout: () -> Unit = {},
 ) {
     val systemDark = isSystemInDarkTheme()
-    var editorRequest by remember { mutableStateOf<ThemeEditorRequest?>(null) }
+    var editorRequestKey by rememberSaveable { mutableStateOf<String?>(null) }
     val selectedCustomTheme = uiState.customThemes.firstOrNull {
         it.id == uiState.selectedThemeId
     }
     val selectedPalette = selectedCustomTheme?.palette
         ?: (BuiltInTheme.fromId(uiState.selectedThemeId) ?: BuiltInTheme.System)
             .resolvePalette(systemDark)
+    val editorRequest = editorRequestKey?.let { id ->
+        val theme = uiState.customThemes.firstOrNull { it.id.value == id }
+        ThemeEditorRequest(theme, theme?.palette ?: selectedPalette)
+    }
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-            title = { Text(stringResource(R.string.settings_title)) },
-            windowInsets = WindowInsets(0),
-        )
+
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -112,70 +116,13 @@ fun SettingsScreen(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(R.string.theme_title),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    uiState.availableBuiltInThemes.forEach { theme ->
-                        FilterChip(
-                            selected = theme.id == uiState.selectedThemeId,
-                            onClick = { onThemeChanged(theme.id) },
-                            leadingIcon = {
-                                ThemeSwatch(theme.resolvePalette(systemDark))
-                            },
-                            label = { Text(stringResource(theme.labelRes())) },
-                        )
-                    }
-                    uiState.customThemes.forEach { theme ->
-                        FilterChip(
-                            selected = theme.id == uiState.selectedThemeId,
-                            onClick = { onThemeChanged(theme.id) },
-                            leadingIcon = { ThemeSwatch(theme.palette) },
-                            label = { Text(theme.name) },
-                        )
-                    }
-                }
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    OutlinedButton(
-                        onClick = {
-                            editorRequest = ThemeEditorRequest(
-                                theme = null,
-                                startingPalette = selectedPalette,
-                            )
-                        },
-                        modifier = Modifier.testTag(UiTestTags.CreateCustomTheme),
-                    ) {
-                        Text(stringResource(R.string.theme_create_custom))
-                    }
-                    if (selectedCustomTheme != null) {
-                        OutlinedButton(
-                            onClick = {
-                                editorRequest = ThemeEditorRequest(
-                                    theme = selectedCustomTheme,
-                                    startingPalette = selectedCustomTheme.palette,
-                                )
-                            },
-                            modifier = Modifier.testTag(UiTestTags.EditCustomTheme),
-                        ) {
-                            Text(stringResource(R.string.theme_edit_custom))
-                        }
-                    }
-                }
-            }
+            LelloSettingsSection(stringResource(R.string.settings_tuning)) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = stringResource(R.string.reference_pitch_title),
                     style = MaterialTheme.typography.titleMedium,
                 )
-                OutlinedTextField(
+                LelloTextField(
                     value = uiState.referencePitchHzText,
                     onValueChange = onReferencePitchChanged,
                     modifier = Modifier
@@ -195,6 +142,80 @@ fun SettingsScreen(
             }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
+                    text = stringResource(R.string.tone_visualization_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    uiState.availableToneVisualizationStyles.forEach { style ->
+                        LelloFilterChip(
+                            selected = style == uiState.selectedToneVisualizationStyle,
+                            onClick = { onToneVisualizationStyleChanged(style) },
+                            label = { Text(stringResource(style.labelRes())) },
+                            modifier = Modifier.testTag(
+                                UiTestTags.visualizationStyle(style.storageKey),
+                            ),
+                        )
+                    }
+                }
+            }
+            }
+            LelloSettingsSection(stringResource(R.string.settings_appearance)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = stringResource(R.string.theme_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    uiState.availableBuiltInThemes.forEach { theme ->
+                        LelloFilterChip(
+                            selected = theme.id == uiState.selectedThemeId,
+                            onClick = { onThemeChanged(theme.id) },
+                            leadingIcon = {
+                                ThemeSwatch(theme.resolvePalette(systemDark))
+                            },
+                            label = { Text(stringResource(theme.labelRes())) },
+                        )
+                    }
+                    uiState.customThemes.forEach { theme ->
+                        LelloFilterChip(
+                            selected = theme.id == uiState.selectedThemeId,
+                            onClick = { onThemeChanged(theme.id) },
+                            leadingIcon = { ThemeSwatch(theme.palette) },
+                            label = { Text(theme.name) },
+                        )
+                    }
+                }
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    LelloOutlinedButton(
+                        onClick = {
+                            editorRequestKey = "new"
+                        },
+                        modifier = Modifier.testTag(UiTestTags.CreateCustomTheme),
+                    ) {
+                        Text(stringResource(R.string.theme_create_custom))
+                    }
+                    if (selectedCustomTheme != null) {
+                        LelloOutlinedButton(
+                            onClick = {
+                                editorRequestKey = selectedCustomTheme.id.value
+                            },
+                            modifier = Modifier.testTag(UiTestTags.EditCustomTheme),
+                        ) {
+                            Text(stringResource(R.string.theme_edit_custom))
+                        }
+                    }
+                }
+            }
+            }
+            LelloSettingsSection(stringResource(R.string.settings_advanced)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
                     text = stringResource(R.string.tone_detection_method_title),
                     style = MaterialTheme.typography.titleMedium,
                 )
@@ -203,7 +224,7 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     uiState.availableToneDetectionMethods.forEach { method ->
-                        FilterChip(
+                        LelloFilterChip(
                             selected = method == uiState.selectedToneDetectionMethod,
                             onClick = { onToneDetectionMethodChanged(method) },
                             label = { Text(stringResource(method.labelRes())) },
@@ -229,7 +250,7 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     uiState.availableDetectionRates.forEach { rate ->
-                        FilterChip(
+                        LelloFilterChip(
                             selected = rate == uiState.selectedDetectionRate,
                             onClick = { onDetectionRateChanged(rate) },
                             label = { Text(stringResource(rate.labelRes())) },
@@ -242,33 +263,19 @@ fun SettingsScreen(
             }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = stringResource(R.string.tone_visualization_title),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    uiState.availableToneVisualizationStyles.forEach { style ->
-                        FilterChip(
-                            selected = style == uiState.selectedToneVisualizationStyle,
-                            onClick = { onToneVisualizationStyleChanged(style) },
-                            label = { Text(stringResource(style.labelRes())) },
-                            modifier = Modifier.testTag(
-                                UiTestTags.visualizationStyle(style.storageKey),
-                            ),
-                        )
-                    }
-                }
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
                     text = stringResource(R.string.microphone_permission_title),
                     style = MaterialTheme.typography.titleMedium,
                 )
-                Button(
+                LelloButton(
                     onClick = onOpenAppPermissionSettings,
                     modifier = Modifier.testTag(UiTestTags.OpenAppPermissions),
                 ) {
                     Text(stringResource(R.string.open_app_permissions))
                 }
+            }
+            }
+            LelloSettingsSection(stringResource(R.string.nav_about)) {
+                LelloOutlinedButton(onAbout, Modifier.fillMaxWidth()) { Text(stringResource(R.string.about_title)) }
             }
         }
     }
@@ -276,15 +283,15 @@ fun SettingsScreen(
         CustomThemeEditorDialog(
             existingTheme = request.theme,
             startingPalette = request.startingPalette,
-            onDismiss = { editorRequest = null },
+            onDismiss = { editorRequestKey = null },
             onSave = { id, name, palette ->
                 onSaveCustomTheme(id, name, palette)
-                editorRequest = null
+                editorRequestKey = null
             },
             onDelete = request.theme?.let { theme ->
                 {
                     onDeleteCustomTheme(theme.id)
-                    editorRequest = null
+                    editorRequestKey = null
                 }
             },
         )
@@ -298,20 +305,7 @@ private data class ThemeEditorRequest(
 
 @Composable
 private fun ThemeSwatch(palette: ThemePalette) {
-    Canvas(modifier = Modifier.size(width = 26.dp, height = 18.dp)) {
-        val stripeWidth = size.width / 3f
-        drawRect(Color(palette.background), size = androidx.compose.ui.geometry.Size(stripeWidth, size.height))
-        drawRect(
-            Color(palette.accent),
-            topLeft = androidx.compose.ui.geometry.Offset(stripeWidth, 0f),
-            size = androidx.compose.ui.geometry.Size(stripeWidth, size.height),
-        )
-        drawRect(
-            Color(palette.inTune),
-            topLeft = androidx.compose.ui.geometry.Offset(stripeWidth * 2f, 0f),
-            size = androidx.compose.ui.geometry.Size(stripeWidth, size.height),
-        )
-    }
+    LelloPaletteSwatch(listOf(Color(palette.background), Color(palette.accent), Color(palette.inTune)))
 }
 
 private fun ToneDetectionMethod.labelRes(): Int = when (this) {

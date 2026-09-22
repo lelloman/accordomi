@@ -7,7 +7,7 @@ its equal-tempered targets and existing detection methods.
 
 ## Calibrate your upright
 
-1. Set the desired A4 reference in Settings, then open **Piano → Learn a new piano**.
+1. Set the desired A4 reference in Settings, then open **Piano → Calibrate a new piano**.
    Enter a name for the instrument. The new profile keeps this reference even if
    you later change the chromatic tuner's settings.
 2. Allow microphone access when requested. The app never starts piano recording
@@ -111,3 +111,8 @@ use synthetic data. The model still needs evaluation on real recordings and by
 listening to your instrument; the app does not claim an aurally validated tuning.
 Explicit scale-break segmentation, automatic note selection, alternative tuning
 styles and automated unison measurement remain future work.
+
+The redesigned screen keeps capture/listening controls above navigation. After both
+calibration strikes agree, the note is saved; press **Next note** to advance.
+Open **Details** for the stretch curve, target table, diagnostics, remeasurement
+and profile/recording export. **Your pianos** is also available there.

@@ -16,6 +16,6 @@ fun AccordomiRoot(
         selectedThemeId = theme.selectedThemeId,
         customPalette = theme.customPalette,
     ) {
-        AccordomiApp()
+        AccordomiApp(theme.selectedThemeId, viewModel::selectTheme)
     }
 }

@@ -1,5 +1,6 @@
 package com.lelloman.accordomi.feature.tone
 
+import com.lelloman.lellodesign.*
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -151,13 +152,13 @@ private fun PermissionRequired(
             modifier = Modifier.padding(top = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Button(
+            LelloButton(
                 onClick = onRequestPermission,
                 modifier = Modifier.testTag(UiTestTags.AllowMicrophone),
             ) {
                 Text(stringResource(R.string.allow_permission))
             }
-            OutlinedButton(
+            LelloOutlinedButton(
                 onClick = onOpenSettings,
                 modifier = Modifier.testTag(UiTestTags.OpenAppPermissions),
             ) {
@@ -190,7 +191,7 @@ private fun DetectionContent(
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center,
                     )
-                    Button(
+                    LelloButton(
                         onClick = onRetry,
                         modifier = Modifier
                             .padding(top = 16.dp)

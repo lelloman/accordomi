@@ -41,3 +41,17 @@ inspect its JSON and WAVs, and reproduce the targets with `accordomi-targets`.
 On a real piano, compare repeated isolated-string strikes and independently inspect
 partial frequencies. Listen to octave quality before relying on the curve across
 the instrument. Emulator tests establish UI/integration behavior, not acoustic quality.
+
+## LelloDesign UI pass
+
+- Check the four icon+label destinations and open About from Settings.
+- Change Light/Dark/System from the header; restart and verify persistence.
+- Create/edit a custom palette using the shared editor; rotate during editing,
+  cancel without saving, and verify existing themes remain selectable.
+- During piano tuning, alternate sound/silence and check that the meter and
+  bottom actions keep their positions and stale current pitch disappears.
+- Open Piano details, return, and verify the note/profile and listening state.
+- Record both calibration strikes: confirm the note is saved, the accepted
+  state remains visible, and Next note advances only when pressed.
+- Check 150% text at a narrow width, in light/dark and English/Italian; content
+  may scroll while primary capture/listening actions remain accessible.

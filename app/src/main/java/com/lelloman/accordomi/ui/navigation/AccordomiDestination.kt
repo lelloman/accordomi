@@ -15,5 +15,5 @@ object AccordomiDestinations {
     val ReferenceTone = AccordomiDestination("reference_tone", R.string.nav_reference_tone)
     val About = AccordomiDestination("about", R.string.nav_about)
 
-    val topLevel = listOf(ToneDetection, Piano, ReferenceTone, Settings, About)
+    val topLevel = listOf(ToneDetection, Piano, ReferenceTone, Settings)
 }

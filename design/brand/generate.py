@@ -26,6 +26,14 @@ for mono in (False,True):
     ET.indent(vector)
     name='ic_launcher_monochrome.xml' if mono else 'ic_launcher_foreground.xml'
     ET.ElementTree(vector).write(RES/'drawable'/name,encoding='utf-8',xml_declaration=True)
+# App-header artwork uses the canonical canvas with no launcher inset.
+brand = ET.Element('vector', attrs(width='100dp', height='100dp', viewportWidth=100, viewportHeight=100))
+inner = ET.SubElement(brand, 'group', attrs(rotation=12, pivotX=50, pivotY=50))
+for p in paths:
+    ET.SubElement(inner, 'path', attrs(fillColor='#00000000', pathData=p.get('d'), strokeColor=p.get('stroke'),
+        strokeWidth=p.get('stroke-width'), strokeLineCap='round', strokeLineJoin='round'))
+ET.indent(brand)
+ET.ElementTree(brand).write(RES/'drawable/ic_brand.xml', encoding='utf-8', xml_declaration=True)
 (RES/'drawable/ic_launcher_background.xml').write_text('<?xml version="1.0" encoding="utf-8"?>\n<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">\n    <solid android:color="#FFFFFF" />\n</shape>\n')
 body=ET.tostring(group,encoding='unicode').replace('ns0:','').replace(':ns0','')
 def artwork(background):return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">{background}{body}</svg>'

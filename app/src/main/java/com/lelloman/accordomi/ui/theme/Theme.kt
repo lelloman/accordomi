@@ -1,11 +1,9 @@
 package com.lelloman.accordomi.ui.theme
 
 import android.app.Activity
+import com.lelloman.lellodesign.*
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -62,11 +60,10 @@ fun AccordomiTheme(
         }
     }
     CompositionLocalProvider(LocalAccordomiColors provides palette.toAccordomiColors()) {
-        MaterialTheme(
-            colorScheme = palette.toColorScheme(),
-            typography = Typography,
-            content = content,
-        )
+        val lello = if (customPalette == null && selectedTheme in listOf(BuiltInTheme.System, BuiltInTheme.Light, BuiltInTheme.Dark)) {
+            LelloPalettes.forProduct("green", palette.isDark)
+        } else palette.toLelloPalette()
+        LelloTheme(palette = lello, content = content)
     }
 }
 
@@ -77,41 +74,23 @@ private fun ThemePalette.toAccordomiColors() = AccordomiColors(
     pianoBlack = Color(pianoBlack),
 )
 
-private fun ThemePalette.toColorScheme(): ColorScheme {
-    val backgroundColor = Color(background)
-    val surfaceColor = Color(surface)
-    val variantColor = Color(surfaceVariant)
-    val accentColor = Color(accent)
-    val textColor = Color(text)
-    val secondaryTextColor = Color(secondaryText)
-    val outlineColor = Color(outline)
-    val base = if (isDark) darkColorScheme() else lightColorScheme()
-    return base.copy(
-        primary = accentColor,
-        onPrimary = Color(onAccent),
-        primaryContainer = variantColor,
-        onPrimaryContainer = textColor,
-        secondary = accentColor,
-        onSecondary = Color(onAccent),
-        secondaryContainer = variantColor,
-        onSecondaryContainer = textColor,
-        tertiary = Color(offPitch),
-        onTertiary = Color(onAccent),
-        tertiaryContainer = variantColor,
-        onTertiaryContainer = textColor,
-        error = Color(error),
-        onError = Color(onError),
-        errorContainer = variantColor,
-        onErrorContainer = textColor,
-        background = backgroundColor,
-        onBackground = textColor,
-        surface = surfaceColor,
-        onSurface = textColor,
-        surfaceVariant = variantColor,
-        onSurfaceVariant = secondaryTextColor,
-        outline = outlineColor,
-        outlineVariant = outlineColor.copy(alpha = 0.55f),
-        surfaceContainer = surfaceColor,
-        surfaceContainerHigh = variantColor,
-    )
-}
+/** Preserve saved custom/legacy themes while supplying every shared semantic role. */
+private fun ThemePalette.toLelloPalette(): LelloPalette = LelloPalettes.forProduct("green", isDark).withColors(
+    name = "accordomi-custom",
+    overrides = buildMap {
+        fun roles(value: Int, vararg keys: String) { keys.forEach { put(it, Color(value)) } }
+        roles(background, "background")
+        roles(surface, "surface", "surface-raised")
+        roles(surfaceVariant, "surface-sunken", "surface-hover", "surface-pressed", "selected", "selected-hover",
+            "primary-container", "secondary-container", "tertiary-container")
+        roles(accent, "primary", "primary-hover", "primary-pressed", "secondary", "selected-indicator", "focus-ring")
+        roles(onAccent, "on-primary", "on-secondary")
+        roles(text, "text", "on-selected", "on-primary-container", "on-secondary-container", "on-tertiary-container")
+        roles(secondaryText, "text-secondary", "text-muted")
+        roles(outline, "border-subtle", "border-control")
+        roles(inTune, "success")
+        roles(offPitch, "warning")
+        roles(error, "error-solid")
+        roles(onError, "on-error-solid")
+    },
+)

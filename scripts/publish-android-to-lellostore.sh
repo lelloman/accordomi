@@ -52,4 +52,4 @@ echo "Artifact: $ARTIFACT"
 echo "Variant:  release"
 echo "Size:     $ARTIFACT_SIZE bytes"
 
-"$PUBLISHER" upload "$ARTIFACT" --replace-latest "$@"
+"$PUBLISHER" upload "$ARTIFACT" --publish "$@"

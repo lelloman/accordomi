@@ -97,3 +97,5 @@ Settings are stored with Preferences DataStore. Hilt provides application depend
 ## Attribution
 
 Third-party artwork attribution is recorded in [NOTICE](NOTICE). The launcher-icon working source is retained in `icon-lab.html`.
+
+The interface uses the published LelloDesign Compose library; see [UI adoption and build access](LELLODESIGN.md).
