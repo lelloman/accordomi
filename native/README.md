@@ -7,10 +7,13 @@ capture, playback, scheduling, note-name formatting, settings and UI in Kotlin.
 Detector thresholds, interpolation, note confirmation and eight-frame dropout
 behavior are preserved. There is no automatic stretch correction.
 
-The new **experimental measurement API** analyzes isolated piano strings using a
-known note identity. It does not yet provide piano profiles, target optimization,
-a calibration screen, automatic note identification, drift warnings or unison
-measurement. These remain separate follow-up milestones after recording validation.
+The **piano measurement API** analyzes isolated strings using a known note identity.
+Android now provides guided calibration, saved profiles, calculated targets and a
+piano tuning meter with drift indication; see [PIANO_TUNING.md](../PIANO_TUNING.md).
+`ac_piano_targets` and `accordomi-targets` generate the same octave-based curve on
+the desktop. `ac_measure_piano` measures pitch using a known profile B, including
+high notes with too few partials to fit B independently. Automatic note identification,
+scale-break segmentation and automated unison measurement remain future work.
 
 ## Build and validate on Linux / macOS
 
@@ -152,7 +155,67 @@ JNI array copies and result objects can still allocate; allocation-free C does n
 mean allocation-free Android. Oscillator/stabilizer state belongs to each Kotlin
 instance and should remain confined to its owning session.
 
-`PianoAnalyzer` exposes structured measurements to Android callers; run it on a
-worker dispatcher with long windows rather than the UI thread. Current capture
-still supplies the legacy 4,096-sample frames and is not wired to this experimental
-API. An Android recording/calibration workflow is follow-up work.
+`PianoAnalyzer` exposes structured measurements to Android callers. The Piano tab
+uses a worker dispatcher with 65,536-sample capture windows and a 16,384-sample hop.
+The legacy chromatic capture remains 4,096 / 1,024. Accepted calibration WAVs and
+partial observations are retained for export. All piano math remains in C.
+
+## FFT optimization and device benchmark (2026-09-22)
+
+The FFT caches stage-contiguous sine/cosine factors in each workspace. Independent
+butterfly calculations use disjoint (`restrict`) arrays, allowing the NDK compiler
+to generate ARM64 NEON double-precision vector instructions. No `fast-math`,
+phone-specific instruction requirement or forced CPU affinity is added to the app.
+JNI initializes its workspace only when allocating it, preserving the plan between
+frames. Changing FFT length rebuilds the plan. The cache adds approximately 256 KiB
+to a 4,096-sample workspace and incurs a first-use setup cost; timings below are warm.
+
+The connected CPH2493 / MT6983 ARM64 phone was measured with the native benchmark,
+built using NDK 27 / Clang 18, CMake Release defaults for both implementations.
+Baseline is the C engine at `9d2b54d`. Two alternating before/after runs were pinned
+to permitted CPU 6 (`taskset 40`); CPU frequency and temperature were not locked.
+Each method used 100 warmup calls, then 101 timed batches of 10 calls on the same
+4,096-sample, 44.1 kHz, 110 Hz harmonic fixture.
+
+| Method | Before median range | After median range |
+| --- | ---: | ---: |
+| Correlation stage | 665–666 µs | 390–392 µs |
+| YIN | 678–684 µs | 401–403 µs |
+| Autocorrelation | 683–688 µs | 407–410 µs |
+| McLeod | 684–690 µs | 407–409 µs |
+
+This is approximately 40% less native compute time (~1.7× throughput). It excludes
+JNI, microphone capture, scheduling and UI; it does not establish a battery-life
+or end-to-end latency improvement. Capture still observes roughly 93 ms per frame.
+The native numerical suite also passed on this physical ARM64 phone, including
+reused FFT plans, different frame lengths, piano fitting and all 88 chromatic notes.
+
+A desktop native comparison on the Ryzen 9 5950X measured about 25–27% less detector
+time (single unpinned run). Treat short JVM timing audits and desktop numbers as
+separate experiments, not substitutes for the phone comparison.
+
+Build the optional benchmark on the host:
+
+```sh
+cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release -DAC_BUILD_BENCHMARKS=ON
+cmake --build build/native --target accordomi-benchmark
+build/native/accordomi-benchmark
+```
+
+Or cross-compile the same executable for Android, using your NDK installation:
+
+```sh
+cmake -S native -B build/arm-bench \
+  -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-29 \
+  -DCMAKE_BUILD_TYPE=Release -DAC_BUILD_BENCHMARKS=ON
+cmake --build build/arm-bench --target accordomi-benchmark
+adb -s DEVICE_SERIAL push build/arm-bench/accordomi-benchmark /data/local/tmp/accordomi-benchmark
+adb -s DEVICE_SERIAL shell chmod 755 /data/local/tmp/accordomi-benchmark
+adb -s DEVICE_SERIAL shell /data/local/tmp/accordomi-benchmark
+```
+
+If comparing variants, alternate them on the same permitted core and retain both
+median and p95 values. Affinity restrictions vary by device; do not assume CPU 7
+is available to the shell. The benchmark is intentionally not a timing assertion
+in CI.

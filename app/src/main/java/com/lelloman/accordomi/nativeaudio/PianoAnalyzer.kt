@@ -6,7 +6,13 @@ package com.lelloman.accordomi.nativeaudio
 class PianoAnalyzer {
     fun analyze(samples: FloatArray, sampleRate: Int, expectedFirstPartialHz: Double): PianoMeasurement {
         val raw = NativeAudio.piano(samples, sampleRate, expectedFirstPartialHz)
-        return PianoMeasurement(
+        return decode(raw)
+    }
+
+    fun measure(samples: FloatArray, sampleRate: Int, targetHz: Double, b: Double): PianoMeasurement =
+        decode(NativeAudio.measurePiano(samples, sampleRate, targetHz, b))
+
+    private fun decode(raw: DoubleArray): PianoMeasurement = PianoMeasurement(
             status = PianoMeasurementStatus.entries[raw[0].toInt()],
             firstPartialHz = raw[1], inharmonicity = raw[2], rmsCents = raw[3], quality = raw[4],
             partials = List(raw[6].toInt()) { index ->
@@ -15,7 +21,6 @@ class PianoAnalyzer {
                     raw[offset + 3], raw[offset + 4], raw[offset + 5] != 0.0)
             },
         )
-    }
 }
 
 enum class PianoMeasurementStatus { Usable, InvalidInput, Quiet, InsufficientPartials, PoorFit }
@@ -33,4 +38,6 @@ data class PianoMeasurement(
     /** Heuristic fit quality, not a calibrated probability. */
     val quality: Double,
     val partials: List<PianoPartial>,
+    val startSample: Long = -1,
+    val recording: String = "",
 )

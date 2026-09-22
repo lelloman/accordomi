@@ -22,7 +22,13 @@ class AndroidAudioRecorder @Inject constructor(
     private val audioRecordFactory: AudioRecordFactory,
 ) : AudioRecorder {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    override fun frames(): Flow<AudioFrame> = flow {
+    override fun frames(): Flow<AudioFrame> = capture(FrameSize, HopSize)
+
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    fun pianoFrames(): Flow<AudioFrame> = capture(65_536, 16_384)
+
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    private fun capture(frameSize: Int, hopSize: Int): Flow<AudioFrame> = flow {
         val sampleRate = SampleRate
         val minBufferSize = audioRecordFactory.minimumBufferSize(
             sampleRate,
@@ -34,7 +40,7 @@ class AndroidAudioRecorder @Inject constructor(
                 "Unable to determine a supported audio buffer size (error $minBufferSize).",
             )
         }
-        val bufferSize = maxOf(minBufferSize, FrameSize * BytesPerSample)
+        val bufferSize = maxOf(minBufferSize, frameSize * BytesPerSample)
         val audioRecord = try {
             audioRecordFactory.create(
                 MediaRecorder.AudioSource.MIC,
@@ -46,10 +52,10 @@ class AndroidAudioRecorder @Inject constructor(
         } catch (error: Exception) {
             throw AudioRecordingException("Unable to create the audio recorder.", error)
         }
-        val readBuffer = ShortArray(HopSize)
+        val readBuffer = ShortArray(hopSize)
         val frameBuffer = OverlappingAudioFrameBuffer(
-            frameSize = FrameSize,
-            hopSize = HopSize,
+            frameSize = frameSize,
+            hopSize = hopSize,
         )
         var nextSequenceNumber = 0L
         var recordingStarted = false

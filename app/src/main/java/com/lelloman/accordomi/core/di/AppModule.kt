@@ -25,6 +25,15 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class AppModule {
     @Binds
+    abstract fun bindPianoExporter(exporter: com.lelloman.accordomi.data.piano.PianoExporter): com.lelloman.accordomi.data.piano.PianoExportService
+
+    @Binds
+    abstract fun bindPianoProfiles(repository: com.lelloman.accordomi.data.piano.PianoProfileRepository): com.lelloman.accordomi.domain.piano.PianoProfiles
+
+    @Binds
+    abstract fun bindPianoCapture(source: com.lelloman.accordomi.data.piano.AndroidPianoCapture): com.lelloman.accordomi.domain.piano.PianoCaptureSource
+
+    @Binds
     abstract fun bindReferenceToneOutput(player: ReferenceTonePlayer): ReferenceToneOutput
 
     @Binds

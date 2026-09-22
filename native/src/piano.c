@@ -146,14 +146,14 @@ static int nearest_peak(const ac_workspace *w, int count, double bin) {
         --lo;
     return w->peaks[lo];
 }
-ac_piano_status ac_analyze_piano(ac_workspace *w, const float *s, size_t n, int rate,
-                                 double expected, ac_piano_result *r) {
+static ac_piano_status analyze(ac_workspace *w, const float *s, size_t n, int rate, double expected,
+                               double known_b, ac_piano_result *r) {
     if (!r)
         return AC_PIANO_INVALID;
     memset(r, 0, sizeof(*r));
     r->status = AC_PIANO_INVALID;
     if (!w || !s || n < 2048 || n > w->capacity || rate < 8000 || rate > 192000 ||
-        !isfinite(expected) || expected < 20 || expected >= rate / 8.0)
+        !isfinite(expected) || expected < 20 || expected >= rate * (known_b >= 0 ? .45 : .125))
         return r->status;
     size_t fft = ac_fft_size(4 * n);
     double mean = 0, energy = 0;
@@ -174,7 +174,7 @@ ac_piano_status ac_analyze_piano(ac_workspace *w, const float *s, size_t n, int 
     }
     if (sqrt(energy / n) < .0001)
         return r->status = AC_PIANO_QUIET;
-    ac_fft(w->real, w->imag, fft, 0);
+    ac_fft(w, fft, 0);
     double maximum = 0;
     for (size_t i = 0; i <= fft / 2; ++i) {
         w->real[i] = hypot(w->real[i], w->imag[i]);
@@ -204,13 +204,15 @@ ac_piano_status ac_analyze_piano(ac_workspace *w, const float *s, size_t n, int 
         if ((size_t)peaks < w->capacity)
             w->peaks[peaks++] = (int)i;
     }
-    if (peaks < 4)
+    if (peaks < (known_b >= 0 ? 1 : 4))
         return r->status = AC_PIANO_INSUFFICIENT_PARTIALS;
     double bin_hz = (double)rate / fft, best_score = -1;
     ac_partial candidates[AC_MAX_PARTIALS], best[AC_MAX_PARTIALS];
     int best_count = 0;
-    for (int bi = 0; bi <= 160; ++bi) {
-        double b = bi == 0 ? 0 : 1e-6 * pow(MAX_B / 1e-6, (bi - 1) / 159.0);
+    for (int bi = 0; bi <= (known_b >= 0 ? 0 : 160); ++bi) {
+        double b = known_b >= 0 ? known_b
+                   : bi == 0    ? 0
+                                : 1e-6 * pow(MAX_B / 1e-6, (bi - 1) / 159.0);
         for (int shift = -80; shift <= 80; shift += 10) {
             double f = expected * pow(2, shift / 1200.0), score = 0;
             int count = 0, last_peak = -1;
@@ -232,7 +234,7 @@ ac_piano_status ac_analyze_piano(ac_workspace *w, const float *s, size_t n, int 
                 score += 1 - .1 * fabs(frequency - predicted) / tolerance;
                 last_peak = peak;
             }
-            if (count >= 4 && score > best_score) {
+            if (count >= (known_b >= 0 ? 1 : 4) && score > best_score) {
                 best_score = score;
                 best_count = count;
                 memcpy(best, candidates, count * sizeof(*best));
@@ -241,10 +243,68 @@ ac_piano_status ac_analyze_piano(ac_workspace *w, const float *s, size_t n, int 
     }
     if (!best_count)
         return r->status = AC_PIANO_INSUFFICIENT_PARTIALS;
-    ac_fit_partials(best, (size_t)best_count, r);
+    if (known_b >= 0) {
+        double candidates[AC_MAX_PARTIALS];
+        for (int i = 0; i < best_count; ++i)
+            candidates[i] = best[i].frequency_hz / ac_partial_hz(1, known_b, best[i].number);
+        /* Median vote across observed partials, robust to a stray spectral peak. */
+        for (int i = 1; i < best_count; ++i)
+            for (int j = i; j > 0 && candidates[j] < candidates[j - 1]; --j) {
+                double value = candidates[j];
+                candidates[j] = candidates[j - 1];
+                candidates[j - 1] = value;
+            }
+        r->first_partial_hz = candidates[best_count / 2];
+        r->inharmonicity = known_b;
+        r->partial_count = best_count;
+        double error = 0, weighted = 0, weights = 0;
+        for (int i = 0; i < best_count; ++i) {
+            double f = best[i].frequency_hz / ac_partial_hz(1, known_b, best[i].number);
+            if (fabs(cents(f, r->first_partial_hz)) <= 3) {
+                double weight = sqrt(best[i].amplitude);
+                weighted += f * weight;
+                weights += weight;
+            }
+        }
+        if (weights > 0)
+            r->first_partial_hz = weighted / weights;
+        for (int i = 0; i < best_count; ++i) {
+            ac_partial *part = &r->partials[i];
+            *part = best[i];
+            part->predicted_hz = ac_partial_hz(r->first_partial_hz, known_b, part->number);
+            part->residual_cents = cents(part->frequency_hz, part->predicted_hz);
+            part->used = fabs(part->residual_cents) <= 3;
+            if (part->used) {
+                ++r->used_count;
+                error += part->residual_cents * part->residual_cents;
+            }
+        }
+        r->status =
+            r->used_count && r->used_count >= .6 * best_count ? AC_PIANO_OK : AC_PIANO_POOR_FIT;
+        if (r->used_count)
+            r->rms_cents = sqrt(error / r->used_count);
+        r->quality = fmin(1, r->used_count / 4.0) * exp(-r->rms_cents / 2);
+    } else {
+        ac_fit_partials(best, (size_t)best_count, r);
+    }
     if (r->status == AC_PIANO_OK && fabs(cents(r->first_partial_hz, expected)) > 80)
         r->status = AC_PIANO_POOR_FIT;
     return r->status;
+}
+ac_piano_status ac_analyze_piano(ac_workspace *w, const float *s, size_t n, int rate,
+                                 double expected, ac_piano_result *r) {
+    return analyze(w, s, n, rate, expected, -1, r);
+}
+ac_piano_status ac_measure_piano(ac_workspace *w, const float *s, size_t n, int rate,
+                                 double expected, double b, ac_piano_result *r) {
+    if (!isfinite(b) || b < 0 || b > MAX_B) {
+        if (r) {
+            memset(r, 0, sizeof(*r));
+            r->status = AC_PIANO_INVALID;
+        }
+        return AC_PIANO_INVALID;
+    }
+    return analyze(w, s, n, rate, expected, b, r);
 }
 struct ac_piano_stream {
     int rate;

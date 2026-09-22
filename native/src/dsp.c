@@ -12,7 +12,7 @@ size_t ac_fft_size(size_t n) {
 size_t ac_workspace_bytes(size_t n) {
     if (n < 2 || n > 1048576)
         return 0;
-    return sizeof(ac_workspace) + (2 * ac_fft_size(4 * n) + 3 * (n + 1)) * sizeof(double) +
+    return sizeof(ac_workspace) + (4 * ac_fft_size(4 * n) + 3 * (n + 1)) * sizeof(double) +
            (n + 1) * sizeof(int);
 }
 ac_workspace *ac_workspace_init(void *memory, size_t bytes, size_t n) {
@@ -22,9 +22,12 @@ ac_workspace *ac_workspace_init(void *memory, size_t bytes, size_t n) {
     ac_workspace *w = memory;
     w->capacity = n;
     w->fft_capacity = ac_fft_size(4 * n);
+    w->plan_size = 0;
     w->real = (double *)(w + 1);
     w->imag = w->real + w->fft_capacity;
-    w->energy = w->imag + w->fft_capacity;
+    w->twiddle_real = w->imag + w->fft_capacity;
+    w->twiddle_imag = w->twiddle_real + w->fft_capacity;
+    w->energy = w->twiddle_imag + w->fft_capacity;
     w->values = w->energy + n + 1;
     w->difference = w->values + n + 1;
     w->peaks = (int *)(w->difference + n + 1);
@@ -42,7 +45,35 @@ ac_workspace *ac_workspace_create(size_t n) {
 void ac_workspace_destroy(ac_workspace *w) {
     free(w);
 }
-void ac_fft(double *r, double *im, size_t n, int inverse) {
+/* Stage-contiguous twiddles remove the loop-carried complex rotation. The
+ * butterfly inputs/outputs are disjoint, so the compiler can use ARM64 NEON
+ * (or the host vector ISA) without architecture-specific accuracy shortcuts. */
+static void butterflies(double *restrict ar, double *restrict ai, double *restrict br,
+                        double *restrict bi, const double *restrict wr, const double *restrict wi,
+                        size_t count, double sign) {
+    for (size_t i = 0; i < count; ++i) {
+        double imaginary = sign * wi[i];
+        double real = wr[i] * br[i] - imaginary * bi[i];
+        double imag = wr[i] * bi[i] + imaginary * br[i];
+        br[i] = ar[i] - real;
+        bi[i] = ai[i] - imag;
+        ar[i] += real;
+        ai[i] += imag;
+    }
+}
+void ac_fft(ac_workspace *w, size_t n, int inverse) {
+    double *r = w->real, *im = w->imag;
+    if (w->plan_size != n) {
+        for (size_t width = 2; width <= n; width *= 2) {
+            size_t half = width / 2;
+            for (size_t offset = 0; offset < half; ++offset) {
+                double angle = -2 * PI * offset / width;
+                w->twiddle_real[half + offset] = cos(angle);
+                w->twiddle_imag[half + offset] = sin(angle);
+            }
+        }
+        w->plan_size = n;
+    }
     size_t reversed = 0;
     for (size_t i = 1; i < n; ++i) {
         size_t bit = n >> 1;
@@ -61,22 +92,10 @@ void ac_fft(double *r, double *im, size_t n, int inverse) {
         }
     }
     for (size_t width = 2; width <= n; width *= 2) {
-        double angle = (inverse ? 2 : -2) * PI / width, sr = cos(angle), si = sin(angle);
         size_t half = width / 2;
-        for (size_t start = 0; start < n; start += width) {
-            double wr = 1, wi = 0;
-            for (size_t offset = 0; offset < half; ++offset) {
-                size_t a = start + offset, b = a + half;
-                double r1 = wr * r[b] - wi * im[b], i1 = wr * im[b] + wi * r[b];
-                r[b] = r[a] - r1;
-                im[b] = im[a] - i1;
-                r[a] += r1;
-                im[a] += i1;
-                double next = wr * sr - wi * si;
-                wi = wr * si + wi * sr;
-                wr = next;
-            }
-        }
+        for (size_t start = 0; start < n; start += width)
+            butterflies(r + start, im + start, r + start + half, im + start + half,
+                        w->twiddle_real + half, w->twiddle_imag + half, half, inverse ? -1 : 1);
     }
     if (inverse)
         for (size_t i = 0; i < n; ++i) {
@@ -103,12 +122,12 @@ int ac_prepare_correlation(ac_workspace *w, const float *samples, size_t n) {
         w->real[i] = s;
         w->energy[i + 1] = w->energy[i] + s * s;
     }
-    ac_fft(w->real, w->imag, fft, 0);
+    ac_fft(w, fft, 0);
     for (size_t i = 0; i < fft; ++i) {
         w->real[i] = w->real[i] * w->real[i] + w->imag[i] * w->imag[i];
         w->imag[i] = 0;
     }
-    ac_fft(w->real, w->imag, fft, 1);
+    ac_fft(w, fft, 1);
     return 1;
 }
 int ac_correlate(ac_workspace *w, const float *s, size_t n, double *c, double *a, double *b) {

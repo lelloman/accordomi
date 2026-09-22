@@ -7,6 +7,16 @@ below describe the earlier Kotlin implementation, not current native timing.
 
 The detectors are substantially cheaper after this change and accurate on clean synthetic tones. They are **not yet validated as precision piano tuning tools**: high-register octave mistakes and bias from inharmonic partials remain. No Android device was connected for playback, microphone, thermal, or on-device timing measurements.
 
+## Subsequent FFT optimization — 2026-09-22
+
+After the initial port, caching FFT factors and exposing independent butterfly
+operations enabled compiler-generated ARM64 NEON vectorization. Alternating native
+benchmarks on the connected CPH2493 / MT6983 phone measured roughly 0.68 ms before
+and 0.40–0.41 ms after per detector call (~40% less compute). Native accuracy tests
+passed on that phone. This excludes JNI/capture/UI and is not a battery benchmark;
+see [the benchmark methodology](native/README.md#fft-optimization-and-device-benchmark-2026-09-22).
+The migration-only comparison below predates this optimization.
+
 ## Native migration timing — 2026-09-22
 
 The unchanged host audit was run against the previous Kotlin implementation at

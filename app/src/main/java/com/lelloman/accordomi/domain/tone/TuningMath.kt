@@ -22,7 +22,7 @@ object TuningMath {
         )
     }
 
-    private fun noteName(midiNote: Int): String {
+    fun noteName(midiNote: Int): String {
         val note = Math.floorMod(midiNote, NoteNames.size)
         val octave = Math.floorDiv(midiNote, NoteNames.size) - 1
         return "${NoteNames[note]}$octave"

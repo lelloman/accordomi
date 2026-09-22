@@ -28,3 +28,16 @@ Record the device model, Android version, audio source, detector method, and any
 8. Check English and Italian layouts, large font size, and landscape scrolling.
 
 These playback checks and the on-device accuracy/performance checks were not run in the 2026-09-08 development session because no device was connected.
+
+## Piano mode
+
+Follow [PIANO_TUNING.md](PIANO_TUNING.md). Verify that a completed calibration note
+survives leaving the tab and restarting the app, that a profile retains its A4
+reference after a Settings change, and that the displayed target agrees with its
+88-note table. Revoke microphone permission or background the app during a take;
+recording must stop, with no old cents reading retained. Export a profile ZIP,
+inspect its JSON and WAVs, and reproduce the targets with `accordomi-targets`.
+
+On a real piano, compare repeated isolated-string strikes and independently inspect
+partial frequencies. Listen to octave quality before relying on the curve across
+the instrument. Emulator tests establish UI/integration behavior, not acoustic quality.

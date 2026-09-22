@@ -75,6 +75,20 @@ class CliTests(unittest.TestCase):
         self.assertEqual(csv.returncode, 0)
         self.assertIn('predicted_hz,residual_cents,used', csv.stdout)
 
+    def test_target_cli_preserves_reference_and_rejects_duplicate_samples(self):
+        samples = Path(self.directory.name) / 'samples.csv'
+        samples.write_text('midi,B\n' + ''.join(f'{midi},0.0003\n' for midi in [93, 21, 45, 33, 69, 81, 88]))
+        command = [str(Path(CLI).with_name('accordomi-targets')), str(samples), '--reference', '442']
+        result = subprocess.run(command, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        rows = [json.loads(line) for line in result.stdout.splitlines()]
+        self.assertEqual(len(rows), 88)
+        self.assertEqual(rows[48]['target_hz'], 442)
+        self.assertLess(rows[0]['stretch_cents'], 0)
+        self.assertGreater(rows[-1]['stretch_cents'], 0)
+        samples.write_text(samples.read_text() + '45,0.0003\n')
+        self.assertEqual(subprocess.run(command, capture_output=True).returncode, 2)
+
     def test_bad_input_and_short_recordings(self):
         wav(self.path, [0.0] * 100)
         self.assertEqual(self.run_cli().returncode, 3)

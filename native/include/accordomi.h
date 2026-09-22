@@ -67,6 +67,16 @@ ac_piano_status ac_fit_partials(const ac_partial *, size_t count, ac_piano_resul
    within [0,.02]. Hann window, padded/interpolated spectral peaks. */
 ac_piano_status ac_analyze_piano(ac_workspace *, const float *, size_t count, int sample_rate,
                                  double expected_hz, ac_piano_result *);
+/* Piano model v1: octave compromises, a middle-register ET prior, smoothness,
+   exact A4. Sorted measured notes must cover at least A1..E6. */
+int ac_piano_targets(const int *midi, const double *b, size_t count, double reference,
+                     double *interpolated_b, double *targets);
+double ac_cents_between(double actual, double target);
+int ac_calibration_summary(const double *hz, const double *b, const double *quality, size_t count,
+                           double *output);
+int ac_pitch_stability(const double *hz, const double *seconds, size_t count);
+ac_piano_status ac_measure_piano(ac_workspace *, const float *, size_t count, int sample_rate,
+                                 double target_hz, double known_b, ac_piano_result *);
 /* Fixed window/hop streaming adapter; callback runs synchronously. No padding
    of incomplete windows. Reset between notes/recordings. No processing allocation. */
 typedef struct ac_piano_stream ac_piano_stream;

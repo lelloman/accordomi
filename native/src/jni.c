@@ -1,4 +1,4 @@
-#include "accordomi.h"
+#include "internal.h"
 #include <jni.h>
 #include <math.h>
 #include <stdlib.h>
@@ -28,7 +28,10 @@ static ac_workspace *workspace(JNIEnv *env, jobject storage, int count) {
     }
     void *memory = (*env)->GetDirectBufferAddress(env, storage);
     jlong bytes = (*env)->GetDirectBufferCapacity(env, storage);
-    ac_workspace *w = bytes > 0 ? ac_workspace_init(memory, (size_t)bytes, (size_t)count) : NULL;
+    ac_workspace *w = memory;
+    size_t required = ac_workspace_bytes((size_t)count);
+    if (!w || !required || bytes < (jlong)required || w->capacity < (size_t)count)
+        w = NULL;
     if (!w)
         fail(env, "java/lang/IllegalArgumentException", "Invalid workspace or audio frame size");
     return w;
@@ -37,6 +40,18 @@ JNIEXPORT jint JNICALL JNI_NAME(workspaceBytes)(JNIEnv *env, jobject self, jint 
     (void)env;
     (void)self;
     return (jint)ac_workspace_bytes((size_t)count);
+}
+JNIEXPORT void JNICALL JNI_NAME(initializeWorkspace)(JNIEnv *env, jobject self, jobject storage,
+                                                     jint count) {
+    (void)self;
+    if (!storage) {
+        fail(env, "java/lang/IllegalArgumentException", "Missing workspace");
+        return;
+    }
+    void *memory = (*env)->GetDirectBufferAddress(env, storage);
+    jlong bytes = (*env)->GetDirectBufferCapacity(env, storage);
+    if (bytes <= 0 || !ac_workspace_init(memory, (size_t)bytes, (size_t)count))
+        fail(env, "java/lang/IllegalArgumentException", "Invalid workspace");
 }
 JNIEXPORT jdoubleArray JNICALL JNI_NAME(detectNative)(JNIEnv *env, jobject self,
                                                       jfloatArray samples, jint rate, jint method,
@@ -160,7 +175,8 @@ JNIEXPORT void JNICALL JNI_NAME(oscillator)(JNIEnv *env, jobject self, jdoubleAr
     (*env)->SetDoubleArrayRegion(env, state, 0, 2, next);
 }
 JNIEXPORT jdoubleArray JNICALL JNI_NAME(pianoNative)(JNIEnv *env, jobject self, jfloatArray samples,
-                                                     jint rate, jdouble expected, jobject storage) {
+                                                     jint rate, jdouble expected, jdouble known_b,
+                                                     jobject storage) {
     (void)self;
     if (!length(env, samples, 2))
         return NULL;
@@ -173,7 +189,10 @@ JNIEXPORT jdoubleArray JNICALL JNI_NAME(pianoNative)(JNIEnv *env, jobject self, 
     if (!s) {
         return NULL;
     }
-    ac_analyze_piano(w, s, n, rate, expected, &r);
+    if (known_b < 0)
+        ac_analyze_piano(w, s, n, rate, expected, &r);
+    else
+        ac_measure_piano(w, s, n, rate, expected, known_b, &r);
     (*env)->ReleaseFloatArrayElements(env, samples, s, JNI_ABORT);
     double result[7 + 6 * AC_MAX_PARTIALS] = {r.status,       r.first_partial_hz, r.inharmonicity,
                                               r.rms_cents,    r.quality,          r.used_count,
@@ -189,4 +208,60 @@ JNIEXPORT jdoubleArray JNICALL JNI_NAME(pianoNative)(JNIEnv *env, jobject self, 
         result[j + 5] = p.used;
     }
     return doubles(env, result, 7 + 6 * r.partial_count);
+}
+
+JNIEXPORT jdoubleArray JNICALL JNI_NAME(pianoTargets)(JNIEnv *env, jobject self, jintArray notes,
+                                                      jdoubleArray stiffness, jdouble reference) {
+    (void)self;
+    if (!length(env, notes, 4) || !length(env, stiffness, 4))
+        return NULL;
+    int count = (*env)->GetArrayLength(env, notes);
+    if (count > 88 || (*env)->GetArrayLength(env, stiffness) != count) {
+        fail(env, "java/lang/IllegalArgumentException", "Invalid piano samples");
+        return NULL;
+    }
+    jint midi[88];
+    double b[88], result[176];
+    (*env)->GetIntArrayRegion(env, notes, 0, count, midi);
+    (*env)->GetDoubleArrayRegion(env, stiffness, 0, count, b);
+    if (!ac_piano_targets(midi, b, count, reference, result, result + 88))
+        return NULL;
+    return doubles(env, result, 176);
+}
+JNIEXPORT jdoubleArray JNICALL JNI_NAME(calibrationSummary)(JNIEnv *env, jobject self,
+                                                            jdoubleArray frequencies,
+                                                            jdoubleArray stiffness,
+                                                            jdoubleArray qualities) {
+    (void)self;
+    if (!length(env, frequencies, 2) || !length(env, stiffness, 2) || !length(env, qualities, 2))
+        return NULL;
+    int count = (*env)->GetArrayLength(env, frequencies);
+    if (count > 32 || (*env)->GetArrayLength(env, stiffness) != count ||
+        (*env)->GetArrayLength(env, qualities) != count)
+        return NULL;
+    double hz[32], b[32], quality[32], result[3];
+    (*env)->GetDoubleArrayRegion(env, frequencies, 0, count, hz);
+    (*env)->GetDoubleArrayRegion(env, stiffness, 0, count, b);
+    (*env)->GetDoubleArrayRegion(env, qualities, 0, count, quality);
+    if (!ac_calibration_summary(hz, b, quality, count, result))
+        return NULL;
+    return doubles(env, result, 3);
+}
+JNIEXPORT jdouble JNICALL JNI_NAME(cents)(JNIEnv *env, jobject self, jdouble hz, jdouble target) {
+    (void)env;
+    (void)self;
+    return ac_cents_between(hz, target);
+}
+JNIEXPORT jint JNICALL JNI_NAME(stability)(JNIEnv *env, jobject self, jdoubleArray frequencies,
+                                           jdoubleArray times) {
+    (void)self;
+    if (!length(env, frequencies, 0) || !length(env, times, 0))
+        return 0;
+    int count = (*env)->GetArrayLength(env, frequencies);
+    if (count > 32 || (*env)->GetArrayLength(env, times) != count)
+        return 0;
+    double hz[32], seconds[32];
+    (*env)->GetDoubleArrayRegion(env, frequencies, 0, count, hz);
+    (*env)->GetDoubleArrayRegion(env, times, 0, count, seconds);
+    return ac_pitch_stability(hz, seconds, count);
 }

@@ -18,12 +18,20 @@ object NativeAudio {
     fun correlate(samples: FloatArray): DoubleArray =
         pitchWorkspace.use(samples.size) { correlateNative(samples, it) }
     fun piano(samples: FloatArray, sampleRate: Int, expectedHz: Double): DoubleArray =
-        pianoWorkspace.use(samples.size) { pianoNative(samples, sampleRate, expectedHz, it) }
+        pianoWorkspace.use(samples.size) { pianoNative(samples, sampleRate, expectedHz, -1.0, it) }
+
+    fun measurePiano(samples: FloatArray, sampleRate: Int, targetHz: Double, b: Double): DoubleArray =
+        pianoWorkspace.use(samples.size) { pianoNative(samples, sampleRate, targetHz, b, it) }
+    external fun pianoTargets(notes: IntArray, stiffness: DoubleArray, reference: Double): DoubleArray?
+    external fun calibrationSummary(frequencies: DoubleArray, stiffness: DoubleArray, qualities: DoubleArray): DoubleArray?
+    external fun cents(frequencyHz: Double, targetHz: Double): Double
+    external fun stability(frequencies: DoubleArray, seconds: DoubleArray): Int
 
     private external fun workspaceBytes(count: Int): Int
+    private external fun initializeWorkspace(storage: ByteBuffer, count: Int)
     private external fun detectNative(samples: FloatArray, sampleRate: Int, method: Int, workspace: ByteBuffer): DoubleArray?
     private external fun correlateNative(samples: FloatArray, workspace: ByteBuffer): DoubleArray
-    private external fun pianoNative(samples: FloatArray, sampleRate: Int, expectedHz: Double, workspace: ByteBuffer): DoubleArray
+    private external fun pianoNative(samples: FloatArray, sampleRate: Int, expectedHz: Double, knownB: Double, workspace: ByteBuffer): DoubleArray
 
     // JVM/Android owns the memory lifetime. Lock covers both resizing and native use.
     private class Workspace {
@@ -32,7 +40,10 @@ object NativeAudio {
             val bytes = workspaceBytes(count)
             require(bytes > 0) { "Audio frame must contain 2..1048576 samples" }
             val storage = buffer?.takeIf { it.capacity() >= bytes }
-                ?: ByteBuffer.allocateDirect(bytes).also { buffer = it }
+                ?: ByteBuffer.allocateDirect(bytes).also {
+                    initializeWorkspace(it, count)
+                    buffer = it
+                }
             return action(storage)
         }
     }

@@ -66,6 +66,9 @@ fun ToneDetectionRoute(
     }
 
     RefreshRecordPermissionOnResume(::refreshPermission)
+    DisposableEffect(viewModel) {
+        onDispose { viewModel.onRecordPermissionChanged(false) }
+    }
 
     ToneDetectionScreen(
         uiState = uiState,

@@ -10,6 +10,9 @@ Accordomi is a small Android piano tuner that analyzes live microphone audio on-
 - Locale-aware reference-pitch input and localized English and Italian interfaces
 - Stabilized readings with short-dropout tolerance
 - A visible warning when audio processing cannot keep up
+- A dedicated Piano tab with guided two-strike calibration and resumable instrument profiles
+- Individualized 88-note targets, a stretch curve, manual-note tuning, and pitch-drift indication
+- Export of piano profiles, partial observations, and accepted WAV recordings as ZIP
 - Explicit microphone permission controls; permission is never requested automatically
 
 Microphone samples are processed locally. The app declares no internet permission and does not upload audio.
@@ -18,10 +21,10 @@ Microphone samples are processed locally. The app declares no internet permissio
 
 The existing detectors, smoothing, tuning calculations and reference oscillator
 run in a shared C11 engine through JNI. Current tuner features and equal-tempered
-targets are preserved. A desktop WAV CLI adds experimental partial detection,
-inharmonicity fitting, JSONL/CSV export and SVG diagnostics. Android also exposes
-an additive piano measurement API; a calibration screen and stretch tuning are
-not implemented yet.
+targets are preserved in the chromatic tuner. The dedicated Piano tab uses
+measured inharmonicity to calculate and tune against an instrument-specific curve.
+See [PIANO_TUNING.md](PIANO_TUNING.md) for the calibration and tuning workflow.
+Desktop tools provide WAV analysis, target generation, JSONL/CSV export and SVG diagnostics.
 
 See [native/README.md](native/README.md) for builds, examples, recording guidance,
 API ownership and measurement limitations.

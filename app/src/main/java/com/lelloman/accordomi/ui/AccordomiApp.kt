@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lelloman.accordomi.feature.about.AboutRoute
+import com.lelloman.accordomi.feature.piano.PianoRoute
 import com.lelloman.accordomi.feature.settings.SettingsRoute
 import com.lelloman.accordomi.feature.tone.ToneDetectionRoute
 import com.lelloman.accordomi.feature.tone.ReferenceToneRoute
@@ -60,6 +61,7 @@ fun AccordomiApp() {
             composable(AccordomiDestinations.ToneDetection.route) {
                 ToneDetectionRoute()
             }
+            composable(AccordomiDestinations.Piano.route) { PianoRoute() }
             composable(AccordomiDestinations.Settings.route) {
                 SettingsRoute()
             }
