@@ -14,8 +14,7 @@ fun AccordomiRoot(
     val theme by viewModel.uiState.collectAsStateWithLifecycle()
     AccordomiTheme(
         selectedThemeId = theme.selectedThemeId,
-        customPalette = theme.customPalette,
     ) {
-        AccordomiApp(theme.selectedThemeId, viewModel::selectTheme)
+        AccordomiApp()
     }
 }

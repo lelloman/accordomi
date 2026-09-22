@@ -45,9 +45,9 @@ the instrument. Emulator tests establish UI/integration behavior, not acoustic q
 ## LelloDesign UI pass
 
 - Check the four icon+label destinations and open About from Settings.
-- Change Light/Dark/System from the header; restart and verify persistence.
-- Create/edit a custom palette using the shared editor; rotate during editing,
-  cancel without saving, and verify existing themes remain selectable.
+- Change Light/Dark/System from Settings → Appearance; restart and verify persistence.
+- Verify no theme selector appears in the app bar and no extra presets or custom
+  editor appear in Settings. An older saved preset/custom selection follows System.
 - During piano tuning, alternate sound/silence and check that the meter and
   bottom actions keep their positions and stale current pitch disappears.
 - Open Piano details, return, and verify the note/profile and listening state.

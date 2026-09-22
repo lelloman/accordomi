@@ -1,34 +1,24 @@
 package com.lelloman.accordomi.feature.settings
 
 import com.lelloman.lellodesign.*
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,7 +31,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lelloman.accordomi.R
 import com.lelloman.accordomi.domain.settings.BuiltInTheme
-import com.lelloman.accordomi.domain.settings.CustomTheme
 import com.lelloman.accordomi.domain.settings.ThemeId
 import com.lelloman.accordomi.domain.settings.ThemePalette
 import com.lelloman.accordomi.domain.settings.resolvePalette
@@ -71,8 +60,6 @@ fun SettingsRoute(
         onDetectionRateChanged = viewModel::onDetectionRateChanged,
         onToneVisualizationStyleChanged = viewModel::onToneVisualizationStyleChanged,
         onThemeChanged = viewModel::onThemeChanged,
-        onSaveCustomTheme = viewModel::onSaveCustomTheme,
-        onDeleteCustomTheme = viewModel::onDeleteCustomTheme,
         onOpenAppPermissionSettings = { context.openAppPermissionSettings() },
         onAbout = onAbout,
     )
@@ -87,23 +74,10 @@ fun SettingsScreen(
     onDetectionRateChanged: (DetectionRate) -> Unit,
     onToneVisualizationStyleChanged: (ToneVisualizationStyle) -> Unit,
     onThemeChanged: (ThemeId) -> Unit,
-    onSaveCustomTheme: (ThemeId?, String, ThemePalette) -> Unit,
-    onDeleteCustomTheme: (ThemeId) -> Unit,
     onOpenAppPermissionSettings: () -> Unit,
     onAbout: () -> Unit = {},
 ) {
     val systemDark = isSystemInDarkTheme()
-    var editorRequestKey by rememberSaveable { mutableStateOf<String?>(null) }
-    val selectedCustomTheme = uiState.customThemes.firstOrNull {
-        it.id == uiState.selectedThemeId
-    }
-    val selectedPalette = selectedCustomTheme?.palette
-        ?: (BuiltInTheme.fromId(uiState.selectedThemeId) ?: BuiltInTheme.System)
-            .resolvePalette(systemDark)
-    val editorRequest = editorRequestKey?.let { id ->
-        val theme = uiState.customThemes.firstOrNull { it.id.value == id }
-        ThemeEditorRequest(theme, theme?.palette ?: selectedPalette)
-    }
     Column(modifier = Modifier.fillMaxSize()) {
 
         Column(
@@ -179,37 +153,6 @@ fun SettingsScreen(
                             label = { Text(stringResource(theme.labelRes())) },
                         )
                     }
-                    uiState.customThemes.forEach { theme ->
-                        LelloFilterChip(
-                            selected = theme.id == uiState.selectedThemeId,
-                            onClick = { onThemeChanged(theme.id) },
-                            leadingIcon = { ThemeSwatch(theme.palette) },
-                            label = { Text(theme.name) },
-                        )
-                    }
-                }
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    LelloOutlinedButton(
-                        onClick = {
-                            editorRequestKey = "new"
-                        },
-                        modifier = Modifier.testTag(UiTestTags.CreateCustomTheme),
-                    ) {
-                        Text(stringResource(R.string.theme_create_custom))
-                    }
-                    if (selectedCustomTheme != null) {
-                        LelloOutlinedButton(
-                            onClick = {
-                                editorRequestKey = selectedCustomTheme.id.value
-                            },
-                            modifier = Modifier.testTag(UiTestTags.EditCustomTheme),
-                        ) {
-                            Text(stringResource(R.string.theme_edit_custom))
-                        }
-                    }
                 }
             }
             }
@@ -279,29 +222,7 @@ fun SettingsScreen(
             }
         }
     }
-    editorRequest?.let { request ->
-        CustomThemeEditorDialog(
-            existingTheme = request.theme,
-            startingPalette = request.startingPalette,
-            onDismiss = { editorRequestKey = null },
-            onSave = { id, name, palette ->
-                onSaveCustomTheme(id, name, palette)
-                editorRequestKey = null
-            },
-            onDelete = request.theme?.let { theme ->
-                {
-                    onDeleteCustomTheme(theme.id)
-                    editorRequestKey = null
-                }
-            },
-        )
-    }
 }
-
-private data class ThemeEditorRequest(
-    val theme: CustomTheme?,
-    val startingPalette: ThemePalette,
-)
 
 @Composable
 private fun ThemeSwatch(palette: ThemePalette) {

@@ -3,24 +3,19 @@ package com.lelloman.accordomi.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lelloman.accordomi.domain.settings.AppSettings
-import com.lelloman.accordomi.domain.settings.CustomTheme
-import com.lelloman.accordomi.domain.settings.DeleteCustomThemeUseCase
 import com.lelloman.accordomi.domain.settings.ThemeId
-import com.lelloman.accordomi.domain.settings.ThemePalette
 import com.lelloman.accordomi.domain.settings.ObserveSettingsUseCase
 import com.lelloman.accordomi.domain.settings.UpdateReferencePitchUseCase
 import com.lelloman.accordomi.domain.settings.UpdateDetectionRateUseCase
 import com.lelloman.accordomi.domain.settings.UpdateSelectedThemeUseCase
 import com.lelloman.accordomi.domain.settings.UpdateToneDetectionMethodUseCase
 import com.lelloman.accordomi.domain.settings.UpdateToneVisualizationStyleUseCase
-import com.lelloman.accordomi.domain.settings.UpsertCustomThemeUseCase
-import com.lelloman.accordomi.domain.settings.customThemeId
 import com.lelloman.accordomi.domain.tone.ToneDetectionMethod
 import com.lelloman.accordomi.domain.tone.ToneVisualizationStyle
 import com.lelloman.accordomi.domain.tone.DetectionRate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
-import java.util.UUID
+import com.lelloman.accordomi.domain.settings.androidTheme
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,8 +31,6 @@ class SettingsViewModel @Inject constructor(
     private val updateDetectionRate: UpdateDetectionRateUseCase,
     private val updateToneVisualizationStyle: UpdateToneVisualizationStyleUseCase,
     private val updateSelectedTheme: UpdateSelectedThemeUseCase,
-    private val upsertCustomTheme: UpsertCustomThemeUseCase,
-    private val deleteCustomTheme: DeleteCustomThemeUseCase,
 ) : ViewModel() {
     private val editedReferencePitchHzText = MutableStateFlow<String?>(null)
     private val locale = MutableStateFlow(Locale.getDefault())
@@ -50,8 +43,7 @@ class SettingsViewModel @Inject constructor(
         val formatter = ReferencePitchNumberFormatter(currentLocale)
         val text = editedText ?: formatter.format(settings.referencePitchHz)
         SettingsUiState(
-            selectedThemeId = settings.selectedThemeId,
-            customThemes = settings.customThemes,
+            selectedThemeId = settings.selectedThemeId.androidTheme().id,
             referencePitchHzText = text,
             isReferencePitchValid = formatter.parse(text)?.isValidReferencePitch() == true,
             selectedToneDetectionMethod = settings.toneDetectionMethod,
@@ -102,31 +94,7 @@ class SettingsViewModel @Inject constructor(
 
     fun onThemeChanged(themeId: ThemeId) {
         viewModelScope.launch {
-            updateSelectedTheme(themeId)
-        }
-    }
-
-    fun onSaveCustomTheme(
-        existingId: ThemeId?,
-        name: String,
-        palette: ThemePalette,
-    ) {
-        val normalizedName = name.trim()
-        if (normalizedName.isEmpty()) return
-        val theme = CustomTheme(
-            id = existingId ?: customThemeId(UUID.randomUUID().toString()),
-            name = normalizedName,
-            palette = palette,
-        )
-        viewModelScope.launch {
-            upsertCustomTheme(theme)
-            updateSelectedTheme(theme.id)
-        }
-    }
-
-    fun onDeleteCustomTheme(themeId: ThemeId) {
-        viewModelScope.launch {
-            deleteCustomTheme(themeId)
+            updateSelectedTheme(themeId.androidTheme().id)
         }
     }
 

@@ -13,13 +13,11 @@ The library sample subsequently rebuilt using the published registry dependency.
 
 | Shared LelloDesign component | Accordomi usage |
 | --- | --- |
-| `LelloTheme`, palettes, shapes, typography | Green light/dark default; semantic adapter for existing custom and legacy themes |
+| `LelloTheme`, palettes, shapes, typography | Green Light/Dark/System appearance |
 | `LelloScaffold`, `LelloBottomNavigation`, seam | Responsive app frame; four mobile destinations and real product artwork |
-| `LelloAppearanceSelector` | Header Light/Dark/System preference; app settings own persistence |
 | `LelloButton`, `LelloOutlinedButton`, `LelloTextButton` | Actions throughout piano, chromatic tuner, tone player and settings |
 | `LelloTextField`, `LelloFilterChip` | Profile names, reference pitch and preference choices |
 | `LelloSettingsSection`, `LelloPaletteSwatch` | Grouped settings and palette previews |
-| `LelloThemeEditorDialog`, color controls | Custom theme editing; Accordomi only maps its persisted palette roles |
 | `LelloStepProgress` | Accessible segmented calibration progress |
 | `LelloCard`, `LelloAlert`, `LelloState` | Instructions, permissions, failures, completion and profile presentation |
 
@@ -28,10 +26,10 @@ library's theme, as supported by its API. The pitch meter, piano note selection,
 calibration workflow and stretch visualization remain product-specific.
 
 There is no account or service connection in Accordomi, so the optional shared
-account/connection controls are intentionally omitted. Existing custom palettes
-and saved theme IDs remain supported; Light/Dark/System now select the shared
-green palette. Choosing an appearance from the header intentionally replaces the
-active custom preset but does not delete it. Calibration reference pitch stays
+account/connection controls are intentionally omitted. Android appearance is selected
+only in Settings, using Light, Dark, or System. Retired preset/custom theme IDs
+fall back to System; their stored palette data is retained for compatibility.
+Calibration reference pitch stays
 frozen in the saved piano profile.
 
 ## Screens

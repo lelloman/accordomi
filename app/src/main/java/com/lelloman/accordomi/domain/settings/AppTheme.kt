@@ -147,3 +147,9 @@ private val ForestPalette = ThemePalette(
     error = 0xFFBA1A1A.toInt(),
     onError = 0xFFFFFFFF.toInt(),
 )
+
+/** Android appearance choices; retired saved themes fall back to the system. */
+val AndroidThemes = listOf(BuiltInTheme.Light, BuiltInTheme.Dark, BuiltInTheme.System)
+
+fun ThemeId.androidTheme(): BuiltInTheme =
+    AndroidThemes.firstOrNull { it.id == this } ?: BuiltInTheme.System
