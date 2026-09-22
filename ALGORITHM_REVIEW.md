@@ -1,6 +1,32 @@
 # Pitch detection review — 2026-09-08
 
+Update (2026-09-22): the existing algorithms have been ported to the shared C engine,
+with their regression tests retained through JNI. Experimental offline partial/B
+measurement is now available; see [native/README.md](native/README.md). Measurements
+below describe the earlier Kotlin implementation, not current native timing.
+
 The detectors are substantially cheaper after this change and accurate on clean synthetic tones. They are **not yet validated as precision piano tuning tools**: high-register octave mistakes and bias from inharmonic partials remain. No Android device was connected for playback, microphone, thermal, or on-device timing measurements.
+
+## Native migration timing — 2026-09-22
+
+The unchanged host audit was run against the previous Kotlin implementation at
+`adaf27e` in an isolated checkout and the C-backed JNI implementation on the same
+machine. Each measurement uses the existing 110 Hz harmonic fixture, 20 warmup
+calls and 50 timed calls. These are informal single-run observations, not Android
+measurements or statistically established speedups.
+
+| Detector | Kotlin median | C + JNI median | Kotlin p95 | C + JNI p95 |
+| --- | ---: | ---: | ---: | ---: |
+| YIN | 0.349 ms | 0.305 ms | 0.379 ms | 0.309 ms |
+| Autocorrelation | 0.305 ms | 0.308 ms | 0.314 ms | 0.315 ms |
+| McLeod | 0.286 ms | 0.304 ms | 0.291 ms | 0.310 ms |
+
+There is no large measured speedup from this port: YIN used about 13% less time,
+autocorrelation was approximately unchanged, and McLeod used about 7% more time.
+The migration's primary benefits are one implementation for Android/desktop and
+reusable native scratch storage. JNI copies/results can still allocate, and
+phone CPU, GC, power and end-to-end latency remain unmeasured. The live capture
+window remains approximately 93 ms, regardless of this sub-millisecond compute time.
 
 ## Measured results
 

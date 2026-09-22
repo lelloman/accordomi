@@ -1,8 +1,6 @@
 package com.lelloman.accordomi.domain.tone
 
-import kotlin.math.ln
-import kotlin.math.pow
-import kotlin.math.roundToInt
+import com.lelloman.accordomi.nativeaudio.NativeAudio
 
 object TuningMath {
     fun readingFor(
@@ -10,17 +8,10 @@ object TuningMath {
         clarity: Float,
         referencePitchHz: Double,
     ): PitchReading {
-        require(frequencyHz.isFinite() && frequencyHz > 0.0) {
-            "Detected frequency must be finite and greater than zero."
-        }
-        require(referencePitchHz.isFinite() && referencePitchHz > 0.0) {
-            "Reference pitch must be finite and greater than zero."
-        }
-        val semitonesFromA4 = (12.0 * log2(frequencyHz / referencePitchHz)).roundToInt()
-        val targetFrequencyHz = referencePitchHz * 2.0.pow(semitonesFromA4 / 12.0)
-        val absoluteMidiNote = A4MidiNote + semitonesFromA4
-        val noteName = noteName(absoluteMidiNote)
-        val centsOff = 1200.0 * log2(frequencyHz / targetFrequencyHz)
+        val result = NativeAudio.tuning(frequencyHz, referencePitchHz)
+        val noteName = noteName(result[0].toInt())
+        val targetFrequencyHz = result[1]
+        val centsOff = result[2]
 
         return PitchReading(
             frequencyHz = frequencyHz,
@@ -37,9 +28,8 @@ object TuningMath {
         return "${NoteNames[note]}$octave"
     }
 
-    private fun log2(value: Double): Double = ln(value) / ln(2.0)
-
-    private const val A4MidiNote = 69
+    fun frequencyFor(midiNote: Int, referencePitchHz: Double): Double =
+        NativeAudio.equalTemperedHz(midiNote, referencePitchHz)
 
     private val NoteNames = arrayOf(
         "C",

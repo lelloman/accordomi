@@ -17,15 +17,25 @@ val signingProperties = Properties().apply {
 android {
     namespace = "com.lelloman.accordomi"
     compileSdk = 37
+    ndkVersion = "27.0.12077973"
+    externalNativeBuild {
+        cmake {
+            path = rootProject.file("native/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.lelloman.accordomi"
         minSdk = 29
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake { arguments += "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON" }
+        }
     }
 
     signingConfigs {
@@ -86,4 +96,26 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+// JVM regression tests load a host build of the same JNI/C sources used by Android.
+val hostNativeDirectory = rootProject.layout.buildDirectory.dir("native-jvm")
+val configureHostNative = tasks.register<Exec>("configureHostNative") {
+    inputs.files(rootProject.fileTree("native") { exclude("README.md") })
+    outputs.file(hostNativeDirectory.map { it.file("CMakeCache.txt") })
+    commandLine("cmake", "-S", rootProject.file("native").absolutePath,
+        "-B", hostNativeDirectory.get().asFile.absolutePath,
+        "-DAC_BUILD_JNI=ON", "-DCMAKE_BUILD_TYPE=Release")
+}
+val buildHostNative = tasks.register<Exec>("buildHostNative") {
+    dependsOn(configureHostNative)
+    inputs.files(rootProject.fileTree("native") { exclude("README.md") })
+    outputs.file(hostNativeDirectory.map { it.file(System.mapLibraryName("accordomi_jni")) })
+    commandLine("cmake", "--build", hostNativeDirectory.get().asFile.absolutePath,
+        "--target", "accordomi_jni", "--parallel", "2")
+}
+tasks.withType<Test>().configureEach {
+    dependsOn(buildHostNative)
+    inputs.file(hostNativeDirectory.map { it.file(System.mapLibraryName("accordomi_jni")) })
+    systemProperty("java.library.path", hostNativeDirectory.get().asFile.absolutePath)
 }

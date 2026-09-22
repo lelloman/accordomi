@@ -14,10 +14,24 @@ Accordomi is a small Android piano tuner that analyzes live microphone audio on-
 
 Microphone samples are processed locally. The app declares no internet permission and does not upload audio.
 
+## Shared C engine and piano measurement tools
+
+The existing detectors, smoothing, tuning calculations and reference oscillator
+run in a shared C11 engine through JNI. Current tuner features and equal-tempered
+targets are preserved. A desktop WAV CLI adds experimental partial detection,
+inharmonicity fitting, JSONL/CSV export and SVG diagnostics. Android also exposes
+an additive piano measurement API; a calibration screen and stretch tuning are
+not implemented yet.
+
+See [native/README.md](native/README.md) for builds, examples, recording guidance,
+API ownership and measurement limitations.
+
 ## Requirements
 
 - Android Studio with Android SDK 37 installed
 - JDK 17 for the Android Gradle Plugin
+- Android NDK 27.0.12077973 and SDK CMake 3.22.1
+- System CMake 3.22+ and a C compiler for JVM/native tests
 - An Android device or emulator running API 29 or newer
 
 ## Build and verify
@@ -67,7 +81,9 @@ in `app/build.gradle.kts`; the wrapper does not change versions automatically.
 The app uses a small layered architecture:
 
 - `data/audio`: Android microphone capture and frame sequencing
-- `data/pitch`: pitch-detection algorithms
+- `native/`: shared C DSP, tuning math, experimental piano measurements and desktop CLI
+- `nativeaudio`: JNI transport and structured piano measurement API
+- `data/pitch`: Kotlin adapters to native pitch detectors
 - `data/tone`: detection orchestration, lag tracking, and stabilization
 - `domain`: settings and tuning calculations
 - `feature`: Compose screens and ViewModels

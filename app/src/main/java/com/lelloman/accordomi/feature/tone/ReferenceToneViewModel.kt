@@ -8,7 +8,6 @@ import com.lelloman.accordomi.domain.settings.ObserveSettingsUseCase
 import com.lelloman.accordomi.domain.tone.TuningMath
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlin.math.pow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +22,7 @@ data class ReferenceToneUiState(
     val isPlaying: Boolean = false,
     val hasError: Boolean = false,
 ) {
-    val frequencyHz: Double get() = referencePitchHz * 2.0.pow((midiNote - 69) / 12.0)
+    val frequencyHz: Double get() = TuningMath.frequencyFor(midiNote, referencePitchHz)
     val noteName: String get() = TuningMath.readingFor(frequencyHz, 1f, referencePitchHz).noteName
 }
 

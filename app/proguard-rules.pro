@@ -1,1 +1,2 @@
-# No app-specific R8 rules are currently required. Library consumer rules are applied automatically.
+# JNI resolves these names directly, including in minified release builds.
+-keep class com.lelloman.accordomi.nativeaudio.NativeAudio { *; }

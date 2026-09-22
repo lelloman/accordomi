@@ -23,5 +23,11 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      - name: Verify native engine and WAV CLI with sanitizers
+        run: |
+          cmake -S native -B build/native-sanitize -DAC_SANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build/native-sanitize --parallel 2
+          ctest --test-dir build/native-sanitize --output-on-failure
+
       - name: Run verification
         run: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest --stacktrace
