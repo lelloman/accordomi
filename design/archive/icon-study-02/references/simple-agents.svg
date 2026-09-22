@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <path d="M45 13 C65 9 80 24 79 39 Q78 46 70 44 L60 40 Q58 27 46 28 Q37 22 45 13Z" fill="#bfdbfe" transform="rotate(24 50 50)"/>
+  <path d="M45 13 C65 9 80 24 79 39 Q78 46 70 44 L60 40 Q58 27 46 28 Q37 22 45 13Z" fill="#60a5fa" transform="rotate(144 50 50)"/>
+  <path d="M45 13 C65 9 80 24 79 39 Q78 46 70 44 L60 40 Q58 27 46 28 Q37 22 45 13Z" fill="#2563eb" transform="rotate(264 50 50)"/>
+</svg>

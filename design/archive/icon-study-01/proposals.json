@@ -1,0 +1,254 @@
+[
+  {
+    "id": "01",
+    "name": "Open fork",
+    "family": "Forks",
+    "idea": "A tuning fork split into three broad strokes.",
+    "file": "svg/01-open-fork.svg"
+  },
+  {
+    "id": "02",
+    "name": "Solid fork",
+    "family": "Forks",
+    "idea": "A compact fork with a separate tuning handle.",
+    "file": "svg/02-solid-fork.svg"
+  },
+  {
+    "id": "03",
+    "name": "Fork and pulse",
+    "family": "Forks",
+    "idea": "A familiar fork, with one pulse of resonance.",
+    "file": "svg/03-fork-and-pulse.svg"
+  },
+  {
+    "id": "04",
+    "name": "Angled fork",
+    "family": "Forks",
+    "idea": "A tilted fork gives the mark a lively silhouette.",
+    "file": "svg/04-angled-fork.svg"
+  },
+  {
+    "id": "05",
+    "name": "Wide fork",
+    "family": "Forks",
+    "idea": "A low, broad fork with an unmistakable stem.",
+    "file": "svg/05-wide-fork.svg"
+  },
+  {
+    "id": "06",
+    "name": "Fork key",
+    "family": "Forks",
+    "idea": "The fork handle becomes a piano key.",
+    "file": "svg/06-fork-key.svg"
+  },
+  {
+    "id": "07",
+    "name": "Three keys",
+    "family": "Keys",
+    "idea": "Three notched piano keys, reduced to a compact mark.",
+    "file": "svg/07-three-keys.svg"
+  },
+  {
+    "id": "08",
+    "name": "Stepped keys",
+    "family": "Keys",
+    "idea": "A descending keyboard with generous open cuts.",
+    "file": "svg/08-stepped-keys.svg"
+  },
+  {
+    "id": "09",
+    "name": "Key fan",
+    "family": "Keys",
+    "idea": "Three keys spread like a small chord.",
+    "file": "svg/09-key-fan.svg"
+  },
+  {
+    "id": "10",
+    "name": "One piano key",
+    "family": "Keys",
+    "idea": "One key, its raised neighbor, and a sounding pulse.",
+    "file": "svg/10-one-piano-key.svg"
+  },
+  {
+    "id": "11",
+    "name": "Grand silhouette",
+    "family": "Keys",
+    "idea": "A curved piano body above two broad key blocks.",
+    "file": "svg/11-grand-silhouette.svg"
+  },
+  {
+    "id": "12",
+    "name": "Sounding keys",
+    "family": "Keys",
+    "idea": "Two keys and a curved soundboard.",
+    "file": "svg/12-sounding-keys.svg"
+  },
+  {
+    "id": "13",
+    "name": "Three strings",
+    "family": "Strings",
+    "idea": "A quiet unison: three parallel strings.",
+    "file": "svg/13-three-strings.svg"
+  },
+  {
+    "id": "14",
+    "name": "Convergence",
+    "family": "Strings",
+    "idea": "Outer strings settle toward a central reference.",
+    "file": "svg/14-convergence.svg"
+  },
+  {
+    "id": "15",
+    "name": "String bridge",
+    "family": "Strings",
+    "idea": "Three lengths of string share a slanted bridge.",
+    "file": "svg/15-string-bridge.svg"
+  },
+  {
+    "id": "16",
+    "name": "Quiet unison",
+    "family": "Strings",
+    "idea": "Vibrating strings surround one stable string.",
+    "file": "svg/16-quiet-unison.svg"
+  },
+  {
+    "id": "17",
+    "name": "Harmonic stack",
+    "family": "Strings",
+    "idea": "Three horizontal partials of decreasing length.",
+    "file": "svg/17-harmonic-stack.svg"
+  },
+  {
+    "id": "18",
+    "name": "String anchor",
+    "family": "Strings",
+    "idea": "An isolated string supported by two rounded bridges.",
+    "file": "svg/18-string-anchor.svg"
+  },
+  {
+    "id": "19",
+    "name": "Centered needle",
+    "family": "Meters",
+    "idea": "An open pitch dial with a centered needle.",
+    "file": "svg/19-centered-needle.svg"
+  },
+  {
+    "id": "20",
+    "name": "Pitch gate",
+    "family": "Meters",
+    "idea": "Two brackets frame the tuned center.",
+    "file": "svg/20-pitch-gate.svg"
+  },
+  {
+    "id": "21",
+    "name": "Meet in tune",
+    "family": "Meters",
+    "idea": "Two arrows meet at a single pitch reference.",
+    "file": "svg/21-meet-in-tune.svg"
+  },
+  {
+    "id": "22",
+    "name": "Tuning horizon",
+    "family": "Meters",
+    "idea": "A settled pitch between two floating guides.",
+    "file": "svg/22-tuning-horizon.svg"
+  },
+  {
+    "id": "23",
+    "name": "Sweet spot",
+    "family": "Meters",
+    "idea": "A clear center beneath a split tuning arc.",
+    "file": "svg/23-sweet-spot.svg"
+  },
+  {
+    "id": "24",
+    "name": "Level pitch",
+    "family": "Meters",
+    "idea": "Two bars and a short needle express alignment.",
+    "file": "svg/24-level-pitch.svg"
+  },
+  {
+    "id": "25",
+    "name": "Single cycle",
+    "family": "Waves",
+    "idea": "A waveform in three separate sweeping strokes.",
+    "file": "svg/25-single-cycle.svg"
+  },
+  {
+    "id": "26",
+    "name": "Resonance",
+    "family": "Waves",
+    "idea": "Three open arcs with a shared acoustic center.",
+    "file": "svg/26-resonance.svg"
+  },
+  {
+    "id": "27",
+    "name": "Breathing chord",
+    "family": "Waves",
+    "idea": "Three softened waves of differing amplitudes.",
+    "file": "svg/27-breathing-chord.svg"
+  },
+  {
+    "id": "28",
+    "name": "Partial peaks",
+    "family": "Waves",
+    "idea": "Three separated spectral peaks.",
+    "file": "svg/28-partial-peaks.svg"
+  },
+  {
+    "id": "29",
+    "name": "Settling wave",
+    "family": "Waves",
+    "idea": "Oscillation becomes a stable reference line.",
+    "file": "svg/29-settling-wave.svg"
+  },
+  {
+    "id": "30",
+    "name": "Octave waves",
+    "family": "Waves",
+    "idea": "Two pitches meet around a steady center.",
+    "file": "svg/30-octave-waves.svg"
+  },
+  {
+    "id": "31",
+    "name": "Open A",
+    "family": "Monograms",
+    "idea": "Accordomi initial with a separate central bridge.",
+    "file": "svg/31-open-a.svg"
+  },
+  {
+    "id": "32",
+    "name": "Fork A",
+    "family": "Monograms",
+    "idea": "An A-shaped pair of tines over a short handle.",
+    "file": "svg/32-fork-a.svg"
+  },
+  {
+    "id": "33",
+    "name": "Key A",
+    "family": "Monograms",
+    "idea": "Three piano-like planes form a geometric A.",
+    "file": "svg/33-key-a.svg"
+  },
+  {
+    "id": "34",
+    "name": "Tuned A",
+    "family": "Monograms",
+    "idea": "An open initial with the tuning point at its heart.",
+    "file": "svg/34-tuned-a.svg"
+  },
+  {
+    "id": "35",
+    "name": "Chord A",
+    "family": "Monograms",
+    "idea": "Three strokes suggest an A and its sounding bridge.",
+    "file": "svg/35-chord-a.svg"
+  },
+  {
+    "id": "36",
+    "name": "Octave A",
+    "family": "Monograms",
+    "idea": "A low, wide initial with a substantial key bridge.",
+    "file": "svg/36-octave-a.svg"
+  }
+]

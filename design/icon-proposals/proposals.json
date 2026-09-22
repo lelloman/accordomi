@@ -1,0 +1,86 @@
+[
+  {
+    "id": "L01",
+    "name": "Original F09",
+    "family": "Tilt",
+    "idea": "Reference: the exact F09 geometry, at 18 degrees.",
+    "file": "svg/l01-original-f09.svg"
+  },
+  {
+    "id": "L02",
+    "name": "Gentle lean",
+    "family": "Tilt",
+    "idea": "12 degrees; original shape and stroke weight.",
+    "file": "svg/l02-gentle-lean.svg"
+  },
+  {
+    "id": "L03",
+    "name": "Lively lean",
+    "family": "Tilt",
+    "idea": "24 degrees; original shape and stroke weight.",
+    "file": "svg/l03-lively-lean.svg"
+  },
+  {
+    "id": "L04",
+    "name": "Bold lean",
+    "family": "Tilt",
+    "idea": "30 degrees; original shape and stroke weight.",
+    "file": "svg/l04-bold-lean.svg"
+  },
+  {
+    "id": "L05",
+    "name": "Long tines",
+    "family": "Proportions",
+    "idea": "Tines extend upward by 5 units; original bowl and handle.",
+    "file": "svg/l05-long-tines.svg"
+  },
+  {
+    "id": "L06",
+    "name": "Short tines",
+    "family": "Proportions",
+    "idea": "Tines start 6 units lower; original bowl and handle.",
+    "file": "svg/l06-short-tines.svg"
+  },
+  {
+    "id": "L07",
+    "name": "Narrow fork",
+    "family": "Proportions",
+    "idea": "Tines and bowl are 8 units narrower; same height.",
+    "file": "svg/l07-narrow-fork.svg"
+  },
+  {
+    "id": "L08",
+    "name": "Broad fork",
+    "family": "Proportions",
+    "idea": "Tines and bowl are 8 units wider; same height.",
+    "file": "svg/l08-broad-fork.svg"
+  },
+  {
+    "id": "L09",
+    "name": "Shallow bowl",
+    "family": "Bowl",
+    "idea": "A flatter bowl; the handle starts at its new center.",
+    "file": "svg/l09-shallow-bowl.svg"
+  },
+  {
+    "id": "L10",
+    "name": "Deep bowl",
+    "family": "Bowl",
+    "idea": "A deeper curved root, with the same overall height.",
+    "file": "svg/l10-deep-bowl.svg"
+  },
+  {
+    "id": "L11",
+    "name": "Soft square",
+    "family": "Bowl",
+    "idea": "A short flat bottom with rounded shoulders.",
+    "file": "svg/l11-soft-square.svg"
+  },
+  {
+    "id": "L12",
+    "name": "Rounded V",
+    "family": "Bowl",
+    "idea": "Slanted shoulders converge at a gently rounded root.",
+    "file": "svg/l12-rounded-v.svg"
+  }
+]

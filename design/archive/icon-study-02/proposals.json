@@ -1,0 +1,254 @@
+[
+  {
+    "id": "F01",
+    "name": "Solid original",
+    "family": "Forks",
+    "idea": "The retained solid-fork direction from study 01.",
+    "file": "svg/f01-solid-original.svg"
+  },
+  {
+    "id": "F02",
+    "name": "Long tines",
+    "family": "Forks",
+    "idea": "Tall tines and a compact curved root.",
+    "file": "svg/f02-long-tines.svg"
+  },
+  {
+    "id": "F03",
+    "name": "Square bowl",
+    "family": "Forks",
+    "idea": "A squared U with soft, generous corners.",
+    "file": "svg/f03-square-bowl.svg"
+  },
+  {
+    "id": "F04",
+    "name": "Open root",
+    "family": "Forks",
+    "idea": "The split bowl leaves air above the handle.",
+    "file": "svg/f04-open-root.svg"
+  },
+  {
+    "id": "F05",
+    "name": "Round bowl",
+    "family": "Forks",
+    "idea": "Two curved shoulders surround an independent stem.",
+    "file": "svg/f05-round-bowl.svg"
+  },
+  {
+    "id": "F06",
+    "name": "Narrow fork",
+    "family": "Forks",
+    "idea": "A slender, instrument-like tuning fork.",
+    "file": "svg/f06-narrow-fork.svg"
+  },
+  {
+    "id": "F07",
+    "name": "Broad fork",
+    "family": "Forks",
+    "idea": "A broad stance with short tines.",
+    "file": "svg/f07-broad-fork.svg"
+  },
+  {
+    "id": "F08",
+    "name": "Dark tines",
+    "family": "Forks",
+    "idea": "Strong tines give the silhouette more contrast.",
+    "file": "svg/f08-dark-tines.svg"
+  },
+  {
+    "id": "F09",
+    "name": "Leaning fork",
+    "family": "Forks",
+    "idea": "A gentle tilt keeps the fork immediately legible.",
+    "file": "svg/f09-leaning-fork.svg"
+  },
+  {
+    "id": "F10",
+    "name": "Deep cup",
+    "family": "Forks",
+    "idea": "Long shoulders form a deeper U-shaped cup.",
+    "file": "svg/f10-deep-cup.svg"
+  },
+  {
+    "id": "F11",
+    "name": "Key handle",
+    "family": "Forks",
+    "idea": "A wide key-shaped stem beneath two fork tines.",
+    "file": "svg/f11-key-handle.svg"
+  },
+  {
+    "id": "F12",
+    "name": "Continuous side",
+    "family": "Forks",
+    "idea": "One tine joins the handle; the other two pieces float.",
+    "file": "svg/f12-continuous-side.svg"
+  },
+  {
+    "id": "K01",
+    "name": "Three keys original",
+    "family": "Three keys",
+    "idea": "The retained three-key mark from study 01.",
+    "file": "svg/k01-three-keys-original.svg"
+  },
+  {
+    "id": "K02",
+    "name": "Even keys",
+    "family": "Three keys",
+    "idea": "Equal lower widths with two clear upper notches.",
+    "file": "svg/k02-even-keys.svg"
+  },
+  {
+    "id": "K03",
+    "name": "Short keys",
+    "family": "Three keys",
+    "idea": "A compact keyboard with a broad footprint.",
+    "file": "svg/k03-short-keys.svg"
+  },
+  {
+    "id": "K04",
+    "name": "Long keys",
+    "family": "Three keys",
+    "idea": "Tall proportions suggest the length of real piano keys.",
+    "file": "svg/k04-long-keys.svg"
+  },
+  {
+    "id": "K05",
+    "name": "Wide cuts",
+    "family": "Three keys",
+    "idea": "Larger negative-space cuts emphasize the keyboard.",
+    "file": "svg/k05-wide-cuts.svg"
+  },
+  {
+    "id": "K06",
+    "name": "Shallow cuts",
+    "family": "Three keys",
+    "idea": "Shorter notches leave more of each key intact.",
+    "file": "svg/k06-shallow-cuts.svg"
+  },
+  {
+    "id": "K07",
+    "name": "Soft keys",
+    "family": "Three keys",
+    "idea": "More rounding at the ends of the three keys.",
+    "file": "svg/k07-soft-keys.svg"
+  },
+  {
+    "id": "K08",
+    "name": "Pressed middle",
+    "family": "Three keys",
+    "idea": "The middle key is visibly depressed.",
+    "file": "svg/k08-pressed-middle.svg"
+  },
+  {
+    "id": "K09",
+    "name": "Rising chord",
+    "family": "Three keys",
+    "idea": "A stepped silhouette, still built from piano keys.",
+    "file": "svg/k09-rising-chord.svg"
+  },
+  {
+    "id": "K10",
+    "name": "Dark center",
+    "family": "Three keys",
+    "idea": "The central key provides the strong-color anchor.",
+    "file": "svg/k10-dark-center.svg"
+  },
+  {
+    "id": "K11",
+    "name": "Tilted keyboard",
+    "family": "Three keys",
+    "idea": "A slight tilt introduces movement.",
+    "file": "svg/k11-tilted-keyboard.svg"
+  },
+  {
+    "id": "K12",
+    "name": "Paired cuts",
+    "family": "Three keys",
+    "idea": "Two upper gaps frame a broad central piano key.",
+    "file": "svg/k12-paired-cuts.svg"
+  },
+  {
+    "id": "P01",
+    "name": "Grand original",
+    "family": "Silhouettes",
+    "idea": "The retained piano silhouette from study 01.",
+    "file": "svg/p01-grand-original.svg"
+  },
+  {
+    "id": "P02",
+    "name": "Rounded grand",
+    "family": "Silhouettes",
+    "idea": "A smoother shoulder and a rounded front corner.",
+    "file": "svg/p02-rounded-grand.svg"
+  },
+  {
+    "id": "P03",
+    "name": "Concert grand",
+    "family": "Silhouettes",
+    "idea": "A longer tail above a compact keyboard.",
+    "file": "svg/p03-concert-grand.svg"
+  },
+  {
+    "id": "P04",
+    "name": "Baby grand",
+    "family": "Silhouettes",
+    "idea": "A low, wide piano with a compact body.",
+    "file": "svg/p04-baby-grand.svg"
+  },
+  {
+    "id": "P05",
+    "name": "Full shoulder",
+    "family": "Silhouettes",
+    "idea": "A generous curved soundboard carries the identity.",
+    "file": "svg/p05-full-shoulder.svg"
+  },
+  {
+    "id": "P06",
+    "name": "Deep waist",
+    "family": "Silhouettes",
+    "idea": "A pronounced concave waist separates tail and keyboard.",
+    "file": "svg/p06-deep-waist.svg"
+  },
+  {
+    "id": "P07",
+    "name": "Dark soundboard",
+    "family": "Silhouettes",
+    "idea": "A strong-color body makes the piano shape dominant.",
+    "file": "svg/p07-dark-soundboard.svg"
+  },
+  {
+    "id": "P08",
+    "name": "Green soundboard",
+    "family": "Silhouettes",
+    "idea": "A medium-green body balances two contrasting keys.",
+    "file": "svg/p08-green-soundboard.svg"
+  },
+  {
+    "id": "P09",
+    "name": "Short keyboard",
+    "family": "Silhouettes",
+    "idea": "More weight in the body, less in the keys.",
+    "file": "svg/p09-short-keyboard.svg"
+  },
+  {
+    "id": "P10",
+    "name": "Deep keyboard",
+    "family": "Silhouettes",
+    "idea": "Longer key blocks emphasize the instrument.",
+    "file": "svg/p10-deep-keyboard.svg"
+  },
+  {
+    "id": "P11",
+    "name": "Slanted grand",
+    "family": "Silhouettes",
+    "idea": "A modest rotation adds energy to the piano body.",
+    "file": "svg/p11-slanted-grand.svg"
+  },
+  {
+    "id": "P12",
+    "name": "Left shoulder",
+    "family": "Silhouettes",
+    "idea": "The piano contour mirrored, with the same color sequence.",
+    "file": "svg/p12-left-shoulder.svg"
+  }
+]
