@@ -2,7 +2,7 @@ package com.lelloman.accordomi.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lelloman.accordomi.ui.theme.AccordomiTheme
 import com.lelloman.accordomi.ui.theme.ThemeViewModel

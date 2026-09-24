@@ -154,6 +154,8 @@
     <string name="settings_tuning">Tuning</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_advanced">Advanced</string>
+    <string name="settings_updates">Updates</string>
+    <string name="open_update_controls">Manage app updates</string>
     <string name="color_red">Red</string>
     <string name="color_green">Green</string>
     <string name="color_blue">Blue</string>

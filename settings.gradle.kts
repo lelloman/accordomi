@@ -1,4 +1,6 @@
 pluginManagement {
+    includeBuild("../paravoid-android/paravoid-gradle-plugin")
+    includeBuild("../paravoid-android/paravoid-hilt")
     repositories {
         google {
             content {
@@ -38,3 +40,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Accordomi"
 include(":app")
+include(":paravoid-api", ":paravoid-contract", ":paravoid-runtime")
+project(":paravoid-api").projectDir = file("../paravoid-android/paravoid-api")
+project(":paravoid-contract").projectDir = file("../paravoid-android/paravoid-contract")
+project(":paravoid-runtime").projectDir = file("../paravoid-android/paravoid-runtime")

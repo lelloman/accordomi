@@ -62,10 +62,10 @@ Before optimization, median host JVM detection time was approximately 3.48–3.5
 Run the audit with:
 
 ```sh
-./gradlew testDebugUnitTest --tests '*PitchAccuracyAuditTest'
+./gradlew testNormalDebugUnitTest --tests '*PitchAccuracyAuditTest'
 ```
 
-Output, including outlier notes and median/p95 timing, is in `app/build/test-results/testDebugUnitTest/TEST-com.lelloman.accordomi.data.pitch.PitchAccuracyAuditTest.xml`.
+Output, including outlier notes and median/p95 timing, is in `app/build/test-results/testNormalDebugUnitTest/TEST-com.lelloman.accordomi.data.pitch.PitchAccuracyAuditTest.xml`.
 
 ## Implementation findings and changes
 

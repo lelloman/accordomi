@@ -41,7 +41,7 @@ system CMake and the local JDK. The existing regression tests exercise C through
 the same Kotlin wrappers as the app. JNI names are retained in minified releases.
 
 ```sh
-./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest
+./gradlew testNormalDebugUnitTest lintNormalDebug assembleNormalDebug assembleNormalDebugAndroidTest
 # Requires a device/emulator; includes native loading/detection smoke coverage:
 ./gradlew connectedDebugAndroidTest
 ```

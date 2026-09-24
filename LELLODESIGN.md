@@ -57,8 +57,9 @@ The application now targets Java 17 bytecode to match the shared library.
 
 ## Validation
 
-Use `./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest
-assembleRelease`, then run the instrumentation APK on an emulator.
+Use `./gradlew testNormalDebugUnitTest lintNormalDebug assembleNormalDebug
+assembleNormalDebugAndroidTest assembleNormalStoreRelease`, then run the instrumentation
+APK on an emulator.
 `PianoRedesignTest` checks the fixed controls and meter, reading loss, details
 navigation, and large-text access. It captures real Compose light/dark previews
 using deterministic test measurements under the test application's external

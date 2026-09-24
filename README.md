@@ -15,7 +15,7 @@ Accordomi is a small Android piano tuner that analyzes live microphone audio on-
 - Export of piano profiles, partial observations, and accepted WAV recordings as ZIP
 - Explicit microphone permission controls; permission is never requested automatically
 
-Microphone samples are processed locally. The app declares no internet permission and does not upload audio.
+Microphone samples are processed locally and are not uploaded. The normal app declares no internet permission; the Paravoid shell uses the network for signed updates.
 
 ## Shared C engine and piano measurement tools
 
@@ -42,11 +42,47 @@ API ownership and measurement limitations.
 From the repository root:
 
 ```bash
-./gradlew assembleDebug
-./gradlew testDebugUnitTest lintDebug assembleDebugAndroidTest
+./gradlew assembleNormalDebug
+./gradlew testNormalDebugUnitTest lintNormalDebug assembleNormalDebugAndroidTest
 ```
 
-The debug APK is produced under `app/build/outputs/apk/debug/`. `assembleDebugAndroidTest` compiles the Compose instrumentation suite; running it requires a connected device or emulator.
+The normal debug APK is produced under `app/build/outputs/apk/normal/debug/`. `assembleNormalDebugAndroidTest` compiles the Compose instrumentation suite; running it requires a connected device or emulator.
+
+## Paravoid packaging
+
+This project expects a sibling `../paravoid-android` checkout at commit
+`42d40c85a74bb5d2e5405bc69b385d6e61032c3b`. The generated `normal` flavor
+and `paravoidAndroid` flavors both retain `com.lelloman.accordomi` for in-place
+distribution changes. The complete shell requires Android 11 (API 30).
+The Paravoid toolchain currently uses AGP 8.13.2, Kotlin 2.2.21 and Hilt 2.57.2.
+It compiles against SDK 36 while retaining Accordomi's target SDK 37.
+The `normalStoreRelease` build type keeps R8 and resource shrinking for LelloStore;
+Paravoid's `release` build type uses the unshrunk payload required by the plugin.
+
+For a local shell build, generate disposable signing and trust keys, then use the
+paths printed by the script:
+
+```bash
+python3 scripts/prepare-paravoid-local.py
+PARAVOID_SIGNING_KEY="$PWD/app/paravoid/keys/release.der" \
+PARAVOID_TRUST_POLICY="$PWD/app/paravoid/keys/trust.json" \
+  ./gradlew :app:assembleParavoidAndroidDebug
+```
+
+Install `app/build/outputs/paravoid/paravoidAndroidDebug/shell.apk`.
+The independently signed payload is
+`app/build/outputs/paravoid/paravoidAndroidDebug/payload.vpk`.
+The shell has one launcher icon. Settings provides a **Manage app updates** button
+that opens Paravoid's update controls; the shell bootstrap also opens those controls
+if the app payload cannot start.
+Local keys are ignored by Git and must not be used for a published release.
+For a real update channel, supply publisher-owned keys and trust policy plus
+`PARAVOID_UPDATE_BASE_URL` (an HTTPS URL ending in `/`). Set
+`PARAVOID_SIGNING_KEY_ID` if the signing key uses an ID other than `accordomi-v1`.
+Increment `-PparavoidPayloadVersion=<number>` for every published payload. Review
+the generated shell baseline and pass `-PparavoidBaselineDirectory=<directory>` to
+enforce it on subsequent builds; see
+`../paravoid-android/paravoid-gradle-plugin/COMPLETE-VPK.md`.
 
 For real microphone and lifecycle checks, follow [MANUAL_TESTING.md](MANUAL_TESTING.md).
 
@@ -75,7 +111,7 @@ The publisher is resolved from `LELLOSTORE_PUBLISHER`, then the sibling
 `$HOME/lelloprojects/lellostore/scripts/publish-to-lellostore.py`.
 All arguments are forwarded, including `--store-url`, `--issuer`, `--client-id`,
 `--beta`, and `--yes --json` for an already authorized noninteractive upload.
-The artifact is `app/build/outputs/apk/release/app-release.apk`.
+The artifact is `app/build/outputs/apk/normal/storeRelease/app-normal-storeRelease.apk`.
 Before publishing an update, increment `versionCode` and update `versionName`
 in `app/build.gradle.kts`; the wrapper does not change versions automatically.
 
@@ -99,3 +135,38 @@ Settings are stored with Preferences DataStore. Hilt provides application depend
 Third-party artwork attribution is recorded in [NOTICE](NOTICE). The launcher-icon working source is retained in `icon-lab.html`.
 
 The interface uses the published LelloDesign Compose library; see [UI adoption and build access](LELLODESIGN.md).
+
+## Production Paravoid release
+
+Release 1.4 (Android version code 5, payload version 5) retains the published
+APK signing identity and uses keyed, embedded delivery from
+`https://store.lelloman.com/api/paravoid/`. The payload release key is separate
+from both the APK keystore and the Store head/grant keys. It lives outside this
+repository at `~/.config/accordomi/paravoid-release/accordomi-release-2026.pk8`;
+keep a secure backup before relying on future payload releases. Never regenerate
+that key under the same key ID. The adjacent `trust.json` pins its public key and
+the Store's production head/grant public keys.
+
+```sh
+PARAVOID_SIGNING_KEY="$HOME/.config/accordomi/paravoid-release/accordomi-release-2026.pk8" \
+PARAVOID_SIGNING_KEY_ID=accordomi-release-2026 \
+PARAVOID_TRUST_POLICY="$HOME/.config/accordomi/paravoid-release/trust.json" \
+PARAVOID_UPDATE_BASE_URL=https://store.lelloman.com/api/paravoid/ \
+  ./gradlew :app:assembleParavoidAndroidRelease
+```
+
+The pair is under `app/build/outputs/paravoid/paravoidAndroidRelease/`. Upload
+`shell.apk` with the shared publisher's `--distribution-mode paravoid` option;
+the embedded `payload.vpk` is registered with it. Upload creates a draft. Review
+the normal-to-Paravoid migration before publishing. The normal APK publishing
+wrapper is still for normal distribution; do not use it to publish this shell.
+
+The first production pair is uploaded as a **draft**, not published. Its receipt is
+`~/.config/accordomi/paravoid-release/upload-v5.json`. The generated v5 baseline is
+saved alongside it as `baseline-v5`; pass it with `-PparavoidBaselineDirectory`
+when building later payloads. An API 30 emulator upgraded the published v4 APK
+to the exact v5 shell and retained the settings file byte-for-byte (including
+442 Hz reference pitch). Physical audio and calibrated piano-profile migration
+remain untested. A private copy of the release key and trust policy is stored on
+`homelab` under `/mnt/external/homelab/accordomi-release-signing`, covered by the
+existing backup path configuration; an actual backup/restore has not been verified.

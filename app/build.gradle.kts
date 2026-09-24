@@ -1,10 +1,12 @@
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.application)
+    id("com.lelloman.paravoid")
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.kapt)
+    id("com.lelloman.paravoid.hilt")
 }
 
 val signingProperties = Properties().apply {
@@ -16,7 +18,7 @@ val signingProperties = Properties().apply {
 
 android {
     namespace = "com.lelloman.accordomi"
-    compileSdk = 37
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
     externalNativeBuild {
         cmake {
@@ -29,12 +31,19 @@ android {
         applicationId = "com.lelloman.accordomi"
         minSdk = 29
         targetSdk = 37
-        versionCode = 4
-        versionName = "1.3"
+        versionCode = 5
+        versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake { arguments += "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON" }
+        }
+    }
+
+    productFlavors {
+        getByName("paravoidAndroid") {
+            applicationIdSuffix = ""
+            minSdk = 30
         }
     }
 
@@ -51,8 +60,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            // Paravoid's payload transformer does not support R8 or resource shrinking yet.
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -61,17 +71,61 @@ android {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
+        create("storeRelease") {
+            initWith(getByName("release"))
+            isMinifyEnabled = true
+            isShrinkResources = true
+            matchingFallbacks += listOf("release")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
 }
 
+androidComponents {
+    beforeVariants(selector().withBuildType("storeRelease")) { variant ->
+        if (variant.productFlavors.any { it.second == "paravoidAndroid" }) {
+            variant.enable = false
+        }
+    }
+}
+
+kapt {
+    correctErrorTypes = true
+}
+
+paravoid {
+    packaging = "complete"
+    bootstrap = "embedded"
+    controlsLauncher = false
+    payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(5L)
+    providers.gradleProperty("paravoidBaselineDirectory").orNull?.let {
+        baselineDirectory.set(layout.dir(providers.provider { file(it) }))
+    }
+    signing {
+        keyId = providers.environmentVariable("PARAVOID_SIGNING_KEY_ID").getOrElse("accordomi-v1")
+        privateKeyFile.set(layout.file(providers.environmentVariable("PARAVOID_SIGNING_KEY").map(::file)))
+    }
+    updates {
+        val updateUrl = providers.environmentVariable("PARAVOID_UPDATE_BASE_URL").orNull.orEmpty()
+        enabled = updateUrl.isNotBlank()
+        authentication = "apkKey"
+        baseUrl = updateUrl
+        trustPolicyFile.set(layout.file(providers.environmentVariable("PARAVOID_TRUST_POLICY").map(::file)))
+    }
+}
+
 dependencies {
+    implementation(project(":paravoid-api"))
+    add("paravoidAndroidImplementation", project(":paravoid-runtime"))
     implementation("com.lelloman:lellodesign-compose:0.2.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -87,8 +141,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
-    ksp(libs.hilt.android.compiler)
+    kapt(libs.hilt.android.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)

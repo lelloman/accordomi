@@ -1,5 +1,8 @@
 package com.lelloman.accordomi.feature.settings
 
+import android.content.ComponentName
+import android.content.Intent
+import android.content.pm.PackageManager
 import com.lelloman.lellodesign.*
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lelloman.accordomi.R
 import com.lelloman.accordomi.domain.settings.BuiltInTheme
@@ -48,6 +52,17 @@ fun SettingsRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val locale = LocalConfiguration.current.locales[0]
+    val updatesComponent = remember(context) {
+        ComponentName(context.packageName, "com.lelloman.paravoidandroid.delivery.ShellUpdatesActivity")
+    }
+    val hasUpdateControls = remember(context, updatesComponent) {
+        try {
+            context.packageManager.getActivityInfo(updatesComponent, 0)
+            true
+        } catch (_: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
 
     LaunchedEffect(locale) {
         viewModel.onLocaleChanged(locale)
@@ -61,6 +76,9 @@ fun SettingsRoute(
         onToneVisualizationStyleChanged = viewModel::onToneVisualizationStyleChanged,
         onThemeChanged = viewModel::onThemeChanged,
         onOpenAppPermissionSettings = { context.openAppPermissionSettings() },
+        onOpenUpdates = if (hasUpdateControls) {
+            { context.startActivity(Intent().setComponent(updatesComponent)) }
+        } else null,
         onAbout = onAbout,
     )
 }
@@ -75,6 +93,7 @@ fun SettingsScreen(
     onToneVisualizationStyleChanged: (ToneVisualizationStyle) -> Unit,
     onThemeChanged: (ThemeId) -> Unit,
     onOpenAppPermissionSettings: () -> Unit,
+    onOpenUpdates: (() -> Unit)? = null,
     onAbout: () -> Unit = {},
 ) {
     val systemDark = isSystemInDarkTheme()
@@ -216,6 +235,13 @@ fun SettingsScreen(
                     Text(stringResource(R.string.open_app_permissions))
                 }
             }
+            }
+            if (onOpenUpdates != null) {
+                LelloSettingsSection(stringResource(R.string.settings_updates)) {
+                    LelloOutlinedButton(onOpenUpdates, Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.open_update_controls))
+                    }
+                }
             }
             LelloSettingsSection(stringResource(R.string.nav_about)) {
                 LelloOutlinedButton(onAbout, Modifier.fillMaxWidth()) { Text(stringResource(R.string.about_title)) }

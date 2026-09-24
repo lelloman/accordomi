@@ -11,7 +11,7 @@ export LELLOSTORE_CLIENT_ID="${LELLOSTORE_CLIENT_ID:-22cd4a2d-a771-41e3-b76e-3f8
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 REPOSITORY_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
 SIGNING_PROPERTIES="$REPOSITORY_DIR/signing.properties"
-ARTIFACT="$REPOSITORY_DIR/app/build/outputs/apk/release/app-release.apk"
+ARTIFACT="$REPOSITORY_DIR/app/build/outputs/apk/normal/storeRelease/app-normal-storeRelease.apk"
 
 if [[ ! -f "$SIGNING_PROPERTIES" ]]; then
     echo "Missing Android release signing configuration: $SIGNING_PROPERTIES" >&2
@@ -39,7 +39,7 @@ fi
 echo "Building signed Accordomi release APK..."
 (
     cd "$REPOSITORY_DIR"
-    ./gradlew :app:assembleRelease
+    ./gradlew :app:assembleNormalStoreRelease
 )
 
 if [[ ! -s "$ARTIFACT" ]]; then
@@ -49,7 +49,7 @@ fi
 
 ARTIFACT_SIZE=$(stat --format='%s' "$ARTIFACT")
 echo "Artifact: $ARTIFACT"
-echo "Variant:  release"
+echo "Variant:  normalStoreRelease"
 echo "Size:     $ARTIFACT_SIZE bytes"
 
 "$PUBLISHER" upload "$ARTIFACT" --publish "$@"

@@ -11,3 +11,4 @@ local.properties
 signing.properties
 *.jks
 *.keystore
+app/paravoid/keys/
