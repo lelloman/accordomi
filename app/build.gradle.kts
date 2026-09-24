@@ -31,8 +31,8 @@ android {
         applicationId = "com.lelloman.accordomi"
         minSdk = 29
         targetSdk = 37
-        versionCode = 5
-        versionName = "1.4"
+        versionCode = 6
+        versionName = "1.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -106,7 +106,7 @@ paravoid {
     packaging = "complete"
     bootstrap = "embedded"
     controlsLauncher = false
-    payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(5L)
+    payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(6L)
     providers.gradleProperty("paravoidBaselineDirectory").orNull?.let {
         baselineDirectory.set(layout.dir(providers.provider { file(it) }))
     }

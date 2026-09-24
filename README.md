@@ -95,14 +95,17 @@ The script defaults to `https://store.lelloman.com`, issuer
 `https://auth.lelloman.com`, and the existing LelloStore public client ID.
 Override these with `LELLOSTORE_URL`, `LELLOSTORE_OIDC_ISSUER`, and
 `LELLOSTORE_CLIENT_ID` when targeting a different store.
-The wrapper builds the signed release APK and delegates authentication and upload
-to the shared LelloStore publisher, matching the other Android projects.
+The wrapper builds the signed Paravoid shell and embedded payload, then delegates
+shell validation and draft upload to the shared LelloStore publisher. It uses the
+production Paravoid key and trust policy under
+`~/.config/accordomi/paravoid-release/` by default; environment variables can
+override those paths and the update URL.
 
 ```bash
 # Build and validate locally without authenticating or uploading:
 ./scripts/publish-android-to-lellostore.sh --dry-run --json
 
-# Build and upload, with the publisher's interactive confirmation:
+# Build and upload a Paravoid shell draft, with interactive confirmation:
 ./scripts/publish-android-to-lellostore.sh
 ```
 
@@ -111,9 +114,12 @@ The publisher is resolved from `LELLOSTORE_PUBLISHER`, then the sibling
 `$HOME/lelloprojects/lellostore/scripts/publish-to-lellostore.py`.
 All arguments are forwarded, including `--store-url`, `--issuer`, `--client-id`,
 `--beta`, and `--yes --json` for an already authorized noninteractive upload.
-The artifact is `app/build/outputs/apk/normal/storeRelease/app-normal-storeRelease.apk`.
-Before publishing an update, increment `versionCode` and update `versionName`
-in `app/build.gradle.kts`; the wrapper does not change versions automatically.
+The uploaded artifact is `app/build/outputs/paravoid/paravoidAndroidRelease/shell.apk`.
+The accompanying `payload.vpk` is embedded and registered with the shell.
+Review the Store draft and publish it separately with the authoritative publisher.
+Before uploading a new shell, increment `versionCode`, `versionName`, and the
+Paravoid payload version in `app/build.gradle.kts`; the wrapper does not change
+versions automatically.
 
 ## Project structure
 
@@ -138,7 +144,7 @@ The interface uses the published LelloDesign Compose library; see [UI adoption a
 
 ## Production Paravoid release
 
-Release 1.4 (Android version code 5, payload version 5) retains the published
+Release 1.5 (Android version code 6, payload version 6) retains the published
 APK signing identity and uses keyed, embedded delivery from
 `https://store.lelloman.com/api/paravoid/`. The payload release key is separate
 from both the APK keystore and the Store head/grant keys. It lives outside this
@@ -155,16 +161,18 @@ PARAVOID_UPDATE_BASE_URL=https://store.lelloman.com/api/paravoid/ \
   ./gradlew :app:assembleParavoidAndroidRelease
 ```
 
-The pair is under `app/build/outputs/paravoid/paravoidAndroidRelease/`. Upload
-`shell.apk` with the shared publisher's `--distribution-mode paravoid` option;
-the embedded `payload.vpk` is registered with it. Upload creates a draft. Review
-the normal-to-Paravoid migration before publishing. The normal APK publishing
-wrapper is still for normal distribution; do not use it to publish this shell.
+The pair is under `app/build/outputs/paravoid/paravoidAndroidRelease/`. The
+publishing wrapper uploads `shell.apk` with `--distribution-mode paravoid`; the
+embedded `payload.vpk` is registered with it. Upload creates a draft for review.
+Version 6 and its embedded payload are published. Its upload receipt is at
+`~/.config/accordomi/paravoid-release/upload-v6.json`, and its contract baseline
+is at `~/.config/accordomi/paravoid-release/baseline-v6`. Use that baseline for
+future payload builds targeting the version 6 shell.
 
-The first production pair is uploaded as a **draft**, not published. Its receipt is
+The first production pair (version 5) was published. Its original upload receipt is
 `~/.config/accordomi/paravoid-release/upload-v5.json`. The generated v5 baseline is
-saved alongside it as `baseline-v5`; pass it with `-PparavoidBaselineDirectory`
-when building later payloads. An API 30 emulator upgraded the published v4 APK
+saved alongside it as `baseline-v5`; it applies to payloads for that shell. An API
+30 emulator upgraded the published v4 APK
 to the exact v5 shell and retained the settings file byte-for-byte (including
 442 Hz reference pitch). Physical audio and calibrated piano-profile migration
 remain untested. A private copy of the release key and trust policy is stored on
