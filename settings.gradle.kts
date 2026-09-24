@@ -40,7 +40,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "Accordomi"
 include(":app")
-include(":paravoid-api", ":paravoid-contract", ":paravoid-runtime")
+include(":paravoid-api", ":paravoid-contract", ":paravoid-runtime", ":paravoid-recovery-api")
 project(":paravoid-api").projectDir = file("../paravoid-android/paravoid-api")
 project(":paravoid-contract").projectDir = file("../paravoid-android/paravoid-contract")
 project(":paravoid-runtime").projectDir = file("../paravoid-android/paravoid-runtime")
+
+project(":paravoid-recovery-api").projectDir = file("../paravoid-android/paravoid-recovery-api")

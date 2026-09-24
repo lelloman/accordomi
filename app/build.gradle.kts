@@ -31,8 +31,8 @@ android {
         applicationId = "com.lelloman.accordomi"
         minSdk = 29
         targetSdk = 37
-        versionCode = 6
-        versionName = "1.5"
+        versionCode = 7
+        versionName = "1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -106,9 +106,13 @@ paravoid {
     packaging = "complete"
     bootstrap = "embedded"
     controlsLauncher = false
+    crashRecovery {
+        enabled = true
+        updater = "default"
+    }
     minifyPayload = providers.gradleProperty("paravoidMinifyPayload").map(String::toBoolean).getOrElse(false)
     payloadProguardFiles.from("proguard-rules.pro")
-    payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(6L)
+    payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(11L)
     providers.gradleProperty("paravoidBaselineDirectory").orNull?.let {
         baselineDirectory.set(layout.dir(providers.provider { file(it) }))
     }
