@@ -1,6 +1,9 @@
 # JNI resolves these names directly, including in minified release builds.
 -keep class com.lelloman.accordomi.nativeaudio.NativeAudio { *; }
 
+# DataStore's protobuf schemas resolve generated fields by their original names.
+-keep class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite { *; }
+
 # AndroidX Startup loads initializer names from manifest meta-data via reflection.
 -keep class * implements androidx.startup.Initializer { *; }
 
