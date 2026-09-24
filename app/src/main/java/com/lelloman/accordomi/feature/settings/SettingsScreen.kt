@@ -46,7 +46,6 @@ import com.lelloman.accordomi.ui.UiTestTags
 
 @Composable
 fun SettingsRoute(
-    onAbout: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -79,7 +78,6 @@ fun SettingsRoute(
         onOpenUpdates = if (hasUpdateControls) {
             { context.startActivity(Intent().setComponent(updatesComponent)) }
         } else null,
-        onAbout = onAbout,
     )
 }
 
@@ -94,7 +92,6 @@ fun SettingsScreen(
     onThemeChanged: (ThemeId) -> Unit,
     onOpenAppPermissionSettings: () -> Unit,
     onOpenUpdates: (() -> Unit)? = null,
-    onAbout: () -> Unit = {},
 ) {
     val systemDark = isSystemInDarkTheme()
     Column(modifier = Modifier.fillMaxSize()) {
@@ -242,9 +239,6 @@ fun SettingsScreen(
                         Text(stringResource(R.string.open_update_controls))
                     }
                 }
-            }
-            LelloSettingsSection(stringResource(R.string.nav_about)) {
-                LelloOutlinedButton(onAbout, Modifier.fillMaxWidth()) { Text(stringResource(R.string.about_title)) }
             }
         }
     }

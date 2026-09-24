@@ -83,7 +83,7 @@
     <string name="tuning_sharp_short">Crescente</string>
 
     <string name="about_title">Informazioni</string>
-    <string name="about_description">Un accordatore minimale per pianoforte basato sul rilevamento dell’intonazione in tempo reale.</string>
+    <string name="about_description">Accorda gli strumenti con il rilevamento dell’intonazione in tempo reale, crea profili di accordatura per pianoforte e riproduci toni di riferimento.</string>
     <string name="nav_piano">Pianoforte</string>
     <string name="piano_intro">Misura il tuo pianoforte, poi accorda ogni corda isolata alla frequenza calcolata.</string>
     <string name="piano_profiles">I tuoi pianoforti</string>

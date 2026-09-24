@@ -91,7 +91,7 @@
     <string name="tuning_sharp_short">Sharp</string>
 
     <string name="about_title">About</string>
-    <string name="about_description">A minimal piano tuner focused on live tone detection.</string>
+    <string name="about_description">Tune instruments with live pitch detection, create piano tuning profiles, and play reference tones.</string>
     <string name="nav_piano">Piano</string>
     <string name="piano_intro">Learn the sound of your piano, then tune each isolated string to its own calculated target.</string>
     <string name="piano_profiles">Your pianos</string>
