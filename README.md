@@ -51,13 +51,14 @@ The normal debug APK is produced under `app/build/outputs/apk/normal/debug/`. `a
 ## Paravoid packaging
 
 This project expects a sibling `../paravoid-android` checkout at commit
-`42d40c85a74bb5d2e5405bc69b385d6e61032c3b`. The generated `normal` flavor
+`046489fe3fa7fdbcf650ca9e821c43705058a202`. The generated `normal` flavor
 and `paravoidAndroid` flavors both retain `com.lelloman.accordomi` for in-place
 distribution changes. The complete shell requires Android 11 (API 30).
 The Paravoid toolchain currently uses AGP 8.13.2, Kotlin 2.2.21 and Hilt 2.57.2.
 It compiles against SDK 36 while retaining Accordomi's target SDK 37.
-The `normalStoreRelease` build type keeps R8 and resource shrinking for LelloStore;
-Paravoid's `release` build type uses the unshrunk payload required by the plugin.
+The `normalStoreRelease` build type keeps Android Gradle Plugin R8 and resource
+shrinking. Paravoid rejects those build-type switches but offers a separate,
+experimental `paravoidMinifyPayload` flag for its payload DEX.
 
 For a local shell build, generate disposable signing and trust keys, then use the
 paths printed by the script:
@@ -107,6 +108,12 @@ override those paths and the update URL.
 
 # Build and upload a Paravoid shell draft, with interactive confirmation:
 ./scripts/publish-android-to-lellostore.sh
+
+# Build a minified payload against the current shell baseline without uploading:
+./scripts/publish-android-to-lellostore.sh --minified-payload-version 9 --build-only
+
+# Upload that signed payload as a draft:
+./scripts/publish-android-to-lellostore.sh --minified-payload-version 9
 ```
 
 The publisher is resolved from `LELLOSTORE_PUBLISHER`, then the sibling
@@ -120,6 +127,11 @@ Review the Store draft and publish it separately with the authoritative publishe
 Before uploading a new shell, increment `versionCode`, `versionName`, and the
 Paravoid payload version in `app/build.gradle.kts`; the wrapper does not change
 versions automatically.
+The `--minified-payload-version` mode builds only a VPK, checks its signed version
+and shell contract against `PARAVOID_BASELINE_DIRECTORY` (default `baseline-v6`),
+and calls the publisher's `upload-vpk` command. After the Store validates the
+draft, use the authoritative publisher's `publish-vpk` command with the draft's
+VPK ID and current publication revision. It does not upload another shell APK.
 
 ## Project structure
 
@@ -168,6 +180,12 @@ Version 6 and its embedded payload are published. Its upload receipt is at
 `~/.config/accordomi/paravoid-release/upload-v6.json`, and its contract baseline
 is at `~/.config/accordomi/paravoid-release/baseline-v6`. Use that baseline for
 future payload builds targeting the version 6 shell.
+Minified payload p8 is published on that shell contract. It repairs p7, which
+failed to start after an update because R8 removed runtime entry points. The
+shell APK version remains 6. Payload R8 8.6.2-dev emits Kotlin metadata 2.2
+compatibility warnings. An emulator test covered p8 download and activation
+from the Store-issued version 6 shell, app startup, and Settings. Other app paths
+have not been exercised with the minified release.
 
 The first production pair (version 5) was published. Its original upload receipt is
 `~/.config/accordomi/paravoid-release/upload-v5.json`. The generated v5 baseline is

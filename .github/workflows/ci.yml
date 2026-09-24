@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: lelloman/paravoid-android
-          ref: 42d40c85a74bb5d2e5405bc69b385d6e61032c3b
+          ref: 046489fe3fa7fdbcf650ca9e821c43705058a202
           path: paravoid-android
 
       - name: Set up JDK
@@ -51,3 +51,4 @@ jobs:
         run: |
           python3 scripts/prepare-paravoid-local.py
           ./gradlew :app:assembleParavoidAndroidDebug --stacktrace
+          ./gradlew :app:assembleParavoidAndroidDebug -PparavoidMinifyPayload=true --stacktrace

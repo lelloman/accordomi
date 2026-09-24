@@ -13,6 +13,24 @@ REPOSITORY_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
 SIGNING_PROPERTIES="$REPOSITORY_DIR/signing.properties"
 ARTIFACT="$REPOSITORY_DIR/app/build/outputs/paravoid/paravoidAndroidRelease/shell.apk"
 PAYLOAD="$REPOSITORY_DIR/app/build/outputs/paravoid/paravoidAndroidRelease/payload.vpk"
+RELEASE_METADATA="$REPOSITORY_DIR/app/build/outputs/paravoid/paravoidAndroidRelease/release.json"
+MAPPING="$REPOSITORY_DIR/app/build/outputs/paravoid/paravoidAndroidRelease/payload-mapping.txt"
+PARAVOID_BASELINE_DIRECTORY="${PARAVOID_BASELINE_DIRECTORY:-${HOME}/.config/accordomi/paravoid-release/baseline-v6}"
+
+PAYLOAD_VERSION=""
+BUILD_ONLY=false
+if [[ "${1:-}" == "--minified-payload-version" ]]; then
+    PAYLOAD_VERSION="${2:-}"
+    if [[ ! "$PAYLOAD_VERSION" =~ ^[1-9][0-9]*$ ]]; then
+        echo "Expected a positive payload version after --minified-payload-version." >&2
+        exit 1
+    fi
+    shift 2
+    if [[ "${1:-}" == "--build-only" ]]; then
+        BUILD_ONLY=true
+        shift
+    fi
+fi
 
 export PARAVOID_SIGNING_KEY="${PARAVOID_SIGNING_KEY:-${HOME}/.config/accordomi/paravoid-release/accordomi-release-2026.pk8}"
 export PARAVOID_SIGNING_KEY_ID="${PARAVOID_SIGNING_KEY_ID:-accordomi-release-2026}"
@@ -47,6 +65,45 @@ fi
 if [[ ! -x "$PUBLISHER" ]]; then
     echo "LelloStore publisher is not executable: $PUBLISHER" >&2
     exit 1
+fi
+
+if [[ -n "$PAYLOAD_VERSION" ]]; then
+    BASELINE_CONTRACT="$PARAVOID_BASELINE_DIRECTORY/paravoidAndroidRelease/shell-contract.json"
+    if [[ ! -s "$BASELINE_CONTRACT" ]]; then
+        echo "Missing Paravoid shell baseline: $BASELINE_CONTRACT" >&2
+        exit 1
+    fi
+    echo "Building signed minified Accordomi payload version $PAYLOAD_VERSION..."
+    (
+        cd "$REPOSITORY_DIR"
+        ./gradlew :app:packageParavoidAndroidReleaseParavoidVpk \
+            -PparavoidPayloadVersion="$PAYLOAD_VERSION" \
+            -PparavoidMinifyPayload=true \
+            -PparavoidBaselineDirectory="$PARAVOID_BASELINE_DIRECTORY"
+    )
+    for REQUIRED_ARTIFACT in "$PAYLOAD" "$RELEASE_METADATA" "$MAPPING"; do
+        if [[ ! -s "$REQUIRED_ARTIFACT" ]]; then
+            echo "Expected minified payload artifact was not produced: $REQUIRED_ARTIFACT" >&2
+            exit 1
+        fi
+    done
+    EXPECTED_CONTRACT=$(jq -r '.contractId' "$BASELINE_CONTRACT")
+    ACTUAL_CONTRACT=$(jq -r '.body | @base64d | fromjson | .shellContractId' "$RELEASE_METADATA")
+    ACTUAL_VERSION=$(jq -r '.body | @base64d | fromjson | .payloadVersion' "$RELEASE_METADATA")
+    if [[ "$ACTUAL_CONTRACT" != "$EXPECTED_CONTRACT" || "$ACTUAL_VERSION" != "$PAYLOAD_VERSION" ]]; then
+        echo "Payload version or shell contract differs from the requested release." >&2
+        exit 1
+    fi
+    echo "Payload:  $PAYLOAD"
+    echo "Mapping:  $MAPPING"
+    echo "Version:  $ACTUAL_VERSION"
+    echo "Contract: $ACTUAL_CONTRACT"
+    echo "Size:     $(stat --format='%s' "$PAYLOAD") bytes"
+    if [[ "$BUILD_ONLY" == true ]]; then
+        exit 0
+    fi
+    "$PUBLISHER" upload-vpk com.lelloman.accordomi "$EXPECTED_CONTRACT" "$PAYLOAD" "$@"
+    exit
 fi
 
 echo "Building signed Accordomi Paravoid shell and embedded payload..."

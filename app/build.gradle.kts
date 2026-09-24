@@ -60,7 +60,7 @@ android {
 
     buildTypes {
         release {
-            // Paravoid's payload transformer does not support R8 or resource shrinking yet.
+            // AGP shrinking is unsupported for Paravoid; its payload R8 path is configured below.
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
@@ -106,6 +106,8 @@ paravoid {
     packaging = "complete"
     bootstrap = "embedded"
     controlsLauncher = false
+    minifyPayload = providers.gradleProperty("paravoidMinifyPayload").map(String::toBoolean).getOrElse(false)
+    payloadProguardFiles.from("proguard-rules.pro")
     payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(6L)
     providers.gradleProperty("paravoidBaselineDirectory").orNull?.let {
         baselineDirectory.set(layout.dir(providers.provider { file(it) }))
