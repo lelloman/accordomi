@@ -22,8 +22,9 @@ data class ReferenceToneUiState(
     val isPlaying: Boolean = false,
     val hasError: Boolean = false,
     val targetFrequencyHz: Double? = null,
+    val customFrequencyHz: Double? = null,
 ) {
-    val frequencyHz: Double get() = targetFrequencyHz ?: TuningMath.frequencyFor(midiNote, referencePitchHz)
+    val frequencyHz: Double get() = customFrequencyHz ?: targetFrequencyHz ?: TuningMath.frequencyFor(midiNote, referencePitchHz)
     val noteName: String get() = TuningMath.noteName(midiNote)
 }
 
@@ -35,6 +36,7 @@ class ReferenceToneViewModel @Inject constructor(
     private data class Tuning(val referenceHz: Double? = null, val targets: Map<Int, Double> = emptyMap())
     private val tuning = MutableStateFlow(Tuning())
     private val note = MutableStateFlow(69)
+    private val customFrequency = MutableStateFlow<Double?>(null)
     private val playing = MutableStateFlow(false)
     private val error = MutableStateFlow(false)
     private var playback: Job? = null
@@ -43,17 +45,27 @@ class ReferenceToneViewModel @Inject constructor(
 
     val uiState = combine(note, observeSettings(), playing, error, tuning) { midi, settings, active, failed, context ->
         ReferenceToneUiState(midi, context.referenceHz ?: settings.referencePitchHz, active, failed, context.targets[midi])
+    }.combine(customFrequency) { state, frequency ->
+        state.copy(customFrequencyHz = frequency)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), ReferenceToneUiState())
 
     fun configure(midi: Int?, referenceHz: Double?, targets: Map<Int, Double>) {
         stopImmediately()
         tuning.value = Tuning(referenceHz, targets.toMap())
+        customFrequency.value = null
         if (midi != null) note.value = midi.coerceIn(21, 108)
     }
 
     fun selectNote(midi: Int) {
         stopImmediately()
         note.value = midi.coerceIn(21, 108)
+        customFrequency.value = null
+    }
+
+    fun setFrequency(frequencyHz: Double) {
+        if (!frequencyHz.isFinite() || frequencyHz !in 20.0..20_000.0) return
+        stopImmediately()
+        customFrequency.value = frequencyHz
     }
 
     fun togglePlayback() {
@@ -64,7 +76,8 @@ class ReferenceToneViewModel @Inject constructor(
         error.value = false
         stopRequested = false
         playing.value = true
-        val frequency = uiState.value.frequencyHz
+        val frequency = customFrequency.value ?: tuning.value.targets[note.value]
+            ?: TuningMath.frequencyFor(note.value, tuning.value.referenceHz ?: uiState.value.referencePitchHz)
         val previous = playback
         val currentGeneration = ++generation
         playback = viewModelScope.launch {

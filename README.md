@@ -6,7 +6,7 @@ Accordomi is a small Android piano tuner that analyzes live microphone audio on-
 
 - YIN, autocorrelation, and McLeod pitch detection
 - Bottom navigation for Tuner, Piano, Settings, and About
-- Reference-tone playback from A0 to C8 inside Tuner and Piano, with note and octave controls; Piano uses the active profile’s reference and tuning targets
+- Reference-tone playback from A0 to C8 in the Tuner and Piano app bars, with a direct playback switch and a compact note or exact-frequency editor; Piano uses the active profile’s reference and tuning targets
 - Full piano-range note mapping with configurable reference pitch from 400 to 480 Hz
 - Locale-aware reference-pitch input and localized English and Italian interfaces
 - Stabilized readings with short-dropout tolerance

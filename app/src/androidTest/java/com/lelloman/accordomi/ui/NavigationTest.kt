@@ -16,19 +16,20 @@ class NavigationTest {
     )
 
     @Test
-    fun fourBottomTabsAndEmbeddedToneOnBothTuningScreens() {
+    fun fourBottomTabsAndAppBarToneControlsOnBothTuningScreens() {
         listOf("Tuner", "Piano", "Settings", "About").forEach { tab(it).assertIsDisplayed() }
         compose.onNodeWithContentDescription("Open navigation").assertDoesNotExist()
         compose.onNodeWithText("Tone").assertDoesNotExist()
         for (destination in listOf("Tuner", "Piano")) {
             tab(destination).performClick().assertIsSelected()
             compose.onNodeWithTag("open_reference_tone").performClick()
-            compose.onNodeWithTag("reference_tone_playback").performScrollTo().performClick()
-            compose.onNodeWithText("Stop tone").assertIsDisplayed()
-            compose.onNodeWithTag("close_reference_tone").performClick()
-            compose.onNodeWithTag("open_reference_tone").performClick()
-            compose.onNodeWithText("Play tone").performScrollTo().assertIsDisplayed()
-            compose.onNodeWithTag("close_reference_tone").performClick()
+            compose.onNodeWithTag("reference_tone_frequency_input").assertIsDisplayed()
+            compose.onNodeWithTag("reference_tone_frequency_input").performTextClearance()
+            compose.onNodeWithTag("reference_tone_frequency_input").performTextInput("445.5")
+            compose.onNodeWithTag("reference_tone_set_frequency").performClick()
+            compose.onNodeWithTag("open_reference_tone").assert(hasText("445.50 Hz", substring = true))
+            compose.onNodeWithTag("reference_tone_playback").performClick().assertIsOn()
+            compose.onNodeWithTag("reference_tone_playback").performClick().assertIsOff()
         }
         for (destination in listOf("Settings", "About")) {
             tab(destination).performClick().assertIsSelected()

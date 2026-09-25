@@ -113,6 +113,27 @@ class ReferenceToneViewModelTest {
         assertFalse(model.uiState.value.isPlaying)
     }
 
+    @Test
+    fun exactFrequencyOverridesTheCurrentNoteUntilAnotherNoteIsSelected() = runTest(dispatcher) {
+        val output = FakeOutput()
+        val model = ReferenceToneViewModel(ObserveSettingsUseCase(FakeSettings()), output)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.uiState.collect() }
+        model.configure(81, 442.0, mapOf(81 to 887.5))
+        runCurrent()
+        model.setFrequency(891.25)
+        runCurrent()
+        assertEquals(891.25, model.uiState.value.frequencyHz, 0.0)
+        model.togglePlayback()
+        runCurrent()
+        assertEquals(891.25, output.frequencies.last(), 0.0)
+        model.selectNote(69)
+        runCurrent()
+        assertEquals(442.0, model.uiState.value.frequencyHz, 0.0)
+        model.setFrequency(Double.NaN)
+        runCurrent()
+        assertEquals(442.0, model.uiState.value.frequencyHz, 0.0)
+    }
+
     private class FakeOutput : ReferenceToneOutput {
         var fail = false
         var active = 0

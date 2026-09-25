@@ -1,17 +1,15 @@
 <resources>
-    <string name="reference_tone_close">Torna all’accordatura</string>
     <string name="nav_tuner">Accordatore</string>
-    <string name="nav_reference_tone">Tono</string>
     <string name="reference_tone_title">Tono di riferimento</string>
-    <string name="reference_tone_reference">La4 = %1$.1f Hz</string>
     <string name="reference_tone_lower">Nota più bassa</string>
     <string name="reference_tone_higher">Nota più alta</string>
     <string name="reference_tone_octave_down">− Ottava</string>
     <string name="reference_tone_octave_up">+ Ottava</string>
-    <string name="reference_tone_play">Riproduci tono</string>
-    <string name="reference_tone_stop">Ferma tono</string>
-    <string name="reference_tone_help">Accorda la corda a orecchio seguendo questo tono. Regola il volume multimediale per cambiare il volume. Le note basse potrebbero sentirsi poco dagli altoparlanti del telefono.</string>
     <string name="reference_tone_error">Impossibile riprodurre il tono. Riprova.</string>
+    <string name="reference_tone_playback">Riproduzione tono di riferimento</string>
+    <string name="reference_tone_frequency_label">Frequenza (Hz)</string>
+    <string name="reference_tone_frequency_error">Inserisci una frequenza tra 20 e 20.000 Hz.</string>
+    <string name="reference_tone_set_frequency">Imposta frequenza</string>
     <string name="nav_settings">Impostazioni</string>
     <string name="nav_about">Informazioni</string>
 
