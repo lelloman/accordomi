@@ -1,6 +1,8 @@
 pluginManagement {
-    includeBuild("../paravoid-android/paravoid-gradle-plugin")
-    includeBuild("../paravoid-android/paravoid-hilt")
+    val paravoidDirectory = providers.environmentVariable("PARAVOID_SOURCE_DIRECTORY")
+        .getOrElse("../paravoid-android")
+    includeBuild("$paravoidDirectory/paravoid-gradle-plugin")
+    includeBuild("$paravoidDirectory/paravoid-hilt")
     repositories {
         google {
             content {
@@ -41,8 +43,15 @@ dependencyResolutionManagement {
 rootProject.name = "Accordomi"
 include(":app")
 include(":paravoid-api", ":paravoid-contract", ":paravoid-runtime", ":paravoid-recovery-api")
-project(":paravoid-api").projectDir = file("../paravoid-android/paravoid-api")
-project(":paravoid-contract").projectDir = file("../paravoid-android/paravoid-contract")
-project(":paravoid-runtime").projectDir = file("../paravoid-android/paravoid-runtime")
+val paravoidDirectory = file(providers.environmentVariable("PARAVOID_SOURCE_DIRECTORY")
+    .getOrElse("../paravoid-android"))
+// Older installed shells predate the standalone update API.
+if (paravoidDirectory.resolve("paravoid-update-api").isDirectory) {
+    include(":paravoid-update-api")
+    project(":paravoid-update-api").projectDir = paravoidDirectory.resolve("paravoid-update-api")
+}
+project(":paravoid-api").projectDir = paravoidDirectory.resolve("paravoid-api")
+project(":paravoid-contract").projectDir = paravoidDirectory.resolve("paravoid-contract")
+project(":paravoid-runtime").projectDir = paravoidDirectory.resolve("paravoid-runtime")
 
-project(":paravoid-recovery-api").projectDir = file("../paravoid-android/paravoid-recovery-api")
+project(":paravoid-recovery-api").projectDir = paravoidDirectory.resolve("paravoid-recovery-api")

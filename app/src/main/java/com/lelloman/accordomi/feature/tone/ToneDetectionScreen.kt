@@ -32,6 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +57,7 @@ import com.lelloman.accordomi.ui.UiTestTags
 fun ToneDetectionRoute(
     viewModel: ToneDetectionViewModel = hiltViewModel(),
 ) {
+    var showTone by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -68,17 +72,26 @@ fun ToneDetectionRoute(
 
     RefreshRecordPermissionOnResume(::refreshPermission)
     DisposableEffect(viewModel) {
-        onDispose { viewModel.onRecordPermissionChanged(false) }
+        onDispose { viewModel.onRecordPermissionChanged(false); viewModel.setPaused(false) }
     }
 
-    ToneDetectionScreen(
-        uiState = uiState,
-        onRequestPermission = {
-            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-        },
-        onOpenSettings = { context.openAppPermissionSettings() },
-        onRetry = viewModel::onRetry,
-    )
+    Column(Modifier.fillMaxSize()) {
+        ReferenceToneButton(onClick = { viewModel.setPaused(true); showTone = true })
+        Box(Modifier.weight(1f)) {
+            ToneDetectionScreen(
+                uiState = uiState,
+                onRequestPermission = {
+                    permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                },
+                onOpenSettings = { context.openAppPermissionSettings() },
+                onRetry = viewModel::onRetry,
+            )
+        }
+    }
+    if (showTone) ReferenceToneSheet(onDismiss = {
+        showTone = false
+        viewModel.setPaused(false)
+    })
 }
 
 @Composable

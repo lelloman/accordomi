@@ -42,12 +42,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lelloman.accordomi.R
 import com.lelloman.accordomi.domain.piano.*
 import com.lelloman.accordomi.domain.tone.*
+import com.lelloman.accordomi.feature.tone.ReferenceToneButton
+import com.lelloman.accordomi.feature.tone.ReferenceToneSheet
 import com.lelloman.accordomi.feature.tone.ToneVisualization
 import com.lelloman.accordomi.feature.tone.openAppPermissionSettings
 import com.lelloman.accordomi.nativeaudio.*
 
 @Composable
 fun PianoRoute(viewModel: PianoViewModel = hiltViewModel()) {
+    var showTone by remember { mutableStateOf(false) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val owner = LocalLifecycleOwner.current
@@ -63,14 +66,25 @@ fun PianoRoute(viewModel: PianoViewModel = hiltViewModel()) {
         owner.lifecycle.addObserver(observer)
         onDispose { owner.lifecycle.removeObserver(observer); viewModel.stop() }
     }
-    PianoScreen(state, PianoActions(
-        create = viewModel::create, select = viewModel::select, profiles = viewModel::profiles,
-        capture = viewModel::captureTake, next = viewModel::nextCalibrationNote, stop = viewModel::stop, build = viewModel::buildTuning,
-        listen = viewModel::listen, note = viewModel::selectNote, refine = viewModel::refineSelectedNote, recalibrate = viewModel::recalibrate,
-        export = { export.launch("piano-profile.zip") },
-        permission = { permission.launch(Manifest.permission.RECORD_AUDIO) },
-        settings = { context.openAppPermissionSettings() },
-    ))
+    Column(Modifier.fillMaxSize()) {
+        ReferenceToneButton(onClick = { viewModel.stop(); showTone = true }, enabled = !state.busy)
+        Box(Modifier.weight(1f)) {
+            PianoScreen(state, PianoActions(
+                create = viewModel::create, select = viewModel::select, profiles = viewModel::profiles,
+                capture = viewModel::captureTake, next = viewModel::nextCalibrationNote, stop = viewModel::stop, build = viewModel::buildTuning,
+                listen = viewModel::listen, note = viewModel::selectNote, refine = viewModel::refineSelectedNote, recalibrate = viewModel::recalibrate,
+                export = { export.launch("piano-profile.zip") },
+                permission = { permission.launch(Manifest.permission.RECORD_AUDIO) },
+                settings = { context.openAppPermissionSettings() },
+            ))
+        }
+    }
+    if (showTone) ReferenceToneSheet(
+        onDismiss = { showTone = false },
+        initialMidi = if (state.page == PianoPage.Calibration) state.calibrationMidi else state.midi,
+        referenceHz = state.profile?.referenceHz,
+        targets = state.profile?.targets?.associate { it.midi to it.frequencyHz }.orEmpty(),
+    )
 }
 
 data class PianoActions(

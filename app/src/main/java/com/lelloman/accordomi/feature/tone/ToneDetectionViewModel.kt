@@ -25,12 +25,13 @@ class ToneDetectionViewModel @Inject constructor(
     observeSettings: ObserveSettingsUseCase,
 ) : ViewModel() {
     private val hasRecordPermission = MutableStateFlow(false)
+    private val paused = MutableStateFlow(false)
     private val retryGeneration = MutableStateFlow(0L)
 
-    val uiState = hasRecordPermission
-        .flatMapLatest { granted ->
-            if (!granted) {
-                flowOf(ToneDetectionUiState())
+    val uiState = combine(hasRecordPermission, paused) { granted, paused -> granted to paused }
+        .flatMapLatest { (granted, paused) ->
+            if (!granted || paused) {
+                flowOf(ToneDetectionUiState(hasRecordPermission = granted))
             } else {
                 retryGeneration.flatMapLatest {
                     observeToneDetection()
@@ -74,6 +75,8 @@ class ToneDetectionViewModel @Inject constructor(
     fun onRecordPermissionChanged(granted: Boolean) {
         hasRecordPermission.value = granted
     }
+
+    fun setPaused(value: Boolean) { paused.value = value }
 
     fun onRetry() {
         retryGeneration.value++

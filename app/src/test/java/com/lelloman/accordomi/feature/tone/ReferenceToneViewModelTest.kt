@@ -92,6 +92,27 @@ class ReferenceToneViewModelTest {
         runCurrent()
     }
 
+    @Test
+    fun pianoUsesProfileReferenceAndStretchedTargetsWithoutLeakingIntoTuner() = runTest(dispatcher) {
+        val output = FakeOutput()
+        val model = ReferenceToneViewModel(ObserveSettingsUseCase(FakeSettings()), output)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.uiState.collect() }
+        model.configure(81, 442.0, mapOf(81 to 887.5))
+        runCurrent()
+        assertEquals("A5", model.uiState.value.noteName)
+        model.togglePlayback()
+        runCurrent()
+        assertEquals(887.5, output.frequencies.last(), 0.0)
+        model.selectNote(69)
+        advanceTimeBy(60)
+        runCurrent()
+        assertEquals(442.0, model.uiState.value.frequencyHz, 0.0)
+        model.configure(null, null, emptyMap())
+        runCurrent()
+        assertEquals(440.0, model.uiState.value.frequencyHz, 0.0)
+        assertFalse(model.uiState.value.isPlaying)
+    }
+
     private class FakeOutput : ReferenceToneOutput {
         var fail = false
         var active = 0

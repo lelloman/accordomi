@@ -21,9 +21,10 @@ data class ReferenceToneUiState(
     val referencePitchHz: Double = AppSettings.DefaultReferencePitchHz,
     val isPlaying: Boolean = false,
     val hasError: Boolean = false,
+    val targetFrequencyHz: Double? = null,
 ) {
-    val frequencyHz: Double get() = TuningMath.frequencyFor(midiNote, referencePitchHz)
-    val noteName: String get() = TuningMath.readingFor(frequencyHz, 1f, referencePitchHz).noteName
+    val frequencyHz: Double get() = targetFrequencyHz ?: TuningMath.frequencyFor(midiNote, referencePitchHz)
+    val noteName: String get() = TuningMath.noteName(midiNote)
 }
 
 @HiltViewModel
@@ -31,6 +32,8 @@ class ReferenceToneViewModel @Inject constructor(
     observeSettings: ObserveSettingsUseCase,
     private val player: ReferenceToneOutput,
 ) : ViewModel() {
+    private data class Tuning(val referenceHz: Double? = null, val targets: Map<Int, Double> = emptyMap())
+    private val tuning = MutableStateFlow(Tuning())
     private val note = MutableStateFlow(69)
     private val playing = MutableStateFlow(false)
     private val error = MutableStateFlow(false)
@@ -38,9 +41,15 @@ class ReferenceToneViewModel @Inject constructor(
     private var generation = 0L
     @Volatile private var stopRequested = false
 
-    val uiState = combine(note, observeSettings(), playing, error) { midi, settings, active, failed ->
-        ReferenceToneUiState(midi, settings.referencePitchHz, active, failed)
+    val uiState = combine(note, observeSettings(), playing, error, tuning) { midi, settings, active, failed, context ->
+        ReferenceToneUiState(midi, context.referenceHz ?: settings.referencePitchHz, active, failed, context.targets[midi])
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), ReferenceToneUiState())
+
+    fun configure(midi: Int?, referenceHz: Double?, targets: Map<Int, Double>) {
+        stopImmediately()
+        tuning.value = Tuning(referenceHz, targets.toMap())
+        if (midi != null) note.value = midi.coerceIn(21, 108)
+    }
 
     fun selectNote(midi: Int) {
         stopImmediately()

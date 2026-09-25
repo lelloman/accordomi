@@ -2,7 +2,7 @@ package com.lelloman.accordomi.feature.piano
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import com.lelloman.accordomi.domain.piano.*
 import com.lelloman.accordomi.nativeaudio.NativeAudio
 import org.junit.Assert.assertEquals

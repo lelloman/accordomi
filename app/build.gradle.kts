@@ -112,7 +112,7 @@ paravoid {
     }
     minifyPayload = providers.gradleProperty("paravoidMinifyPayload").map(String::toBoolean).getOrElse(false)
     payloadProguardFiles.from("proguard-rules.pro")
-    payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(11L)
+    payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(12L)
     providers.gradleProperty("paravoidBaselineDirectory").orNull?.let {
         baselineDirectory.set(layout.dir(providers.provider { file(it) }))
     }

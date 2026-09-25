@@ -1,4 +1,5 @@
 <resources>
+    <string name="reference_tone_close">Back to tuning</string>
     <string name="app_name" translatable="false">Accordomi</string>
 
     <string name="nav_tuner">Tuner</string>

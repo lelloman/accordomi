@@ -14,7 +14,7 @@ The library sample subsequently rebuilt using the published registry dependency.
 | Shared LelloDesign component | Accordomi usage |
 | --- | --- |
 | `LelloTheme`, palettes, shapes, typography | Green Light/Dark/System appearance |
-| `LelloScaffold`, `LelloBottomNavigation`, seam | Responsive app frame; four mobile destinations and real product artwork |
+| `LelloBottomNavigation`, Material Scaffold, seam | Responsive app frame; four mobile destinations and real product artwork |
 | `LelloButton`, `LelloOutlinedButton`, `LelloTextButton` | Actions throughout piano, chromatic tuner, tone player and settings |
 | `LelloTextField`, `LelloFilterChip` | Profile names, reference pitch and preference choices |
 | `LelloSettingsSection`, `LelloPaletteSwatch` | Grouped settings and palette previews |
@@ -42,7 +42,8 @@ frozen in the saved piano profile.
 - Piano details contains the stretch curve, target table, partial measurements,
   remeasurement, profile switching and WAV/profile export. Opening/closing it
   preserves the current note. Remeasurement/export remain disabled during capture.
-- About is reachable from Settings. Existing tuner and tone functionality remains.
+- Bottom navigation exposes Tuner, Piano, Settings, and About at every width, with no drawer.
+- Reference tones open in a bottom sheet from Tuner and Piano. Capture pauses while the sheet is open; Piano uses the selected profile’s reference and tuning targets.
 - English and Italian labels cover the added flow and library controls.
 
 ## Build access

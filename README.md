@@ -5,7 +5,8 @@ Accordomi is a small Android piano tuner that analyzes live microphone audio on-
 ## Features
 
 - YIN, autocorrelation, and McLeod pitch detection
-- Reference-tone playback from A0 to C8, using the configured A4 pitch, with note and octave controls
+- Bottom navigation for Tuner, Piano, Settings, and About
+- Reference-tone playback from A0 to C8 inside Tuner and Piano, with note and octave controls; Piano uses the active profile’s reference and tuning targets
 - Full piano-range note mapping with configurable reference pitch from 400 to 480 Hz
 - Locale-aware reference-pitch input and localized English and Italian interfaces
 - Stabilized readings with short-dropout tolerance
@@ -51,7 +52,7 @@ The normal debug APK is produced under `app/build/outputs/apk/normal/debug/`. `a
 ## Paravoid packaging
 
 This project expects a sibling `../paravoid-android` checkout at commit
-`1aef361`. The generated `normal` flavor
+`7f74e2032b43fed87bf8f249d608e11b1ec3d9fb`. The generated `normal` flavor
 and `paravoidAndroid` flavors both retain `com.lelloman.accordomi` for in-place
 distribution changes. The complete shell requires Android 11 (API 30).
 The Paravoid toolchain currently uses AGP 8.13.2, Kotlin 2.2.21 and Hilt 2.57.2.
@@ -129,6 +130,13 @@ Review the Store draft and publish it separately with the authoritative publishe
 Before uploading a new shell, increment `versionCode`, `versionName`, and the
 Paravoid payload version in `app/build.gradle.kts`; the wrapper does not change
 versions automatically.
+To publish payloads for the existing version 7 shell after upgrading Paravoid,
+set `PARAVOID_SOURCE_DIRECTORY` to a separate Paravoid checkout at
+`1aef36165a4fc5cd5aa5698a42bda9bddb4f9ac4`, the revision used by that shell.
+Keep the main sibling checkout on the current revision for future shell builds.
+The baseline check remains mandatory: a Paravoid runtime upgrade requires a new
+shell APK and cannot be delivered in a VPK.
+
 The `--minified-payload-version` mode builds only a VPK, checks its signed version
 and shell contract against `PARAVOID_BASELINE_DIRECTORY` (default `baseline-v7`),
 and calls the publisher's `upload-vpk` command. After the Store validates the
@@ -155,6 +163,14 @@ Settings are stored with Preferences DataStore. Hilt provides application depend
 Third-party artwork attribution is recorded in [NOTICE](NOTICE). The launcher-icon working source is retained in `icon-lab.html`.
 
 The interface uses the published LelloDesign Compose library; see [UI adoption and build access](LELLODESIGN.md).
+
+## Payload p12
+
+Payload p12 restores Tuner / Piano / Settings / About bottom navigation and embeds
+reference tones in Tuner and Piano. It targets the existing version 7 shell
+(contract `8c6200b7975a98075f0d94b406d35f34c5117aef3dc284f2b0ed94aa687fcae9`)
+using Paravoid `1aef361`; it does not replace the installed runtime. The main
+checkout retains the Paravoid upgrade for the next shell release.
 
 ## Production Paravoid release
 

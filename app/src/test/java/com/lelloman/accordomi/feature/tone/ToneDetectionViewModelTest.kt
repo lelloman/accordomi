@@ -103,6 +103,25 @@ class ToneDetectionViewModelTest {
         assertFalse(viewModel.uiState.value.hasError)
     }
 
+    @Test
+    fun referenceTonePausesCaptureAndResumesWithoutLosingPermission() = runTest {
+        val repository = CancellableToneRepository()
+        val model = ToneDetectionViewModel(
+            ObserveToneDetectionUseCase(repository), ObserveSettingsUseCase(FakeSettingsRepository()),
+        )
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.uiState.collect() }
+        model.onRecordPermissionChanged(true)
+        assertEquals(1, repository.subscriptionCount)
+        model.setPaused(true)
+        mainScheduler.runCurrent()
+        assertEquals(1, repository.cancellationCount)
+        assertTrue(model.uiState.value.hasRecordPermission)
+        assertFalse(model.uiState.value.isListening)
+        model.setPaused(false)
+        mainScheduler.runCurrent()
+        assertEquals(2, repository.subscriptionCount)
+    }
+
     private class FailingThenSuccessfulToneRepository : ToneDetectionRepository {
         var subscriptionCount = 0
 

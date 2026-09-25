@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: lelloman/paravoid-android
-          ref: 046489fe3fa7fdbcf650ca9e821c43705058a202
+          ref: 7f74e2032b43fed87bf8f249d608e11b1ec3d9fb
           path: paravoid-android
 
       - name: Set up JDK

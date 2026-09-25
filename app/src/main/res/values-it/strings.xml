@@ -1,4 +1,5 @@
 <resources>
+    <string name="reference_tone_close">Torna all’accordatura</string>
     <string name="nav_tuner">Accordatore</string>
     <string name="nav_reference_tone">Tono</string>
     <string name="reference_tone_title">Tono di riferimento</string>

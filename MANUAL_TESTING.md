@@ -44,7 +44,8 @@ the instrument. Emulator tests establish UI/integration behavior, not acoustic q
 
 ## LelloDesign UI pass
 
-- Check the four icon+label destinations and open About from Settings.
+- Check the four bottom destinations: Tuner, Piano, Settings, and About. Confirm there is no drawer, including in landscape.
+- In Tuner and Piano, open Reference tone. Confirm capture pauses, tone playback stops on dismissal/backgrounding, and the Piano tone uses the selected profile’s note and tuning target.
 - Change Light/Dark/System from Settings → Appearance; restart and verify persistence.
 - Verify no theme selector appears in the app bar and no extra presets or custom
   editor appear in Settings. An older saved preset/custom selection follows System.
