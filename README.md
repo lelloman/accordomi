@@ -178,9 +178,11 @@ Release 1.8 (Android version code 9, embedded minified payload p14) uses Paravoi
 `b1dd76b`. It fixes the shell update-controls route when crash recovery is
 enabled. The update settings are accessible through **Settings → Manage app
 updates**, so automatic checks and downloads can be enabled after installation.
-The generated `baseline-candidate` belongs under
+The published shell's `baseline-candidate` is archived under
 `~/.config/accordomi/paravoid-release/baseline-v9/paravoidAndroidRelease`
-after publication.
+for future compatible payload builds. Version 9 and its embedded p14 VPK are
+published on LelloStore; the signed artifacts, mapping, and publication receipts
+are archived alongside prior releases.
 
 ### Version 8 shell
 
