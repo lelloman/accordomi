@@ -15,7 +15,7 @@ ARTIFACT="$REPOSITORY_DIR/app/build/outputs/paravoid/paravoidAndroidRelease/shel
 PAYLOAD="$REPOSITORY_DIR/app/build/outputs/paravoid/paravoidAndroidRelease/payload.vpk"
 RELEASE_METADATA="$REPOSITORY_DIR/app/build/outputs/paravoid/paravoidAndroidRelease/release.json"
 MAPPING="$REPOSITORY_DIR/app/build/outputs/paravoid/paravoidAndroidRelease/payload-mapping.txt"
-PARAVOID_BASELINE_DIRECTORY="${PARAVOID_BASELINE_DIRECTORY:-${HOME}/.config/accordomi/paravoid-release/baseline-v8}"
+PARAVOID_BASELINE_DIRECTORY="${PARAVOID_BASELINE_DIRECTORY:-${HOME}/.config/accordomi/paravoid-release/baseline-v9}"
 
 PAYLOAD_VERSION=""
 BUILD_ONLY=false

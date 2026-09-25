@@ -52,7 +52,7 @@ The normal debug APK is produced under `app/build/outputs/apk/normal/debug/`. `a
 ## Paravoid packaging
 
 This project expects a sibling `../paravoid-android` checkout at commit
-`7f74e2032b43fed87bf8f249d608e11b1ec3d9fb`. The generated `normal` flavor
+`b1dd76bc3a432bcb2bff78833d3cda3980a702be`. The generated `normal` flavor
 and `paravoidAndroid` flavors both retain `com.lelloman.accordomi` for in-place
 distribution changes. The complete shell requires Android 11 (API 30).
 The Paravoid toolchain currently uses AGP 8.13.2, Kotlin 2.2.21 and Hilt 2.57.2.
@@ -113,10 +113,10 @@ override those paths and the update URL.
 ./scripts/publish-android-to-lellostore.sh
 
 # Build a minified payload against the current shell baseline without uploading:
-./scripts/publish-android-to-lellostore.sh --minified-payload-version 14 --build-only
+./scripts/publish-android-to-lellostore.sh --minified-payload-version 15 --build-only
 
 # Upload that signed payload as a draft:
-./scripts/publish-android-to-lellostore.sh --minified-payload-version 14
+./scripts/publish-android-to-lellostore.sh --minified-payload-version 15
 ```
 
 The publisher is resolved from `LELLOSTORE_PUBLISHER`, then the sibling
@@ -138,7 +138,7 @@ The baseline check remains mandatory: a Paravoid runtime upgrade requires a new
 shell APK and cannot be delivered in a VPK.
 
 The `--minified-payload-version` mode builds only a VPK, checks its signed version
-and shell contract against `PARAVOID_BASELINE_DIRECTORY` (default `baseline-v8`),
+and shell contract against `PARAVOID_BASELINE_DIRECTORY` (default `baseline-v9`),
 and calls the publisher's `upload-vpk` command. After the Store validates the
 draft, use the authoritative publisher's `publish-vpk` command with the draft's
 VPK ID and current publication revision. It does not upload another shell APK.
@@ -174,23 +174,32 @@ checkout retains the Paravoid upgrade for the next shell release.
 
 ## Production Paravoid release
 
+Release 1.8 (Android version code 9, embedded minified payload p14) uses Paravoid
+`b1dd76b`. It fixes the shell update-controls route when crash recovery is
+enabled. The update settings are accessible through **Settings → Manage app
+updates**, so automatic checks and downloads can be enabled after installation.
+The generated `baseline-candidate` belongs under
+`~/.config/accordomi/paravoid-release/baseline-v9/paravoidAndroidRelease`
+after publication.
+
+### Version 8 shell
+
 Release 1.7 (Android version code 8, embedded minified payload p13) upgrades the
 shell to Paravoid `7f74e20`. It enables the Store's authenticated WebSocket push
 endpoint with automatic download behavior and manual restart. Automatic checks
-and downloads default to off on fresh installs; enable them in **Settings →
-Manage app updates**. Existing user update preferences migrate from the old shell.
+and downloads default to off on fresh installs. Its **Manage app updates** button
+routes to the recovery screen, so version 9 is needed to enable those options.
+Existing user update preferences migrate from the old shell.
 The WebSocket connects while the app is visible. Enabled background checks use
 Paravoid's scheduler (six-hour interval); this is not an always-on background
 push connection. Automatic downloads use unmetered networks by default.
-Save this shell's `baseline-candidate` under
+The published shell's `baseline-candidate` is archived under
 `~/.config/accordomi/paravoid-release/baseline-v8/paravoidAndroidRelease` for
 future compatible VPK builds. APK signing identity and release/trust keys remain
 the same.
 
-Publication is pending deployment of LelloStore's version-2 policy support.
-The saved upload `ddcc063b-85de-42d9-8b23-c506351d2809` failed policy validation
-on the older production backend. Retry that upload after deployment; do not
-upload a duplicate or treat this candidate baseline as a published contract.
+Version 8 and its embedded p13 VPK are published on LelloStore. The signed
+artifacts, mapping and publication receipts are archived alongside prior releases.
 
 ### Version 7 shell
 
