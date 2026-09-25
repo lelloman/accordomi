@@ -31,8 +31,8 @@ android {
         applicationId = "com.lelloman.accordomi"
         minSdk = 29
         targetSdk = 37
-        versionCode = 7
-        versionName = "1.6"
+        versionCode = 8
+        versionName = "1.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -112,7 +112,7 @@ paravoid {
     }
     minifyPayload = providers.gradleProperty("paravoidMinifyPayload").map(String::toBoolean).getOrElse(false)
     payloadProguardFiles.from("proguard-rules.pro")
-    payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(12L)
+    payloadVersion = providers.gradleProperty("paravoidPayloadVersion").map(String::toLong).getOrElse(13L)
     providers.gradleProperty("paravoidBaselineDirectory").orNull?.let {
         baselineDirectory.set(layout.dir(providers.provider { file(it) }))
     }
@@ -125,6 +125,15 @@ paravoid {
         enabled = updateUrl.isNotBlank()
         authentication = "apkKey"
         baseUrl = updateUrl
+        schedule {
+            checks = false
+            downloads = false
+        }
+        push {
+            enabled = updateUrl.isNotBlank()
+            webSocketUrl = updateUrl.replaceFirst("https://", "wss://").trimEnd('/') + "/v1/events"
+            behavior = "automatic"
+        }
         trustPolicyFile.set(layout.file(providers.environmentVariable("PARAVOID_TRUST_POLICY").map(::file)))
     }
 }

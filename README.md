@@ -113,10 +113,10 @@ override those paths and the update URL.
 ./scripts/publish-android-to-lellostore.sh
 
 # Build a minified payload against the current shell baseline without uploading:
-./scripts/publish-android-to-lellostore.sh --minified-payload-version 12 --build-only
+./scripts/publish-android-to-lellostore.sh --minified-payload-version 14 --build-only
 
 # Upload that signed payload as a draft:
-./scripts/publish-android-to-lellostore.sh --minified-payload-version 12
+./scripts/publish-android-to-lellostore.sh --minified-payload-version 14
 ```
 
 The publisher is resolved from `LELLOSTORE_PUBLISHER`, then the sibling
@@ -130,15 +130,15 @@ Review the Store draft and publish it separately with the authoritative publishe
 Before uploading a new shell, increment `versionCode`, `versionName`, and the
 Paravoid payload version in `app/build.gradle.kts`; the wrapper does not change
 versions automatically.
-To publish payloads for the existing version 7 shell after upgrading Paravoid,
-set `PARAVOID_SOURCE_DIRECTORY` to a separate Paravoid checkout at
-`1aef36165a4fc5cd5aa5698a42bda9bddb4f9ac4`, the revision used by that shell.
-Keep the main sibling checkout on the current revision for future shell builds.
+To publish payloads for the older version 7 shell, use the Accordomi build
+configuration from commit `5ea0cc4`, `PARAVOID_BASELINE_DIRECTORY` pointing to
+`baseline-v7`, and `PARAVOID_SOURCE_DIRECTORY` pointing to Paravoid revision
+`1aef36165a4fc5cd5aa5698a42bda9bddb4f9ac4`.
 The baseline check remains mandatory: a Paravoid runtime upgrade requires a new
 shell APK and cannot be delivered in a VPK.
 
 The `--minified-payload-version` mode builds only a VPK, checks its signed version
-and shell contract against `PARAVOID_BASELINE_DIRECTORY` (default `baseline-v7`),
+and shell contract against `PARAVOID_BASELINE_DIRECTORY` (default `baseline-v8`),
 and calls the publisher's `upload-vpk` command. After the Store validates the
 draft, use the authoritative publisher's `publish-vpk` command with the draft's
 VPK ID and current publication revision. It does not upload another shell APK.
@@ -173,6 +173,26 @@ using Paravoid `1aef361`; it does not replace the installed runtime. The main
 checkout retains the Paravoid upgrade for the next shell release.
 
 ## Production Paravoid release
+
+Release 1.7 (Android version code 8, embedded minified payload p13) upgrades the
+shell to Paravoid `7f74e20`. It enables the Store's authenticated WebSocket push
+endpoint with automatic download behavior and manual restart. Automatic checks
+and downloads default to off on fresh installs; enable them in **Settings →
+Manage app updates**. Existing user update preferences migrate from the old shell.
+The WebSocket connects while the app is visible. Enabled background checks use
+Paravoid's scheduler (six-hour interval); this is not an always-on background
+push connection. Automatic downloads use unmetered networks by default.
+Save this shell's `baseline-candidate` under
+`~/.config/accordomi/paravoid-release/baseline-v8/paravoidAndroidRelease` for
+future compatible VPK builds. APK signing identity and release/trust keys remain
+the same.
+
+Publication is pending deployment of LelloStore's version-2 policy support.
+The saved upload `ddcc063b-85de-42d9-8b23-c506351d2809` failed policy validation
+on the older production backend. Retry that upload after deployment; do not
+upload a duplicate or treat this candidate baseline as a published contract.
+
+### Version 7 shell
 
 Release 1.6 (Android version code 7, embedded minified payload p11) enables
 Paravoid's default crash recovery updater. Uncaught managed crashes record details
