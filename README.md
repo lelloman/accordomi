@@ -113,10 +113,10 @@ override those paths and the update URL.
 ./scripts/publish-android-to-lellostore.sh
 
 # Build a minified payload against the current shell baseline without uploading:
-./scripts/publish-android-to-lellostore.sh --minified-payload-version 16 --build-only
+./scripts/publish-android-to-lellostore.sh --minified-payload-version 17 --build-only
 
 # Upload that signed payload as a draft:
-./scripts/publish-android-to-lellostore.sh --minified-payload-version 16
+./scripts/publish-android-to-lellostore.sh --minified-payload-version 17
 ```
 
 The publisher is resolved from `LELLOSTORE_PUBLISHER`, then the sibling
@@ -188,6 +188,11 @@ Payload p15 is published for the version 9 shell. It moves the reference-tone
 frequency and playback controls into the Tuner and Piano app bars, with a compact
 frequency editor. Its signed VPK and mapping are archived as `payload-p15.vpk`
 and `mapping-p15.txt` in the release directory.
+
+Payload p16 is published for the version 9 shell. It gives the shared app bar a
+consistent height on Tuner, Piano, Settings, and About. Its signed VPK and
+mapping are archived as `payload-p16.vpk` and `mapping-p16.txt` in the release
+directory.
 
 ### Version 8 shell
 
