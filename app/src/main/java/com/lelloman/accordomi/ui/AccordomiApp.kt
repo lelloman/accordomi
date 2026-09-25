@@ -111,7 +111,7 @@ internal fun AccordomiFrame(
         topBar = {
             Surface {
                 Column(Modifier.statusBarsPadding()) {
-                    Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 12.dp),
+                    Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(start = 24.dp, end = 12.dp),
                         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                         Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
                         actions()
